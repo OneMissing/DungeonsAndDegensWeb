@@ -1,7 +1,9 @@
-import Image from "next/image";
+import SignupForm from '@/components/signUpForm';
 
-export default function Home() {
+export default function SignupPage() {
   return (
-    <div>kokot</div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <SignupForm />
+    </div>
   );
 }

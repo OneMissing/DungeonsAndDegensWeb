@@ -4,7 +4,8 @@ import supabase from '../lib/supabase';
 
 type User = {
     id: number;
-    username: string;
+    user_email: string;
+    user_password: string;
 };
 
 const UserTable: React.FC = () => {
@@ -17,8 +18,6 @@ const UserTable: React.FC = () => {
             const { data, error } = await supabase.from('users').select('id, username');  
                 if(error) {
                     throw error;
-                } if(data) {
-                    setUsers(data);
                 }
             } catch(err) {
             setError('Error fetching users: ');
@@ -48,7 +47,8 @@ const UserTable: React.FC = () => {
                 {users.map((user) => (
                     <tr key={user.id}>
                         <td>{user.id}</td>
-                        <td>{user.username}</td>
+                        <td>{user.user_email}</td>
+                        <td>{user.user_password}</td>
                     </tr>
             ))}
             </tbody>
