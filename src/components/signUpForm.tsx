@@ -1,56 +1,145 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import useAuth from '@/lib/useAuth';
+import { useState, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { Session } from '@supabase/supabase-js';
 
-export default function SignupForm() {
-  const { registerUser, loading, error } = useAuth();
+// Define the User type
+interface User {
+  id: string;
+  auth_user_id: string;
+  full_name: string;
+  email: string;
+  created_at: string;
+}
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_KEY!
+);
+
+export default function App() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Fetch session and user data on component mount
+  useEffect(() => {
+    // Fetch the current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
 
-    const result = await registerUser(email, password);
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
 
-    if (result.success) {
-      setSuccess(true);
-      setEmail('');
-      setPassword('');
+    // Cleanup subscription on unmount
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Fetch user data when session changes
+  useEffect(() => {
+    if (session) {
+      const fetchUser = async () => {
+        const { data, error } = await supabase
+          .from('user')
+          .select('*')
+          .eq('auth_user_id', session.user.id)
+          .single(); // Use .single() if you expect only one row
+
+        if (error) {
+          console.error('Error fetching user:', error);
+        } else {
+          setUser(data);
+        }
+      };
+
+      fetchUser();
+    }
+  }, [session]);
+
+  // Handle signup
+  const handleSignup = async () => {
+    try {
+      // Step 1: Sign up the user with Supabase Auth
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
+      });
+
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
+      console.log('Auth user created:', data.user);
+
+      // Step 2: Insert user data into the `user` table
+      const { data: userData, error: userError } = await supabase
+        .from('user')
+        .insert([
+          {
+            auth_user_id: data.user?.id, // Link to the auth user
+            full_name: fullName,
+            email: email,
+          },
+        ])
+        .select(); // Use .select() to return the inserted data
+
+      if (userError) {
+        console.error('Error inserting into user table:', userError);
+        setError(userError.message);
+      } else if (userData && userData.length > 0) {
+        console.log('User created in user table:', userData);
+        setUser(userData[0]); // Update the user state
+      } else {
+        setError('No data returned from the insert operation.');
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError('An unexpected error occurred.');
     }
   };
 
-  return (
-    <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-xl font-bold text-center mb-4">Sign Up</h2>
-      {success && <p className="text-green-600 text-center">Account created successfully!</p>}
-      {error && <p className="text-red-500 text-center">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full px-4 py-2 border rounded-lg"
+  // Render the Auth UI if no session, otherwise render the user details
+  if (!session) {
+    return (
+      <div>
+        <Auth
+          supabaseClient={supabase}
+          appearance={{ theme: ThemeSupa }}
+          providers={['google', 'github']} // Add providers if needed
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full px-4 py-2 border rounded-lg"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Signing up...' : 'Sign Up'}
-        </button>
-      </form>
-    </div>
-  );
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <h1>Logged in!</h1>
+        {user ? (
+          <div>
+            <h2>User Details</h2>
+            <p>Name: {user.full_name}</p>
+            <p>Email: {user.email}</p>
+          </div>
+        ) : (
+          <p>No user data found.</p>
+        )}
+        <button onClick={() => supabase.auth.signOut()}>Sign Out</button>
+      </div>
+    );
+  }
 }
