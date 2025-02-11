@@ -1,22 +1,21 @@
 import { ReactNode } from 'react';
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server'
-import { count } from 'console';
-import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation';
+import SignOutButton from '@/components/signOut';
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata = {
   title: 'DnD',
   description: 'Playable DnD',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  /*
-  const supabase = createClient();
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const supabase = await createClient();
+
   const { data, error } = await supabase.auth.getUser();
   if (error || !data?.user) {
-    redirect('/login');
+    redirect('/');
   }
-  */
+
   return (
     <html lang="cs">
       <body className="bg-red-100 text-red-900">
