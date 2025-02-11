@@ -6,9 +6,22 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { Session } from '@supabase/supabase-js';
 import supabase from '@/lib/supabase';
 
+interface User {
+  id: string;
+  auth_user_id: string;
+  full_name: string;
+  email: string;
+  created_at: string;
+}
+
 export default function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
-
+  const [user, setUser] = useState<User | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [error, setError] = useState('');
+  
   // Fetch session and user data on component mount
   useEffect(() => {
     // Fetch the current session
