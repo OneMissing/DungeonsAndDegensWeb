@@ -1,19 +1,26 @@
 "use client";
-import userLogged from '@/lib/check';
-import { useRouter } from "next/navigation";
-const router = useRouter();
 
-const handleAuth = async () => {
-  router.push('/');
-};
+import userLogged from "@/lib/check";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
-  if(userLogged())
-    router.push("/home");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (userLogged()) {
+      router.push("/home");
+    }
+  }, [router]);
+
+  const handleAuth = async () => {
+    router.push("/");
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-red-900 w-full">
-        <h1>Homepage</h1>
-        <button onClick={handleAuth}></button>
+      <h1>Homepage</h1>
+      <button onClick={handleAuth}>Go</button>
     </div>
   );
 }
