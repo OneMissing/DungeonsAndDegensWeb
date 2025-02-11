@@ -7,7 +7,6 @@ import { Session } from '@supabase/supabase-js';
 import supabase from '@/lib/supabase';
 import { useRouter } from "next/navigation";
 
-// Define the User type
 interface User {
   id: string;
   auth_user_id: string;
@@ -16,6 +15,12 @@ interface User {
   created_at: string;
 }
 
+const handleHome = async () => {
+  const router = useRouter();
+  await supabase.auth.signOut();
+  router.push('/home');
+};
+
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -23,24 +28,19 @@ export default function App() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
-
-  // Fetch session and user data on component mount
+  
   useEffect(() => {
-    // Fetch the current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
 
-    // Cleanup subscription on unmount
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch user data when session changes
   useEffect(() => {
     if (session) {
       const fetchUser = async () => {
@@ -55,7 +55,6 @@ export default function App() {
     }
   }, [session]);
 
-  // Handle signup
   const handleSignup = async () => {
     try {
       const { data, error: authError } = await supabase.auth.signUp({
@@ -75,24 +74,23 @@ export default function App() {
 
       console.log('Auth user created:', data.user);
 
-      // Step 2: Insert user data into the `user` table
       const { data: userData, error: userError } = await supabase
         .from('user')
         .insert([
           {
-            auth_user_id: data.user?.id, // Link to the auth user
+            auth_user_id: data.user?.id,
             full_name: fullName,
             email: email,
           },
         ])
-        .select(); // Use .select() to return the inserted data
+        .select();
 
       if (userError) {
         console.error('Error inserting into user table:', userError);
         setError(userError.message);
       } else if (userData && userData.length > 0) {
         console.log('User created in user table:', userData);
-        setUser(userData[0]); // Update the user state
+        setUser(userData[0]);
       } else {
         setError('No data returned from the insert operation.');
       }
@@ -101,7 +99,7 @@ export default function App() {
       setError('An unexpected error occurred.');
     }
   };
-
+  
   if (!session) {
     return (
       <div>
@@ -114,7 +112,6 @@ export default function App() {
     );
   } 
   else {
-    const router = useRouter();
-    router.push("/home");
+    handleHome();
   }
 }
