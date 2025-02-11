@@ -1,4 +1,4 @@
-import userLogged from '@/lib/check';
+import { userLogged } from '@/lib/check';
 
 export default function Home() {
   return (
