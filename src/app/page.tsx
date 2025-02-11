@@ -14,7 +14,7 @@ export default function Home() {
   }, [router]);
 
   const handleAuth = async () => {
-    router.push("/");
+    router.push("/auth");
   };
 
   return (
