@@ -1,9 +1,14 @@
-import SignOutButton from "@/components/signOutButton";
-export default function SignupPage() {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-red-900 w-full">
-      <SignOutButton />
-      kkk
-    </div>
-  );
+import { redirect } from 'next/navigation'
+
+import { createClient } from '@/lib/supabase/server'
+
+export default async function PrivatePage() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.auth.getUser()
+  if (error || !data?.user) {
+    redirect('/login')
+  }
+
+  return <p>Hello {data.user.email}</p>
 }
