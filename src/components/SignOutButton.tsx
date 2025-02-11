@@ -2,6 +2,10 @@
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { Session } from '@supabase/supabase-js';
+import supabase from '@/lib/supabase';
 
 export default function SignOutButton() {
   const supabase = createClientComponentClient();
