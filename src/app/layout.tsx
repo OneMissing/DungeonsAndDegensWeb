@@ -1,4 +1,3 @@
-import './globals.css';
 import { ReactNode } from 'react';
 import Link from 'next/link';
 
