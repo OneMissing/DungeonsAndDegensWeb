@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import SignOutButton from '@/components/signOut';
 import { createClient } from '@/lib/supabase/server'
-import { div } from 'motion/react-client';
 
 export default async function PrivatePage() {
   const supabase = await createClient();

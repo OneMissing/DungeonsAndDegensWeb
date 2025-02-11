@@ -1,19 +1,18 @@
-"use client";
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+export default async function PrivatePage() {
+  const supabase = await createClient();
 
-export default function Home() {
-  const router = useRouter();
+  const { data, error } = await supabase.auth.getUser();
+  if (!error && data?.user) {
+    redirect('/home');
+  }
 
-  const handleAuth = async () => {
-    router.push("/login");
-  };
-
-  return (
+  return(
     <div className="flex items-center justify-center min-h-screen bg-red-900 w-full">
-      <h1>Homepage</h1>
-      <button onClick={handleAuth}>Get started</button>
+      <h1>Landing page</h1>
+      <button onClick={redirect('/login')}>Get started</button>
     </div>
   );
 }
