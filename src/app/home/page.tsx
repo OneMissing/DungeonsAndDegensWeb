@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import SignOutButton from '@/components/SignOutButton';
 import { createClient } from '@/lib/supabase/server'
 
 export default async function PrivatePage() {
@@ -9,5 +8,5 @@ export default async function PrivatePage() {
     redirect('/');
   }
 
-  return <div><p>Hello {data.user.email}</p><SignOutButton /> </div>
+  return <div><p>Hello {data.user.email}</p></div>
 }
