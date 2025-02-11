@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Session } from '@supabase/supabase-js';
 import supabase from '@/lib/supabase';
 
-export default function useIsLoggedIn(): boolean {
+export default function userLogged(): boolean {
   const [session, setSession] = useState<Session | null>(null);
 
   // Fetch session on component mount
