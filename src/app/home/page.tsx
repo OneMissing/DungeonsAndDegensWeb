@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import SignOutButton from '@/components/signOut';
+import SignOutButton from '@/components/SignOutButton';
 import { createClient } from '@/lib/supabase/server'
 
 export default async function PrivatePage() {
