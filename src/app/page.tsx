@@ -1,3 +1,4 @@
+"use client";
 import userLogged from '@/lib/check';
 
 export default function Home() {
