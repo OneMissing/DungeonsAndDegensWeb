@@ -5,6 +5,7 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { Session } from '@supabase/supabase-js';
 import supabase from '@/lib/supabase';
+import { useRouter } from "next/navigation";
 
 // Define the User type
 interface User {
@@ -101,32 +102,19 @@ export default function App() {
     }
   };
 
-  // Render the Auth UI if no session, otherwise render the user details
   if (!session) {
     return (
       <div>
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
-          providers={['google', 'github']} // Add providers if needed
+          providers={['google', 'github']}
         />
       </div>
     );
-  } else {
-    return (
-      <div>
-        <h1>Logged in!</h1>
-        {user ? (
-          <div>
-            <h2>User Details</h2>
-            <p>Name: {user.full_name}</p>
-            <p>Email: {user.email}</p>
-          </div>
-        ) : (
-          <p>No user data found.</p>
-        )}
-        <button onClick={() => supabase.auth.signOut()}>Sign Out</button>
-      </div>
-    );
+  } 
+  else {
+    const router = useRouter();
+    router.push("/home");
   }
 }
