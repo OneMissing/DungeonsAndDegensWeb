@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import Link from 'next/link';
+
 export const metadata = {
   title: 'DnD',
   description: 'Playable DnD',

@@ -1,4 +1,4 @@
-import { login, signup } from "./action"
+import { login, signup } from "../../lib/action"
 
 export default function LoginPage() {
   return (
