@@ -6,7 +6,7 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { Session } from '@supabase/supabase-js';
 import supabase from '@/lib/supabase';
 
-export default function App() {
+export default function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
 
   // Fetch session and user data on component mount
