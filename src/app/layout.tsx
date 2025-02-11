@@ -9,7 +9,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="cs">
       <body className="bg-gray-100 text-gray-900">
-        <main className="p-6">{children}</main>
+        {children}
       </body>
     </html>
   );
