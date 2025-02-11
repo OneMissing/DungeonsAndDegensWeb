@@ -1,55 +1,71 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext } from "react";
-import { Session } from "@supabase/supabase-js";
-import supabase from "@/lib/supabase";
+import { useState, useEffect } from 'react';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { Session } from '@supabase/supabase-js';
+import supabase from '@/lib/supabase';
 
-interface AuthContextType {
-  session: Session | null;
-  loading: boolean;
-  signOut: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export default function App() {
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
 
+  // Fetch session and user data on component mount
   useEffect(() => {
-    const getSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      setLoading(false);
-    };
-
-    getSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
+    // Fetch the current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
     });
 
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    // Cleanup subscription on unmount
+    return () => subscription.unsubscribe();
   }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-  };
+  // Fetch user data when session changes
+  useEffect(() => {
+    if (session) {
+      const fetchUser = async () => {
+        const { data, error } = await supabase
+          .from('user')
+          .select('*')
+          .eq('auth_user_id', session.user.id)
+          .single(); 
+      };
 
-  return (
-    <AuthContext.Provider value={{ session, loading, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
+      fetchUser();
+    }
+  }, [session]);
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+if (!session) {
+        return {
+      redirect: {
+        destination: '/autorization',
+        permanent: false,
+      },
+    };
+  } else {
+    return (
+      <div>
+        <h1>Logged in!</h1>
+        {user ? (
+          <div>
+            <h2>User Details</h2>
+            <p>Name: {user.full_name}</p>
+            <p>Email: {user.email}</p>
+          </div>
+        ) : (
+          <p>No user data found.</p>
+        )}
+        <button onClick={() => supabase.auth.signOut()}>Sign Out</button>
+      </div>
+    );
+
+
+
+
+
 }
