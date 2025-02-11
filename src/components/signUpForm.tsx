@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { Session } from '@supabase/supabase-js';
+import supabase from '@/lib/supabase';
 
 // Define the User type
 interface User {
@@ -14,12 +14,6 @@ interface User {
   email: string;
   created_at: string;
 }
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY!
-);
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -53,13 +47,7 @@ export default function App() {
           .from('user')
           .select('*')
           .eq('auth_user_id', session.user.id)
-          .single(); // Use .single() if you expect only one row
-
-        if (error) {
-          console.error('Error fetching user:', error);
-        } else {
-          setUser(data);
-        }
+          .single(); 
       };
 
       fetchUser();
@@ -69,7 +57,6 @@ export default function App() {
   // Handle signup
   const handleSignup = async () => {
     try {
-      // Step 1: Sign up the user with Supabase Auth
       const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,

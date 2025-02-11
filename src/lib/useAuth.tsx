@@ -1,36 +1,55 @@
-import supabase from './supabase';
-import crypto from 'crypto';
-import { useState } from 'react';
+"use client";
 
-function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hashedPassword = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha256').toString('hex');
-  return `${salt}:${hashedPassword}`;
+import { useState, useEffect, createContext, useContext } from "react";
+import { Session } from "@supabase/supabase-js";
+import supabase from "@/lib/supabase";
+
+interface AuthContextType {
+  session: Session | null;
+  loading: boolean;
+  signOut: () => void;
 }
 
-export default function useAuth() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-  const registerUser = async (email: string, password: string) => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const hashedPassword = hashPassword(password);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
-      const { error } = await supabase.from('users').insert([{ email, password: hashedPassword }]);
-
-      if (error) throw error;
-
-      return { success: true };
-    } catch (err: any) {
-      setError(err.message);
-      return { success: false };
-    } finally {
+  useEffect(() => {
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session);
       setLoading(false);
-    }
+    };
+
+    getSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
   };
 
-  return { registerUser, loading, error };
+  return (
+    <AuthContext.Provider value={{ session, loading, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }
