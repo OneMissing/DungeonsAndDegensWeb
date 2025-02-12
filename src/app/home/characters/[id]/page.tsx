@@ -99,7 +99,7 @@ const CharacterDetails = () => {
   if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
 
   return (
-    <div className="w-full h-[calc(100svh-3rem)] px-4 py-6 mx-auto">
+    <div className="w-full h-[calc(100svh-6rem)] px-4 py-12 mx-auto">
       {/* Grid Layout (Responsive) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 w-full h-full">
         {/* Left Column: Character Stats */}
@@ -129,7 +129,7 @@ const CharacterDetails = () => {
         {/* Middle Column: Inventory */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full">
           <h3 className="text-2xl font-semibold mb-4">Inventory</h3>
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
+          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-auto overflow-y-auto">
           {inventory.length === 0 ? (
             <p className="text-gray-500 mt-2">No items in inventory.</p>
           ) : (
@@ -148,7 +148,7 @@ const CharacterDetails = () => {
         {/* New Column: Spells */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full">
           <h3 className="text-2xl font-semibold mb-4">Spells</h3>
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
+          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-auto overflow-y-auto">
             <p className="text-gray-500">No spells available.</p>
           </div>
         </div>
