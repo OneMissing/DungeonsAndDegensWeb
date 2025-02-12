@@ -1,21 +1,11 @@
 
 import Link from "next/link";
-import styles from './styles.module.css';
 export default async function PrivatePage() {
   return (
     <div className="app">
-        <nav>
-            <ul>
-                <li><Link href="/home">Get started</Link></li>
-            </ul>
+        <nav className="bg-red-500 fixed flex justify-center z-[1000] w-full">
+                <Link href="/home" className="text-2xl text-white-900">Get started</Link>
         </nav>
-        <div className="menu-content">
-            
-                <section>
-                    <h2>Přihlášené menu</h2>
-                    <p>Vítejte zpět! Zde jsou vaše možnosti.</p>
-                </section>
-        </div>
     </div>
 );
 }
