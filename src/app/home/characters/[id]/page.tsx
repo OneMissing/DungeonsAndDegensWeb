@@ -99,17 +99,16 @@ const CharacterDetails = () => {
   if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
 
   return (
-    <div className="w-full h-screen px-4 py-6 max-w-6xl mx-auto overflow-y-auto">
-      <h2 className="text-4xl font-bold mb-4 text-center">{character.name}</h2>
-      <p className="text-lg text-gray-600 text-center">
-        {character.race} - {character.class} (Level {character.level})
-      </p>
-      <p className="text-center text-gray-500">Experience: {character.experience}</p>
-
+    <div className="w-full h-screen px-4 py-6 mx-auto overflow-y-auto">
       {/* Grid Layout (Responsive) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 w-full h-full">
         {/* Left Column: Character Stats */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
+        <h2 className="text-4xl font-bold mb-4 text-center">{character.name}</h2>
+      <p className="text-lg text-gray-600 text-center">
+        {character.race} - {character.class} (Level {character.level})
+      </p>
+      <p className="text-center text-gray-500">Experience: {character.experience}</p>
           <h3 className="text-2xl font-semibold mb-4">Attributes</h3>
           <ul className="grid grid-cols-2 gap-4 text-gray-700">
             <li><strong>STR:</strong> {character.strength}</li>
