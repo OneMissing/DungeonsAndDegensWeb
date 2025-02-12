@@ -99,19 +99,19 @@ const CharacterDetails = () => {
   if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-      <h2 className="text-3xl font-bold mb-4 text-center">{character.name}</h2>
+    <div className="w-full px-4 py-6 max-w-6xl mx-auto">
+      <h2 className="text-4xl font-bold mb-4 text-center">{character.name}</h2>
       <p className="text-lg text-gray-600 text-center">
         {character.race} - {character.class} (Level {character.level})
       </p>
       <p className="text-center text-gray-500">Experience: {character.experience}</p>
-      
-      {/* Grid Layout */}
+
+      {/* Grid Layout (Responsive) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* Left Column: Stats & Attributes */}
-        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold mb-3">Attributes</h3>
-          <ul className="grid grid-cols-2 gap-3 text-gray-700">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
+          <h3 className="text-2xl font-semibold mb-4">Attributes</h3>
+          <ul className="grid grid-cols-2 gap-4 text-gray-700">
             <li><strong>STR:</strong> {character.strength}</li>
             <li><strong>DEX:</strong> {character.dexterity}</li>
             <li><strong>CON:</strong> {character.constitution}</li>
@@ -120,16 +120,16 @@ const CharacterDetails = () => {
             <li><strong>CHA:</strong> {character.charisma}</li>
           </ul>
 
-          <h3 className="text-xl font-semibold mt-4">Background</h3>
+          <h3 className="text-2xl font-semibold mt-6">Background</h3>
           <p className="text-gray-600">{character.background}</p>
 
-          <h3 className="text-xl font-semibold mt-4">Alignment</h3>
+          <h3 className="text-2xl font-semibold mt-4">Alignment</h3>
           <p className="text-gray-600">{character.alignment}</p>
         </div>
 
         {/* Right Column: Inventory */}
-        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold mb-3">Inventory</h3>
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
+          <h3 className="text-2xl font-semibold mb-4">Inventory</h3>
 
           {/* Inventory Manager Component */}
           <InventoryManager characterId={id as string} onItemAdded={fetchData} />
@@ -137,9 +137,9 @@ const CharacterDetails = () => {
           {inventory.length === 0 ? (
             <p className="text-gray-500 mt-2">No items in inventory.</p>
           ) : (
-            <ul className="mt-3 space-y-3">
+            <ul className="mt-4 space-y-4">
               {inventory.map((item) => (
-                <li key={item.id} className="border p-3 rounded-lg shadow-sm bg-white">
+                <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                   <h4 className="text-lg font-semibold">{item.name}</h4>
                   {item.description && <p className="text-gray-600">{item.description}</p>}
                   <p className="text-sm text-gray-500">Type: {item.type}</p>
