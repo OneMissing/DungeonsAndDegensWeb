@@ -103,11 +103,11 @@ const CharacterDetails = () => {
       {/* Grid Layout (Three Columns) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
         {/* Left Column: Character Stats */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
-        <h2 className="text-4xl font-bold mb-4 text-center">{character.name}</h2>
-      <p className="text-lg text-gray-600 text-center">
-        {character.race} - {character.class} (Level {character.level})
-      </p>
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-h-[calc(100svh-8rem)] overflow-y-auto min-h-0">
+          <h2 className="text-4xl font-bold mb-4 text-center">{character.name}</h2>
+          <p className="text-lg text-gray-600 text-center">
+            {character.race} - {character.class} (Level {character.level})
+          </p>
           <h3 className="text-2xl font-semibold mb-4">Attributes</h3>
           <ul className="grid grid-cols-2 gap-4 text-gray-700">
             <li><strong>STR:</strong> {character.strength}</li>
@@ -117,18 +117,15 @@ const CharacterDetails = () => {
             <li><strong>WIS:</strong> {character.wisdom}</li>
             <li><strong>CHA:</strong> {character.charisma}</li>
           </ul>
-
           <h3 className="text-2xl font-semibold mt-6">Background</h3>
           <p className="text-gray-600">{character.background}</p>
-
           <h3 className="text-2xl font-semibold mt-4">Alignment</h3>
           <p className="text-gray-600">{character.alignment}</p>
         </div>
 
         {/* Middle Column: Inventory */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-h-[calc(100svh-8rem)] overflow-y-auto min-h-0">
           <h3 className="text-2xl font-semibold mb-4">Inventory</h3>
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
           {inventory.length === 0 ? (
             <p className="text-gray-500 mt-2">No items in inventory.</p>
           ) : (
@@ -144,20 +141,16 @@ const CharacterDetails = () => {
               ))}
             </ul>
           )}
-          </div>
         </div>
 
-                  {/* New Column: Spells */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full ">
+        {/* New Column: Spells */}
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-h-[calc(100svh-8rem)] overflow-y-auto min-h-0">
           <h3 className="text-2xl font-semibold mb-4">Spells</h3>
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full overflow-y-auto text-gray-500">
           <p className="text-gray-500">No spells available.</p>
-
-          </div>
         </div>
 
         {/* Right Column: Item Manager */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-h-[calc(100svh-8rem)] overflow-y-auto min-h-0">
           <h3 className="text-2xl font-semibold mb-4">Item Manager</h3>
           <InventoryManager characterId={id as string} onItemAdded={fetchData} />
         </div>
