@@ -67,17 +67,7 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
   return (
     <div className="p-4 border rounded-md shadow-md mt-6">
       <h2 className="text-lg font-semibold mb-2">Add Item to Inventory</h2>
-      <input
-        type="number"
-        min="1"
-        value={quantity}
-        onChange={(e) => setQuantity(Number(e.target.value))}
-        className="border p-2 rounded w-full mt-2"
-      />
 
-      <button onClick={handleAddItem} className="bg-blue-500 text-white p-2 rounded w-full mt-2">
-        Add Item
-      </button>
       <input
         type="text"
         placeholder="Search item..."
@@ -102,7 +92,17 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
         </ul>
       )}
 
+      <input
+        type="number"
+        min="1"
+        value={quantity}
+        onChange={(e) => setQuantity(Number(e.target.value))}
+        className="border p-2 rounded w-full mt-2"
+      />
 
+      <button onClick={handleAddItem} className="bg-blue-500 text-white p-2 rounded w-full mt-2">
+        Add Item
+      </button>
 
       {error && <p className="text-red-500 mt-2">{error}</p>}
       {success && <p className="text-green-500 mt-2">{success}</p>}
