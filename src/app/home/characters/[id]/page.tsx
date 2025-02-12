@@ -6,6 +6,7 @@ import supabase from "@/lib/supabase/client";
 
 interface Character {
   id: string;
+  user_id: string;
   name: string;
   race: string;
   class: string;
@@ -13,6 +14,7 @@ interface Character {
   experience: number;
   background: string;
   alignment: string;
+  created_at: string;
 }
 
 interface InventoryItem {
@@ -23,6 +25,7 @@ interface InventoryItem {
   weight: number;
   value: number;
   quantity: number;
+  inventoryId: string;
 }
 
 const CharacterDetails = () => {
@@ -53,17 +56,9 @@ const CharacterDetails = () => {
         // Fetch inventory with item details
         const { data: inventoryData, error: inventoryError } = await supabase
           .from("inventory")
-          .select(`
-            quantity,
-            items (
-              id,
-              name,
-              description,
-              type,
-              weight,
-              value
-            )
-          `)
+          .select(
+            "id, quantity, items(id, name, description, type, weight, value)"
+          )
           .eq("character_id", id);
 
         if (inventoryError) throw new Error("Failed to load inventory.");
@@ -77,6 +72,7 @@ const CharacterDetails = () => {
           weight: entry.items.weight,
           value: entry.items.value,
           quantity: entry.quantity,
+          inventoryId: entry.id, // Store inventory record ID
         }));
 
         setInventory(formattedInventory);
@@ -100,11 +96,25 @@ const CharacterDetails = () => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from("inventory")
-        .insert([{ character_id: id, item_id: itemId, quantity }]);
+      // Check if the item already exists in the inventory
+      const existingItem = inventory.find((item) => item.id === itemId);
 
-      if (error) throw new Error("Failed to add item to inventory.");
+      if (existingItem) {
+        // Update quantity if item exists
+        const { error: updateError } = await supabase
+          .from("inventory")
+          .update({ quantity: existingItem.quantity + quantity })
+          .eq("id", existingItem.inventoryId);
+
+        if (updateError) throw new Error("Failed to update item quantity.");
+      } else {
+        // Insert new item if it doesn't exist
+        const { error: insertError } = await supabase
+          .from("inventory")
+          .insert([{ character_id: id, item_id: itemId, quantity }]);
+
+        if (insertError) throw new Error("Failed to add item to inventory.");
+      }
 
       setSuccess("Item added successfully!");
       setItemId("");
@@ -113,17 +123,9 @@ const CharacterDetails = () => {
       // Refresh inventory
       const { data: updatedInventory, error: fetchError } = await supabase
         .from("inventory")
-        .select(`
-          quantity,
-          items (
-            id,
-            name,
-            description,
-            type,
-            weight,
-            value
-          )
-        `)
+        .select(
+          "id, quantity, items(id, name, description, type, weight, value)"
+        )
         .eq("character_id", id);
 
       if (fetchError) throw new Error("Failed to refresh inventory.");
@@ -136,6 +138,7 @@ const CharacterDetails = () => {
         weight: entry.items.weight,
         value: entry.items.value,
         quantity: entry.quantity,
+        inventoryId: entry.id, // Store inventory record ID
       }));
 
       setInventory(formattedInventory);
