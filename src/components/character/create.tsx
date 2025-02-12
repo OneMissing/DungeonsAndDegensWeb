@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import supabase from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 const CreateCharacter = ({ userId }: { userId: string | null }) => {
   const [name, setName] = useState("");
@@ -31,7 +31,6 @@ const CreateCharacter = ({ userId }: { userId: string | null }) => {
       return;
     }
 
-    // Insert character with user_id
     const { error: insertError } = await supabase.from("characters").insert([
       { name, race, class: characterClass, level, user_id: userId },
     ]);
@@ -43,7 +42,8 @@ const CreateCharacter = ({ userId }: { userId: string | null }) => {
       setRace("");
       setCharacterClass("");
       setLevel(1);
-      router.refresh(); // Refresh to update character list
+      router.push("/home");
+      router.refresh();
     }
 
     setLoading(false);
