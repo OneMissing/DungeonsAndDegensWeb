@@ -43,7 +43,9 @@ export async function signup(formData: FormData) {
 }
 
 export async function logout(){
-  const supabase = await createClient()
+  const supabase = await createClient();
 
-  const { error } = await supabase.auth.signOut({scope: 'local'})
+  const { error } = await supabase.auth.signOut({scope: 'local'});
+  revalidatePath('/', 'layout')
+  redirect('/');
 }

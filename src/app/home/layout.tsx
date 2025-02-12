@@ -21,7 +21,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body className="bg-red-100 text-red-900">
         {children}
       </body>
-      <LogoutPage/>
+      <LogoutPage />
     </html>
   );
 }
