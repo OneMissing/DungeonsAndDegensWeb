@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import CreateCharacter from "@/components/characterCreator";
+import CreateCharacter from "@/components/character/create";
 
 const getUserSession = async () => {
   const supabase = await createClient();

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import CharacterList from '@/components/characterList';
+import CharacterList from '@/components/character/list';
 import Link from 'next/link';
 import { createClient } from "@/lib/supabase/server";
 
