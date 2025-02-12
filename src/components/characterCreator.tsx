@@ -28,8 +28,6 @@ const CreateCharacter = () => {
     const { data: userData, error: authError } = await supabase.auth.getUser();
 
     if (authError || !userData?.user) {
-      setError("You must be logged in to create a character.");
-      setLoading(false);
       return;
     }
 
@@ -50,7 +48,7 @@ const CreateCharacter = () => {
       setRace("");
       setCharacterClass("");
       setLevel(1);
-      router.refresh(); // Refresh to update character list
+      router.refresh(); 
     }
 
     setLoading(false);
