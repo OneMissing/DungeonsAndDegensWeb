@@ -28,12 +28,14 @@ const CreateCharacter = () => {
     const { data: userData, error: authError } = await supabase.auth.getUser();
 
     if (authError || !userData?.user) {
+      setError("You must be logged in to create a character.");
+      setLoading(false);
       return;
     }
 
+    // Insert character without manually setting user_id (Supabase RLS will handle it)
     const { error: insertError } = await supabase.from("characters").insert([
       {
-        user_id: userData.user.id,
         name,
         race,
         class: characterClass,
@@ -48,7 +50,7 @@ const CreateCharacter = () => {
       setRace("");
       setCharacterClass("");
       setLevel(1);
-      router.refresh(); 
+      router.refresh(); // Refresh to update character list
     }
 
     setLoading(false);
