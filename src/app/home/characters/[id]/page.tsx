@@ -24,6 +24,15 @@ interface Character {
   charisma?: number;
 }
 
+interface CharacterStats {
+  strength: number;
+  dexterity: number;
+  constitution: number;
+  intelligence: number;
+  wisdom: number;
+  charisma: number;
+}
+
 interface InventoryItem {
   id: string;
   name: string;
@@ -33,11 +42,6 @@ interface InventoryItem {
   value: number;
   quantity: number;
   inventoryId: string;
-}
-
-interface Item {
-  id: string;
-  name: string;
 }
 
 const CharacterDetails = () => {
@@ -51,6 +55,7 @@ const CharacterDetails = () => {
     if (!id) return;
 
     try {
+      // Fetch character details first
       const { data: characterData, error: characterError } = await supabase
         .from("characters")
         .select("*")
@@ -58,8 +63,25 @@ const CharacterDetails = () => {
         .single();
 
       if (characterError) throw new Error("Character not found.");
-      setCharacter(characterData);
 
+      // Fetch character stats separately
+      const { data: statsData, error: statsError } = await supabase
+        .from("character_stats")
+        .select("strength, dexterity, constitution, intelligence, wisdom, charisma")
+        .eq("character_id", id)
+        .single();
+
+      if (statsError) throw new Error("Character stats not found.");
+
+      // Merge character data and stats
+      const formattedCharacter: Character = {
+        ...characterData,
+        ...statsData, // Merge stats fields into the character object
+      };
+
+      setCharacter(formattedCharacter);
+
+      // Fetch inventory data
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("id, quantity, items(id, name, description, type, weight, value)")
@@ -97,7 +119,9 @@ const CharacterDetails = () => {
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h2 className="text-3xl font-bold mb-4">{character.name}</h2>
-      <p className="text-lg text-gray-600">{character.race} - {character.class} (Level {character.level})</p>
+      <p className="text-lg text-gray-600">
+        {character.race} - {character.class} (Level {character.level})
+      </p>
       <p className="text-gray-500">Experience: {character.experience}</p>
       <p className="text-gray-500">Background: {character.background}</p>
       <p className="text-gray-500">Alignment: {character.alignment}</p>
@@ -113,7 +137,7 @@ const CharacterDetails = () => {
       </ul>
 
       <h3 className="text-2xl font-semibold mt-6">Inventory</h3>
-      
+
       {/* Inventory Component */}
       <InventoryManager characterId={id as string} onItemAdded={fetchData} />
 
@@ -126,7 +150,9 @@ const CharacterDetails = () => {
               <h4 className="text-lg font-semibold">{item.name}</h4>
               {item.description && <p className="text-gray-600">{item.description}</p>}
               <p className="text-sm text-gray-500">Type: {item.type}</p>
-              <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+              <p className="text-sm text-gray-500">
+                Weight: {item.weight} | Value: {item.value} gp
+              </p>
               <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
             </li>
           ))}
@@ -137,5 +163,3 @@ const CharacterDetails = () => {
 };
 
 export default CharacterDetails;
-
-
