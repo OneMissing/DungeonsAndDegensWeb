@@ -17,7 +17,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
   return (
     <html lang="cs">
-      <body className="bg-red-400 text-red-900">
+      <body>
         <LogoutPage />
         {children}
       </body>
