@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import LogoutPage from '../logout/page';
+import LogoutPage from '../../components/page';
 
 export const metadata = {
   title: 'DnD',
@@ -18,8 +18,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
   return (
     <html lang="cs">
-      
-      <body className="bg-red-100 text-red-900">
+      <body className="bg-red-400 text-red-900">
         <LogoutPage />
         {children}
       </body>
