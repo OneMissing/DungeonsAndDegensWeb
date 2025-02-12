@@ -4,31 +4,15 @@ import { useState, useEffect } from "react";
 import supabase from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
-const CreateCharacter = () => {
+const CreateCharacter = ({ userId }: { userId: string | null }) => {
   const [name, setName] = useState("");
   const [race, setRace] = useState("");
   const [characterClass, setCharacterClass] = useState("");
   const [level, setLevel] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
 
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getSession();
-
-      if (error || !data?.session?.user) {
-        setError("You must be logged in to create a character.");
-        return;
-      }
-
-      setUserId(data.session.user.id);
-    };
-
-    fetchUser();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,19 +1,19 @@
-import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
-import CreateCharacter from '@/components/characterCreator';
-export default async function PrivatePage() {
+import { createClient } from "@/lib/supabase/server";
+import CreateCharacter from "@/components/characterCreator";
+
+const getUserSession = async () => {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
+  return data?.user?.id || null;
+};
 
-  if (error || !data?.user) {
-    redirect('/login');
-  }
+export default async function Page() {
+  const userId = await getUserSession();
 
-  return(
+  return (
     <div>
-      <p>Hello {data.user.email}</p>
-      <CreateCharacter />
+      <h1>Your Characters</h1>
+      <CreateCharacter userId={userId} />
     </div>
   );
 }
