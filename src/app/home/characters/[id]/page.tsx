@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "@/lib/supabase/client";
-
+import InventoryManager from "@/components/character/inventoryManager";
 interface Character {
   id: string;
   user_id: string;
@@ -34,7 +34,7 @@ interface Item {
 }
 
 const CharacterDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Get character ID from URL
   const [character, setCharacter] = useState<Character | null>(null);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [items, setItems] = useState<Item[]>([]);
@@ -51,6 +51,7 @@ const CharacterDetails = () => {
       if (!id) return;
 
       try {
+        // Fetch character details
         const { data: characterData, error: characterError } = await supabase
           .from("characters")
           .select("*")
@@ -60,6 +61,7 @@ const CharacterDetails = () => {
         if (characterError) throw new Error("Character not found.");
         setCharacter(characterData);
 
+        // Fetch inventory with item details
         const { data: inventoryData, error: inventoryError } = await supabase
           .from("inventory")
           .select("id, quantity, items(id, name, description, type, weight, value)")
@@ -80,6 +82,7 @@ const CharacterDetails = () => {
 
         setInventory(formattedInventory);
 
+        // Fetch available items for dropdown
         const { data: itemsData, error: itemsError } = await supabase
           .from("items")
           .select("id, name");
@@ -106,9 +109,11 @@ const CharacterDetails = () => {
     }
 
     try {
+      // Check if item already exists in inventory
       const existingItem = inventory.find((item) => item.id === selectedItem.id);
 
       if (existingItem) {
+        // Update quantity if item exists
         const { error: updateError } = await supabase
           .from("inventory")
           .update({ quantity: existingItem.quantity + quantity })
@@ -116,6 +121,7 @@ const CharacterDetails = () => {
 
         if (updateError) throw new Error("Failed to update item quantity.");
       } else {
+        // Insert new item
         const { error: insertError } = await supabase
           .from("inventory")
           .insert([{ character_id: id, item_id: selectedItem.id, quantity }]);
@@ -128,6 +134,7 @@ const CharacterDetails = () => {
       setSelectedItem(null);
       setQuantity(1);
 
+      // Refresh inventory
       const { data: updatedInventory, error: fetchError } = await supabase
         .from("inventory")
         .select("id, quantity, items(id, name, description, type, weight, value)")
@@ -152,46 +159,36 @@ const CharacterDetails = () => {
     }
   };
 
+  if (loading) return <p className="text-center text-gray-500">Loading character...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
+  if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
+
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      <h3 className="text-2xl font-semibold mt-6">Add Item to Inventory</h3>
-      <input
-        type="number"
-        min="1"
-        value={quantity}
-        onChange={(e) => setQuantity(Number(e.target.value))}
-        className="border p-2 rounded w-full mt-2"
-      />
-      <button onClick={handleAddItem} className="bg-blue-500 text-white p-2 rounded w-full mt-2">
-        Add Item
-      </button>
-      <input
-        type="text"
-        placeholder="Search item..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="border p-2 rounded w-full mb-2"
-      />
-      {searchTerm && (
-        <ul className="border rounded bg-white max-h-40 overflow-y-auto">
-          {items
-            .filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-            .map((item) => (
-              <li
-                key={item.id}
-                onClick={() => {
-                  setSelectedItem(item);
-                  setSearchTerm(item.name);
-                }}
-                className="p-2 cursor-pointer hover:bg-gray-200"
-              >
-                {item.name}
-              </li>
-            ))}
+      <h2 className="text-3xl font-bold mb-4">{character.name}</h2>
+      <p className="text-lg text-gray-600">{character.race} - {character.class} (Level {character.level})</p>
+      <p className="text-gray-500">Experience: {character.experience}</p>
+      <p className="text-gray-500">Background: {character.background}</p>
+      <p className="text-gray-500">Alignment: {character.alignment}</p>
+
+      <h3 className="text-2xl font-semibold mt-6">Inventory</h3>
+      {inventory.length === 0 ? (
+        <p className="text-gray-500">No items in inventory.</p>
+      ) : (
+        <ul className="mt-3 space-y-3">
+          {inventory.map((item) => (
+            <li key={item.id} className="border p-3 rounded-lg shadow-md bg-white">
+              <h4 className="text-lg font-semibold">{item.name}</h4>
+              {item.description && <p className="text-gray-600">{item.description}</p>}
+              <p className="text-sm text-gray-500">Type: {item.type}</p>
+              <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+              <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+            </li>
+          ))}
         </ul>
       )}
-      {error && <p className="text-red-500 mt-2">{error}</p>}
-      {success && <p className="text-green-500 mt-2">{success}</p>}
+
+      <InventoryManager characterId={id as string} />
     </div>
   );
 };
