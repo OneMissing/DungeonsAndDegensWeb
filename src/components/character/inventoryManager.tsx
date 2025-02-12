@@ -120,6 +120,7 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full p-2 border rounded mb-2"
+        disabled={!!selectedItem} // Disable search input when an item is selected
       />
 
       {searchTerm && !selectedItem && (
