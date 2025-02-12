@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import supabase from "@/lib/supabase/client";
+import supabase from "@/lib/supabase/client"; // Adjust the import path if needed
 import { useRouter } from "next/navigation";
 
 interface Character {
@@ -12,41 +12,42 @@ interface Character {
   level: number;
 }
 
-const CharacterList = () => {
+const FetchCharacters = ({ userId }: { userId: string | null }) => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
     const fetchCharacters = async () => {
-      setLoading(true);
-      setError(null);
-
-
-      const { data: userData, error: authError } = await supabase.auth.getUser();
-
-      if (authError || !userData?.user) {
+      if (!userId) {
+        setError("You must be logged in to view characters.");
+        setLoading(false);
         return;
       }
 
-      const { data: charactersData, error: fetchError } = await supabase
-        .from("characters")
-        .select("id, name, race, class, level")
-        .eq("user_id", userData.user.id)
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("characters")
+          .select("id, name, race, class, level")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false });
 
-      if (fetchError) {
-        setError("Failed to load characters.");
-      } else {
-        setCharacters(charactersData || []);
+        if (error) {
+          setError("Failed to load characters.");
+        } else {
+          setCharacters(data || []);
+        }
+      } catch (err) {
+        setError("An error occurred while fetching characters.");
       }
 
       setLoading(false);
     };
 
     fetchCharacters();
-  }, [router]);
+  }, [userId]);
 
   if (loading) return <p className="text-center text-gray-500">Loading characters...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
@@ -67,4 +68,4 @@ const CharacterList = () => {
   );
 };
 
-export default CharacterList;
+export default FetchCharacters;
