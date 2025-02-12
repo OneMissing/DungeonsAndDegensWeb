@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import supabase from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -31,9 +31,9 @@ const CreateCharacter = ({ userId }: { userId: string | null }) => {
       return;
     }
 
-    // Insert character (RLS will automatically attach user_id)
+    // Insert character with user_id
     const { error: insertError } = await supabase.from("characters").insert([
-      { name, race, class: characterClass, level },
+      { name, race, class: characterClass, level, user_id: userId },
     ]);
 
     if (insertError) {
