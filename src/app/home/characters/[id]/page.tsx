@@ -106,9 +106,9 @@ const CharacterDetails = () => {
       </p>
       <p className="text-center text-gray-500">Experience: {character.experience}</p>
 
-      {/* Grid Layout (Responsive) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        {/* Left Column: Stats & Attributes */}
+      {/* Grid Layout (Three Columns) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        {/* Left Column: Character Stats */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
           <h3 className="text-2xl font-semibold mb-4">Attributes</h3>
           <ul className="grid grid-cols-2 gap-4 text-gray-700">
@@ -127,13 +127,9 @@ const CharacterDetails = () => {
           <p className="text-gray-600">{character.alignment}</p>
         </div>
 
-        {/* Right Column: Inventory */}
+        {/* Middle Column: Inventory */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
           <h3 className="text-2xl font-semibold mb-4">Inventory</h3>
-
-          {/* Inventory Manager Component */}
-          <InventoryManager characterId={id as string} onItemAdded={fetchData} />
-
           {inventory.length === 0 ? (
             <p className="text-gray-500 mt-2">No items in inventory.</p>
           ) : (
@@ -149,6 +145,12 @@ const CharacterDetails = () => {
               ))}
             </ul>
           )}
+        </div>
+
+        {/* Right Column: Item Manager */}
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
+          <h3 className="text-2xl font-semibold mb-4">Item Manager</h3>
+          <InventoryManager characterId={id as string} onItemAdded={fetchData} />
         </div>
       </div>
     </div>
