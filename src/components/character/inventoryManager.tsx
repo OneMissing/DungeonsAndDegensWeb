@@ -48,15 +48,38 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
     }
 
     try {
-      const { error: insertError } = await supabase
+      const { data: existingInventory, error: fetchError } = await supabase
         .from("inventory")
-        .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
+        .select("id, quantity")
+        .eq("character_id", characterId)
+        .eq("item_id", selectedItem.id)
+        .single();
 
-      if (insertError) throw new Error("Failed to add item to inventory.");
+      if (fetchError && fetchError.code !== "PGRST116") {
+        throw new Error("Failed to check existing inventory.");
+      }
+
+      if (existingInventory) {
+        // Update the existing item's quantity
+        const { error: updateError } = await supabase
+          .from("inventory")
+          .update({ quantity: existingInventory.quantity + quantity })
+          .eq("id", existingInventory.id);
+
+        if (updateError) throw new Error("Failed to update item quantity.");
+      } else {
+        // Insert new item if it doesn't exist
+        const { error: insertError } = await supabase
+          .from("inventory")
+          .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
+
+        if (insertError) throw new Error("Failed to add item to inventory.");
+      }
 
       setSuccess("Item added successfully!");
       setSelectedItem(null);
       setQuantity(1);
+      setSearchTerm("");
 
       if (onItemAdded) onItemAdded();
     } catch (err) {
@@ -92,17 +115,28 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
         </ul>
       )}
 
-      <input
-        type="number"
-        min="1"
-        value={quantity}
-        onChange={(e) => setQuantity(Number(e.target.value))}
-        className="border p-2 rounded w-full mt-2"
-      />
+      {selectedItem && (
+        <div className="mt-3">
+          <p className="text-gray-700 font-semibold">Selected: {selectedItem.name}</p>
 
-      <button onClick={handleAddItem} className="bg-blue-500 text-white p-2 rounded w-full mt-2">
-        Add Item
-      </button>
+          {/* Flexbox Layout for Quantity and Button */}
+          <div className="flex items-center gap-2 mt-2">
+            <input
+              type="number"
+              min="1"
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="border p-2 rounded w-20"
+            />
+            <button
+              onClick={handleAddItem}
+              className="bg-blue-500 text-white p-2 rounded flex-1"
+            >
+              Add Item
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && <p className="text-red-500 mt-2">{error}</p>}
       {success && <p className="text-green-500 mt-2">{success}</p>}
