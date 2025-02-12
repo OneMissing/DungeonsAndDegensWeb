@@ -14,7 +14,7 @@ export default async function PrivatePage() {
     <div>
       <p>Hello {data.user.email}</p>
       <CharacterList />
-      <Link href="/home/">Create character</Link>
+      <Link href="/home/create">Create character</Link>
     </div>
   );
 }
