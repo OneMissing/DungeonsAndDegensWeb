@@ -44,9 +44,9 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
     setError(null);
 
     // Check if the item already exists in the character's inventory
-    const { data: existingItems, error: fetchError } = await supabase
+    const { data: existingItem, error: fetchError } = await supabase
       .from("inventory")
-      .select("id, item_id, quantity")
+      .select("id, quantity")
       .eq("character_id", characterId)
       .eq("item_id", selectedItem.id)
       .single();
@@ -57,12 +57,12 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
       return;
     }
 
-    if (existingItems) {
-      // If the item already exists, update the quantity
+    if (existingItem) {
+      // If the item exists, update the quantity
       const { error: updateError } = await supabase
         .from("inventory")
-        .update({ quantity: existingItems.quantity + quantity })
-        .eq("id", existingItems.id);
+        .update({ quantity: existingItem.quantity + quantity })
+        .eq("id", existingItem.id);
 
       if (updateError) {
         setError("Failed to update item quantity.");
