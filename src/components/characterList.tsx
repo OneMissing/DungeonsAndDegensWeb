@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import  supabase  from "@/lib/supabase/client";
+import supabase from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 interface Character {
   id: string;
@@ -15,40 +16,38 @@ const CharacterList = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCharacters = async () => {
       setLoading(true);
       setError(null);
 
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
 
-      if (authError || !user) {
-        setError("You must be logged in to view characters.");
-        setLoading(false);
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !userData?.user) {
+        router.push("/"); // Redirect to home if not logged in
         return;
       }
 
-      const { data, error } = await supabase
+      const { data: charactersData, error: fetchError } = await supabase
         .from("characters")
         .select("id, name, race, class, level")
-        .eq("user_id", user.id)
+        .eq("user_id", userData.user.id)
         .order("created_at", { ascending: false });
 
-      if (error) {
+      if (fetchError) {
         setError("Failed to load characters.");
       } else {
-        setCharacters(data || []);
+        setCharacters(charactersData || []);
       }
 
       setLoading(false);
     };
 
     fetchCharacters();
-  }, []);
+  }, [router]);
 
   if (loading) return <p className="text-center text-gray-500">Loading characters...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
