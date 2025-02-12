@@ -27,7 +27,7 @@ const CharacterList = () => {
       const { data: userData, error: authError } = await supabase.auth.getUser();
 
       if (authError || !userData?.user) {
-        router.push("/"); // Redirect to home if not logged in
+        router.push("/login"); 
         return;
       }
 
