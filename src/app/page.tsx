@@ -9,7 +9,7 @@ export default function Home() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image 
-          src="/landingBG.webp"
+          src="/landingBG.webp" // Renamed the image
           alt="Dungeons and Dragons Background"
           layout="fill"
           objectFit="cover"
@@ -43,11 +43,17 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1 }}
         >
-          <Link className="text-lg px-8 py-4 bg-red-600 hover:bg-red-700 rounded-2xl shadow-lg" href="/home">
-            Start Your Adventure
+          <Link href="/home" passHref> {/* Updated link to /home */}
+            <a className="text-lg px-8 py-4 bg-red-600 hover:bg-red-700 rounded-2xl shadow-lg">
+              Start Your Adventure
+            </a>
           </Link>
         </motion.div>
       </div>
     </div>
   );
-} 
+}
+
+export const config = {
+  runtime: 'experimental-edge',
+};
