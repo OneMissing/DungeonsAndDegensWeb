@@ -1,6 +1,6 @@
 
 import Link from "next/link";
-import "@public/styles/style.css";
+//import "@public/styles/style.css";
 export default async function PrivatePage() {
   return (
     <div className="app">
