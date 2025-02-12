@@ -61,7 +61,7 @@ const FetchCharacters = ({ userId }: { userId: string | null }) => {
           <li
             key={char.id}
             className="border p-3 rounded-lg shadow-md bg-white cursor-pointer hover:bg-gray-100 transition"
-            onClick={() => router.push(`/characters/${char.id}`)} // Navigate to character details
+            onClick={() => router.push(`/home/characters/${char.id}`)} // Navigate to character details
           >
             <h3 className="text-lg font-semibold">{char.name}</h3>
             <p className="text-gray-600">{char.race} - {char.class} (Level {char.level})</p>
