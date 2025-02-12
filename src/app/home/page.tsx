@@ -17,7 +17,6 @@ export default async function Home() {
       {user ? (
         <>
           <p>Hello {user.email}</p> {/* Access the user's email */}
-          <h1>Your Characters</h1>
           <CharacterList userId={user.id} />
         </>
       ) : (

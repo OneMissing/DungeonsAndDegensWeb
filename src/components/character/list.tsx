@@ -58,7 +58,11 @@ const FetchCharacters = ({ userId }: { userId: string | null }) => {
       <h2 className="text-2xl font-bold mb-4">Your Characters</h2>
       <ul className="space-y-3">
         {characters.map((char) => (
-          <li key={char.id} className="border p-3 rounded-lg shadow-md bg-white">
+          <li
+            key={char.id}
+            className="border p-3 rounded-lg shadow-md bg-white cursor-pointer hover:bg-gray-100 transition"
+            onClick={() => router.push(`/characters/${char.id}`)} // Navigate to character details
+          >
             <h3 className="text-lg font-semibold">{char.name}</h3>
             <p className="text-gray-600">{char.race} - {char.class} (Level {char.level})</p>
           </li>
