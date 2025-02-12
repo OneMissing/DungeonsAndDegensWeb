@@ -6,7 +6,7 @@ const Navbar = () => {
     <nav>
       <div className="container mx-auto flex justify-between items-center px-6">
         {/* Logo or Brand */}
-        <Link href="/home">
+        <Link href="/">
           <a className="text-4xl font-serif font-bold text-white hover:text-yellow-400 transition duration-300">
             Dungeons & Degens
           </a>
