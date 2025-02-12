@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import supabase from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -11,13 +11,35 @@ const CreateCharacter = () => {
   const [level, setLevel] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [userId, setUserId] = useState<string | null>(null);
+
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error || !data?.session?.user) {
+        setError("You must be logged in to create a character.");
+        return;
+      }
+
+      setUserId(data.session.user.id);
+    };
+
+    fetchUser();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!userId) {
+      setError("You must be logged in to create a character.");
+      setLoading(false);
+      return;
+    }
 
     if (!name || !race || !characterClass || level < 1) {
       setError("All fields are required.");
@@ -25,22 +47,9 @@ const CreateCharacter = () => {
       return;
     }
 
-    const { data: userData, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !userData?.user) {
-      setError("You must be logged in to create a character.");
-      setLoading(false);
-      return;
-    }
-
-    // Insert character without manually setting user_id (Supabase RLS will handle it)
+    // Insert character (RLS will automatically attach user_id)
     const { error: insertError } = await supabase.from("characters").insert([
-      {
-        name,
-        race,
-        class: characterClass,
-        level,
-      },
+      { name, race, class: characterClass, level },
     ]);
 
     if (insertError) {
