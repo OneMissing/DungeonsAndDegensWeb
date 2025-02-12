@@ -16,6 +16,12 @@ interface Character {
   background: string;
   alignment: string;
   created_at: string;
+  strength?: number;
+  dexterity?: number;
+  constitution?: number;
+  intelligence?: number;
+  wisdom?: number;
+  charisma?: number;
 }
 
 interface InventoryItem {
@@ -45,7 +51,6 @@ const CharacterDetails = () => {
     if (!id) return;
 
     try {
-      // Fetch character details
       const { data: characterData, error: characterError } = await supabase
         .from("characters")
         .select("*")
@@ -55,7 +60,6 @@ const CharacterDetails = () => {
       if (characterError) throw new Error("Character not found.");
       setCharacter(characterData);
 
-      // Fetch inventory with item details
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("id, quantity, items(id, name, description, type, weight, value)")
@@ -98,6 +102,16 @@ const CharacterDetails = () => {
       <p className="text-gray-500">Background: {character.background}</p>
       <p className="text-gray-500">Alignment: {character.alignment}</p>
 
+      <h3 className="text-xl font-semibold mt-4">Attributes</h3>
+      <ul className="grid grid-cols-2 gap-2 mt-2 text-gray-700">
+        <li><strong>STR:</strong> {character.strength}</li>
+        <li><strong>DEX:</strong> {character.dexterity}</li>
+        <li><strong>CON:</strong> {character.constitution}</li>
+        <li><strong>INT:</strong> {character.intelligence}</li>
+        <li><strong>WIS:</strong> {character.wisdom}</li>
+        <li><strong>CHA:</strong> {character.charisma}</li>
+      </ul>
+
       <h3 className="text-2xl font-semibold mt-6">Inventory</h3>
       
       {/* Inventory Component */}
@@ -123,3 +137,5 @@ const CharacterDetails = () => {
 };
 
 export default CharacterDetails;
+
+
