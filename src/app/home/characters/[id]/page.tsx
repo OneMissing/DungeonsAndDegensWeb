@@ -127,8 +127,9 @@ const CharacterDetails = () => {
         </div>
 
         {/* Middle Column: Inventory */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full">
           <h3 className="text-2xl font-semibold mb-4">Inventory</h3>
+          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
           {inventory.length === 0 ? (
             <p className="text-gray-500 mt-2">No items in inventory.</p>
           ) : (
@@ -141,12 +142,15 @@ const CharacterDetails = () => {
               ))}
             </ul>
           )}
+          </div>
         </div>
 
         {/* New Column: Spells */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full">
           <h3 className="text-2xl font-semibold mb-4">Spells</h3>
-          <p className="text-gray-500">No spells available.</p>
+          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
+            <p className="text-gray-500">No spells available.</p>
+          </div>
         </div>
 
         {/* Right Column: Item Manager */}
