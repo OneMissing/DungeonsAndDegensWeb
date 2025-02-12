@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import CharacterList from '@/components/characterList';
 import Link from 'next/link';
+import CreateCharacter from '@/components/characterCreator';
 export default async function PrivatePage() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
@@ -13,8 +13,7 @@ export default async function PrivatePage() {
   return(
     <div>
       <p>Hello {data.user.email}</p>
-      <CharacterList />
-      <Link href="/home/">Create character</Link>
+      <CreateCharacter />
     </div>
   );
 }
