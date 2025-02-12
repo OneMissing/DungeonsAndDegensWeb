@@ -60,7 +60,6 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
       }
 
       if (existingInventory) {
-        // Update the existing item's quantity
         const { error: updateError } = await supabase
           .from("inventory")
           .update({ quantity: existingInventory.quantity + quantity })
@@ -68,7 +67,6 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
 
         if (updateError) throw new Error("Failed to update item quantity.");
       } else {
-        // Insert new item if it doesn't exist
         const { error: insertError } = await supabase
           .from("inventory")
           .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
@@ -117,9 +115,6 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
 
       {selectedItem && (
         <div className="mt-3">
-          <p className="text-gray-700 font-semibold">Selected: {selectedItem.name}</p>
-
-          {/* Flexbox Layout for Quantity and Button */}
           <div className="flex items-center gap-2 mt-2">
             <input
               type="number"
@@ -135,6 +130,7 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
               Add Item
             </button>
           </div>
+          <p className="text-gray-700 font-semibold">Selected: {selectedItem.name}</p>
         </div>
       )}
 
