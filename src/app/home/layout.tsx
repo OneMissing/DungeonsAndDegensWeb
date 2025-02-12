@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
   return (
     <html lang="cs">
-      <body>
+      <body className='mt-14'>
         <NavbarHome />
         {children}
       </body>

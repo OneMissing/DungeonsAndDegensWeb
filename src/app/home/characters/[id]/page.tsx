@@ -99,16 +99,15 @@ const CharacterDetails = () => {
   if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
 
   return (
-    <div className="w-full h-[calc(100svh-6rem)] px-4 py-12 mx-auto">
-      {/* Grid Layout (Responsive) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 w-full h-full">
+    <div className="w-full px-4 py-6 mx-auto">
+      {/* Grid Layout (Three Columns) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         {/* Left Column: Character Stats */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
         <h2 className="text-4xl font-bold mb-4 text-center">{character.name}</h2>
       <p className="text-lg text-gray-600 text-center">
         {character.race} - {character.class} (Level {character.level})
       </p>
-      <p className="text-center text-gray-500">Experience: {character.experience}</p>
           <h3 className="text-2xl font-semibold mb-4">Attributes</h3>
           <ul className="grid grid-cols-2 gap-4 text-gray-700">
             <li><strong>STR:</strong> {character.strength}</li>
@@ -127,9 +126,9 @@ const CharacterDetails = () => {
         </div>
 
         {/* Middle Column: Inventory */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
           <h3 className="text-2xl font-semibold mb-4">Inventory</h3>
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-auto overflow-y-auto">
+          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
           {inventory.length === 0 ? (
             <p className="text-gray-500 mt-2">No items in inventory.</p>
           ) : (
@@ -138,6 +137,9 @@ const CharacterDetails = () => {
                 <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                   <h4 className="text-lg font-semibold">{item.name}</h4>
                   {item.description && <p className="text-gray-600">{item.description}</p>}
+                  <p className="text-sm text-gray-500">Type: {item.type}</p>
+                  <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                 </li>
               ))}
             </ul>
@@ -145,16 +147,17 @@ const CharacterDetails = () => {
           </div>
         </div>
 
-        {/* New Column: Spells */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full">
+                  {/* New Column: Spells */}
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full ">
           <h3 className="text-2xl font-semibold mb-4">Spells</h3>
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-auto overflow-y-auto">
-            <p className="text-gray-500">No spells available.</p>
+          <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full overflow-y-auto text-gray-500">
+          <p className="text-gray-500">No spells available.</p>
+
           </div>
         </div>
 
         {/* Right Column: Item Manager */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full h-full overflow-y-auto">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
           <h3 className="text-2xl font-semibold mb-4">Item Manager</h3>
           <InventoryManager characterId={id as string} onItemAdded={fetchData} />
         </div>
