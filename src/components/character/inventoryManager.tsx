@@ -8,6 +8,12 @@ interface Item {
   name: string;
 }
 
+interface InventoryItem {
+  id: string;
+  item_id: string;
+  quantity: number;
+}
+
 interface InventoryProps {
   characterId: string;
   onItemAdded?: () => void;
@@ -37,18 +43,46 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
     setLoading(true);
     setError(null);
 
-    const { error: insertError } = await supabase
+    // Check if the item already exists in the character's inventory
+    const { data: existingItems, error: fetchError } = await supabase
       .from("inventory")
-      .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
+      .select("id, item_id, quantity")
+      .eq("character_id", characterId)
+      .eq("item_id", selectedItem.id)
+      .single();
 
-    if (insertError) {
-      setError("Failed to add item.");
-    } else {
-      setSelectedItem(null);
-      setSearchTerm("");
-      setQuantity(1);
-      if (onItemAdded) onItemAdded();
+    if (fetchError && fetchError.code !== "PGRST116") {
+      setError("Failed to check inventory.");
+      setLoading(false);
+      return;
     }
+
+    if (existingItems) {
+      // If the item already exists, update the quantity
+      const { error: updateError } = await supabase
+        .from("inventory")
+        .update({ quantity: existingItems.quantity + quantity })
+        .eq("id", existingItems.id);
+
+      if (updateError) {
+        setError("Failed to update item quantity.");
+        setLoading(false);
+        return;
+      }
+    } else {
+      // If the item does not exist, insert a new entry
+      const { error: insertError } = await supabase
+        .from("inventory")
+        .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
+
+      if (insertError) {
+        setError("Failed to add item.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (onItemAdded) onItemAdded();
 
     setLoading(false);
   };
@@ -108,7 +142,15 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
       )}
 
       {selectedItem && (
-        <p className="text-gray-700 font-semibold mt-2">Selected: {selectedItem.name}</p>
+        <div className="flex justify-between items-center mt-2">
+          <p className="text-gray-700 font-semibold">Selected: {selectedItem.name}</p>
+          <button
+            className="text-sm text-red-500 hover:underline"
+            onClick={() => setSelectedItem(null)}
+          >
+            Deselect
+          </button>
+        </div>
       )}
     </div>
   );
