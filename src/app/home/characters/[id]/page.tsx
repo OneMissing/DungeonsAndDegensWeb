@@ -99,7 +99,7 @@ const CharacterDetails = () => {
   if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
 
   return (
-    <div className="w-full h-screen px-4 py-6 mx-auto overflow-y-auto">
+    <div className="w-full h-full px-4 py-6 mx-auto">
       {/* Grid Layout (Responsive) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 w-full h-full">
         {/* Left Column: Character Stats */}
