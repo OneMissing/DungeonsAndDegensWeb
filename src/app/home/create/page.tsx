@@ -7,7 +7,7 @@ const getUserSession = async () => {
   return data?.user?.id || null;
 };
 
-export default async function Page() {
+export default async function App() {
   const userId = await getUserSession();
 
   return (

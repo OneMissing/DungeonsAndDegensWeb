@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
-export default function Home() {
+export default function App() {
   return (
     <div className="relative h-screen w-full bg-black">
       <div className="absolute inset-0">
