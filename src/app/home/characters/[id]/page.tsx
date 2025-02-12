@@ -106,8 +106,8 @@ const CharacterDetails = () => {
       </p>
       <p className="text-center text-gray-500">Experience: {character.experience}</p>
 
-      {/* Grid Layout (Three Columns) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+      {/* Grid Layout (Responsive) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 w-full">
         {/* Left Column: Character Stats */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
           <h3 className="text-2xl font-semibold mb-4">Attributes</h3>
@@ -138,13 +138,16 @@ const CharacterDetails = () => {
                 <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                   <h4 className="text-lg font-semibold">{item.name}</h4>
                   {item.description && <p className="text-gray-600">{item.description}</p>}
-                  <p className="text-sm text-gray-500">Type: {item.type}</p>
-                  <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                 </li>
               ))}
             </ul>
           )}
+        </div>
+
+        {/* New Column: Spells */}
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
+          <h3 className="text-2xl font-semibold mb-4">Spells</h3>
+          <p className="text-gray-500">No spells available.</p>
         </div>
 
         {/* Right Column: Item Manager */}
