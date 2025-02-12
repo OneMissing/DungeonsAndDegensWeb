@@ -27,7 +27,20 @@ body {
     text-align: center;
 }
 
-button {
+nav {
+    background: #2c1b0b;
+    padding: 15px;
+    border-bottom: 5px solid #8b0000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+}
+
+Link {
     font-family: 'Uncial Antiqua', serif;
     padding: 12px 20px;
     border: 2px solid #8b0000;
@@ -40,4 +53,10 @@ button {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     transition: 0.3s ease-in-out;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+Link:hover {
+    background: linear-gradient(135deg, #8b0000, #c0392b);
+    transform: scale(1.1);
+    border-color: #d4af37;
 }
