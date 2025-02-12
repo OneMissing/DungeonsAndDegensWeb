@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import LogoutPage from '@/components/ui/logout';
-import '../globals.css';
 export const metadata = {
   title: 'DnD',
   description: 'Playable DnD',
