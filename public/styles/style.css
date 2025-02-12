@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Cinzel:wght@400;700&display=swap');
+
+body {
+    font-family: 'Cinzel', serif;
+    background: url('https://images.unsplash.com/photo-1593642634402-b0eb5e2f60b9') no-repeat center center fixed;
+    background-size: cover;
+    color: #d4af37; /* Zlatá barva */
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+nav {
+    background: #2c1b0b;
+    padding: 15px;
+    border-bottom: 5px solid #8b0000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+button {
+    font-family: 'Uncial Antiqua', serif;
+    padding: 12px 20px;
+    border: 2px solid #8b0000;
+    cursor: pointer;
+    background: linear-gradient(135deg, #551a1a, #8b0000);
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    transition: 0.3s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+button:hover {
+    background: linear-gradient(135deg, #8b0000, #c0392b);
+    transform: scale(1.1);
+    border-color: #d4af37;
+}
+
+.menu-content {
+    margin-top: 100px;
+    padding: 20px;
+}
+
+section {
+    display: none;
+    background: rgba(44, 27, 11, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    border: 2px solid #8b0000;
+}
+
+section.active {
+    display: block;
+}
+
+h2 {
+    font-family: 'Uncial Antiqua', serif;
+    font-size: 32px;
+    color: #d4af37;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.7);
+}
+
+p {
+    font-size: 18px;
+    color: #fff;
+}
