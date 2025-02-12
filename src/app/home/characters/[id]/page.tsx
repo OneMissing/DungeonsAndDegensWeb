@@ -101,7 +101,7 @@ const CharacterDetails = () => {
   return (
     <div className="w-full px-4 py-6 mx-auto">
       {/* Grid Layout (Three Columns) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
         {/* Left Column: Character Stats */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full">
         <h2 className="text-4xl font-bold mb-4 text-center">{character.name}</h2>
