@@ -28,18 +28,26 @@ interface InventoryItem {
   inventoryId: string;
 }
 
+interface Item {
+  id: string;
+  name: string;
+}
+
 const CharacterDetails = () => {
   const { id } = useParams(); // Get character ID from URL
   const [character, setCharacter] = useState<Character | null>(null);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [itemId, setItemId] = useState(""); // State for adding items
-  const [quantity, setQuantity] = useState(1);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [quantity, setQuantity] = useState(1);
+
   useEffect(() => {
-    const fetchCharacterData = async () => {
+    const fetchData = async () => {
       if (!id) return;
 
       try {
@@ -56,14 +64,11 @@ const CharacterDetails = () => {
         // Fetch inventory with item details
         const { data: inventoryData, error: inventoryError } = await supabase
           .from("inventory")
-          .select(
-            "id, quantity, items(id, name, description, type, weight, value)"
-          )
+          .select("id, quantity, items(id, name, description, type, weight, value)")
           .eq("character_id", id);
 
         if (inventoryError) throw new Error("Failed to load inventory.");
 
-        // Format inventory data properly
         const formattedInventory = inventoryData.map((entry: any) => ({
           id: entry.items.id,
           name: entry.items.name,
@@ -72,10 +77,18 @@ const CharacterDetails = () => {
           weight: entry.items.weight,
           value: entry.items.value,
           quantity: entry.quantity,
-          inventoryId: entry.id, // Store inventory record ID
+          inventoryId: entry.id,
         }));
 
         setInventory(formattedInventory);
+
+        // Fetch available items for dropdown
+        const { data: itemsData, error: itemsError } = await supabase
+          .from("items")
+          .select("id, name");
+
+        if (itemsError) throw new Error("Failed to load items.");
+        setItems(itemsData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred.");
       }
@@ -83,21 +96,21 @@ const CharacterDetails = () => {
       setLoading(false);
     };
 
-    fetchCharacterData();
+    fetchData();
   }, [id]);
 
   const handleAddItem = async () => {
     setError(null);
     setSuccess(null);
 
-    if (!itemId || quantity <= 0) {
-      setError("Please provide a valid item ID and quantity.");
+    if (!selectedItem || quantity <= 0) {
+      setError("Please select an item and enter a valid quantity.");
       return;
     }
 
     try {
-      // Check if the item already exists in the inventory
-      const existingItem = inventory.find((item) => item.id === itemId);
+      // Check if item already exists in inventory
+      const existingItem = inventory.find((item) => item.id === selectedItem.id);
 
       if (existingItem) {
         // Update quantity if item exists
@@ -108,24 +121,23 @@ const CharacterDetails = () => {
 
         if (updateError) throw new Error("Failed to update item quantity.");
       } else {
-        // Insert new item if it doesn't exist
+        // Insert new item
         const { error: insertError } = await supabase
           .from("inventory")
-          .insert([{ character_id: id, item_id: itemId, quantity }]);
+          .insert([{ character_id: id, item_id: selectedItem.id, quantity }]);
 
         if (insertError) throw new Error("Failed to add item to inventory.");
       }
 
       setSuccess("Item added successfully!");
-      setItemId("");
+      setSearchTerm("");
+      setSelectedItem(null);
       setQuantity(1);
 
       // Refresh inventory
       const { data: updatedInventory, error: fetchError } = await supabase
         .from("inventory")
-        .select(
-          "id, quantity, items(id, name, description, type, weight, value)"
-        )
+        .select("id, quantity, items(id, name, description, type, weight, value)")
         .eq("character_id", id);
 
       if (fetchError) throw new Error("Failed to refresh inventory.");
@@ -138,7 +150,7 @@ const CharacterDetails = () => {
         weight: entry.items.weight,
         value: entry.items.value,
         quantity: entry.quantity,
-        inventoryId: entry.id, // Store inventory record ID
+        inventoryId: entry.id,
       }));
 
       setInventory(formattedInventory);
@@ -182,25 +194,32 @@ const CharacterDetails = () => {
 
         <input
           type="text"
-          placeholder="Item ID"
-          value={itemId}
-          onChange={(e) => setItemId(e.target.value)}
+          placeholder="Search item..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="border p-2 rounded w-full mb-2"
         />
 
-        <input
-          type="number"
-          placeholder="Quantity"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-          className="border p-2 rounded w-full mb-2"
-          min={1}
-        />
+        {searchTerm && (
+          <ul className="border rounded bg-white max-h-40 overflow-y-auto">
+            {items
+              .filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((item) => (
+                <li
+                  key={item.id}
+                  onClick={() => {
+                    setSelectedItem(item);
+                    setSearchTerm(item.name);
+                  }}
+                  className="p-2 cursor-pointer hover:bg-gray-200"
+                >
+                  {item.name}
+                </li>
+              ))}
+          </ul>
+        )}
 
-        <button
-          onClick={handleAddItem}
-          className="bg-blue-500 text-white p-2 rounded w-full"
-        >
+        <button onClick={handleAddItem} className="bg-blue-500 text-white p-2 rounded w-full mt-2">
           Add Item
         </button>
 
