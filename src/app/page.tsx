@@ -42,10 +42,10 @@ export default function App() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1 }}
         >
-          <Link href="/home" passHref>
-            <a className="text-lg px-8 py-4 bg-red-600 hover:bg-red-700 rounded-2xl shadow-lg">
+          <Link href="/home" passHref> 
+          <a className="text-lg px-8 py-4 bg-red-600 hover:bg-red-700 rounded-2xl shadow-lg">
               Start Your Adventure
-            </a>
+           </a>
           </Link>
         </motion.div>
       </div>
