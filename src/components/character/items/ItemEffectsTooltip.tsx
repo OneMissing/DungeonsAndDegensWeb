@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect, ReactNode } from "react";
 import supabase from "@/lib/supabase/client";
 
@@ -38,7 +39,8 @@ type Props = {
   children: ReactNode;
 };
 
-export default function ItemEffectsTooltip({ itemName, children }: Props) {
+
+export default function ItemEffectsTooltip({ itemName, children, ...props }: Props) {
   const [effects, setEffects] = useState<ItemEffect | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -90,7 +92,7 @@ export default function ItemEffectsTooltip({ itemName, children }: Props) {
 
   return (
     <div
-      className="relative inline-block cursor-pointer"
+      className="relative inline-block cursor-pointer w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

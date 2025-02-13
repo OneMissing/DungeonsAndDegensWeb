@@ -199,8 +199,8 @@ const CharacterDetails = () => {
               ) : (
                 <ul className="space-y-4 overflow-y-auto mt-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] md:overflow-y-auto">
                   {inventory.map((item) => (
-                      <ItemEffectsTooltip itemName={item.name}>
                     <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                      <ItemEffectsTooltip itemName={item.name}>
                         <h4
                           className="text-lg font-semibold cursor-pointer text-yellow-600"
                           onClick={() => toggleExpand(item.id)}
@@ -219,8 +219,8 @@ const CharacterDetails = () => {
                           </div>
                         </div>
                       )}
-                    </li>
                     </ItemEffectsTooltip>
+                    </li>
                   ))}
                 </ul>
               )
