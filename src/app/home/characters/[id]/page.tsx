@@ -197,17 +197,16 @@ const CharacterDetails = () => {
               inventory.length === 0 ? (
                 <p className="text-gray-500">No items in inventory.</p>
               ) : (
-                <ul className="space-y-4 overflow-y-auto mt-4">
+                <ul className="space-y-4 overflow-y-auto mt-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] md:overflow-y-auto">
                   {inventory.map((item) => (
-                    <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                       <ItemEffectsTooltip itemName={item.name}>
+                    <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                         <h4
                           className="text-lg font-semibold cursor-pointer text-yellow-600"
                           onClick={() => toggleExpand(item.id)}
                         >
                           {item.name}
                         </h4>
-                      </ItemEffectsTooltip>
                       {expandedItem === item.id && (
                         <div>
                           {item.description && <p className="text-gray-600">{item.description}</p>}
@@ -221,6 +220,7 @@ const CharacterDetails = () => {
                         </div>
                       )}
                     </li>
+                    </ItemEffectsTooltip>
                   ))}
                 </ul>
               )
