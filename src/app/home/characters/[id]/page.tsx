@@ -7,6 +7,8 @@ import InventoryManager from "@/components/character/items/inventoryManager";
 import ItemEffectsTooltip from "@/components/character/items/ItemEffectsTooltip";
 import SkillsTable from "@/components/character/skills";
 import { Button } from "@/components/ui/cards/button";
+import { Card } from "@/components/ui/cards/card";
+import { CardContent } from "@/components/ui/cards/cardContent";
 
 interface Character {
   id: string;
@@ -171,10 +173,10 @@ const CharacterDetails = () => {
 
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
-      <h3 className="text-2xl font-semibold">Skills</h3>
-      <SkillsTable characterId={id as string}/>
+        <h3 className="text-2xl font-semibold">Skills</h3>
+        <SkillsTable characterId={id as string} />
       </section>
-       
+
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <div className="flex flex-col">
@@ -187,6 +189,8 @@ const CharacterDetails = () => {
             onClick={() => setActiveButton("Items")}
           >Items</Button>
         </div>
+        <Card className="w-80 p-4 text-center">
+          <CardContent>
             {activeButton === "Inventory" ? (
               inventory.length === 0 ? (
                 <p className="text-gray-500">No items in inventory.</p>
@@ -194,7 +198,7 @@ const CharacterDetails = () => {
                 <ul className="space-y-4 overflow-y-auto mt-4">
                   {inventory.map((item) => (
                     <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
-                      <h4 
+                      <h4
                         className="text-lg font-semibold cursor-pointer text-yellow-600"
                         onClick={() => toggleExpand(item.id)}
                       >
@@ -202,10 +206,13 @@ const CharacterDetails = () => {
                       </h4>
                       {expandedItem === item.id && (
                         <div>
-                          {item.description && <p className="text-gray-600">{item.description}</p>}
-                          <p className="text-sm text-gray-500">Type: {item.type}</p>
-                          <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                          <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                          <ItemEffectsTooltip itemName={item.name}>
+                            <h4 className="text-lg font-semibold">{item.name}</h4>
+                            {item.description && <p className="text-gray-600">{item.description}</p>}
+                            <p className="text-sm text-gray-500">Type: {item.type}</p>
+                            <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+                            <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                          </ItemEffectsTooltip>
                           <div className="mt-2 grid grid-cols-2 gap-2">
                             <button className="bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add</button>
                             <button className="bg-red-400 text-white py-2 rounded-lg hover:bg-red-700" onClick={() => removeItem(item.id)}>Use</button>
@@ -219,27 +226,8 @@ const CharacterDetails = () => {
             ) : (
               <InventoryManager characterId={character.id} />
             )}
-        {inventory.length === 0 ? (
-          <p className="text-gray-500">No items in inventory.</p>
-        ) : (
-          <ul className="space-y-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
-            {inventory.map((item) => (
-              <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
-                <ItemEffectsTooltip itemName={item.name}>
-                  <h4 className="text-lg font-semibold">{item.name}</h4>
-                  {item.description && <p className="text-gray-600">{item.description}</p>}
-                  <p className="text-sm text-gray-500">Type: {item.type}</p>
-                  <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                </ItemEffectsTooltip>
-                <div className="mt-2 grid-cols-2">
-                    <button className="w-1/2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
-                    <button className="w-1/2 bg-red-400 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
-                  </div>
-              </li>
-            ))}
-          </ul>
-        )}
+          </CardContent>
+        </Card>
       </section>
 
 
