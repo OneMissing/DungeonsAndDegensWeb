@@ -199,7 +199,7 @@ const CharacterDetails = () => {
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h3 className="text-2xl font-semibold">Item Manager</h3>
-        <InventoryManager characterId={id as string} />
+        <InventoryManager characterId={character.id} />
       </section>
 
 

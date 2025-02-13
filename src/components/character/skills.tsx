@@ -31,7 +31,6 @@ const SkillsTable = ({ characterId }: SkillsTableProps) => {
       if (error) {
         setError("Failed to fetch skills.");
       } else {
-        // Remove character_id from the object to keep only skill values
         const { character_id, ...skillsData } = data;
         setSkills(skillsData);
       }
