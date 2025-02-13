@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { fetchItemEffects } from "@/lib/fetchItemEffects";
 
-function ItemEffectsDisplay({ itemName }: { itemName: string }) {
+function ItemEffectsDisplay({ itemId }: { itemId: string }) {
   const [effects, setEffects] = useState<string[]>([]);
 
   useEffect(() => {
     async function loadEffects() {
-      const result = await fetchItemEffects(itemName);
+      const result = await fetchItemEffects(itemId);
       setEffects(result);
     }
     loadEffects();
-  }, [itemName]);
+  }, [itemId]);
 
   return (
     <div className="mt-2">
