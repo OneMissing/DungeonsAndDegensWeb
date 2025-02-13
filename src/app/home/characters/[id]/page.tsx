@@ -201,25 +201,31 @@ const CharacterDetails = () => {
                   {inventory.map((item) => (
                     <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                       <ItemEffectsTooltip itemName={item.name}>
-                        <h4
-                          className="text-lg font-semibold cursor-pointer text-yellow-600"
-                          onClick={() => toggleExpand(item.id)}
-                        >
-                          {item.name}
-                        </h4>
-                      {expandedItem === item.id && (
-                        <div>
-                          {item.description && <p className="text-gray-600">{item.description}</p>}
-                          <p className="text-sm text-gray-500">Type: {item.type}</p>
-                          <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                          <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                          <div className="mt-2 grid grid-cols-2 gap-2">
-                            <button className="bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add</button>
-                            <button className="bg-red-400 text-white py-2 rounded-lg hover:bg-red-700" onClick={() => removeItem(item.id)}>Use</button>
-                          </div>
+                        <div className="grid grid-cols-2 items-center">
+                          <h4
+                            className="text-lg font-semibold cursor-pointer text-yellow-600"
+                            onClick={() => toggleExpand(item.id)}
+                          >
+                            {item.name}
+                          </h4>
+                          <h6 className="text-lg font-semibold cursor-pointer text-yellow-600">
+                            {item.quantity}×
+                          </h6>
                         </div>
-                      )}
-                    </ItemEffectsTooltip>
+
+                        {expandedItem === item.id && (
+                          <div>
+                            {item.description && <p className="text-gray-600">{item.description}</p>}
+                            <p className="text-sm text-gray-500">Type: {item.type}</p>
+                            <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+                            <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              <button className="bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add</button>
+                              <button className="bg-red-400 text-white py-2 rounded-lg hover:bg-red-700" onClick={() => removeItem(item.id)}>Use</button>
+                            </div>
+                          </div>
+                        )}
+                      </ItemEffectsTooltip>
                     </li>
                   ))}
                 </ul>
