@@ -20,7 +20,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang="cs">
       <body className="h-screen overflow-hidden">
         <NavbarHome />
-        <main className="h-[calc(100vh-3.5rem)] mt-14 overflow-hidden">
+        <main className="h-[calc(100vh-3.5rem)] mt-14 overflow-auto">
           {children}
         </main>
       </body>

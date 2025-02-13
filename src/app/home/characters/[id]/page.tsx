@@ -149,63 +149,49 @@ const CharacterDetails = () => {
 
 
   return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full h-[calc(100vh-3.5rem)]">
-        
-        {/* Character Stats */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md h-full">
-          <h2 className="text-4xl font-bold text-center">{character.name}</h2>
-          <p className="text-lg text-gray-600 text-center">
-            {character.race} - {character.class} (Level {character.level})
-          </p>
-          <h3 className="text-2xl font-semibold">Attributes</h3>
-          <ul className="grid grid-cols-2 gap-4 text-gray-700">
-            <li><strong>STR:</strong> {character.strength}</li>
-            <li><strong>DEX:</strong> {character.dexterity}</li>
-            <li><strong>CON:</strong> {character.constitution}</li>
-            <li><strong>INT:</strong> {character.intelligence}</li>
-            <li><strong>WIS:</strong> {character.wisdom}</li>
-            <li><strong>CHA:</strong> {character.charisma}</li>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full min-h-[calc(100vh-3.5rem)] overflow-hidden">
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <h2 className="text-4xl font-bold text-center">{character.name}</h2>
+        <p className="text-lg text-gray-600 text-center">{character.race} - {character.class} (Level {character.level})</p>
+        <h3 className="text-2xl font-semibold">Attributes</h3>
+        <ul className="grid grid-cols-2 gap-4 text-gray-700">
+          <li><strong>STR:</strong> {character.strength}</li>
+          <li><strong>DEX:</strong> {character.dexterity}</li>
+          <li><strong>CON:</strong> {character.constitution}</li>
+          <li><strong>INT:</strong> {character.intelligence}</li>
+          <li><strong>WIS:</strong> {character.wisdom}</li>
+          <li><strong>CHA:</strong> {character.charisma}</li>
+        </ul>
+      </section>
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <h3 className="text-2xl font-semibold">Inventory</h3>
+        {inventory.length === 0 ? (
+          <p className="text-gray-500">No items in inventory.</p>
+        ) : (
+          <ul className="space-y-4">
+            {inventory.map((item) => (
+              <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                <ItemEffectsTooltip itemName={item.name}>
+                  <h4 className="text-lg font-semibold">{item.name}</h4>
+                  {item.description && <p className="text-gray-600">{item.description}</p>}
+                  <p className="text-sm text-gray-500">Type: {item.type}</p>
+                  <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                </ItemEffectsTooltip>
+              </li>
+            ))}
           </ul>
-        </div>
-
-        {/* Inventory */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md h-full">
-          <h3 className="text-2xl font-semibold">Inventory</h3>
-          {inventory.length === 0 ? (
-            <p className="text-gray-500">No items in inventory.</p>
-          ) : (
-            <ul className="space-y-4 h-full overflow-y-visible md:overflow-y-auto">
-              {inventory.map((item) => (
-                <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
-                  <ItemEffectsTooltip itemName={item.name}>
-                    <h4 className="text-lg font-semibold">{item.name}</h4>
-                    {item.description && <p className="text-gray-600">{item.description}</p>}
-                    <p className="text-sm text-gray-500">Type: {item.type}</p>
-                    <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                    <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                  </ItemEffectsTooltip>
-                  <div className="mt-2">
-                    <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
-                    <button className="w-full bg-red-500 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Spells */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md h-full">
-          <h3 className="text-2xl font-semibold">Spells</h3>
-          <p>No spells learned</p>
-        </div>
-
-        {/* Item Manager */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md h-full">
-          <h3 className="text-2xl font-semibold">Item Manager</h3>
-          <InventoryManager characterId={id as string} onItemAdded={fetchData} />
-        </div>
-      </div>
+        )}
+      </section>
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <h3 className="text-2xl font-semibold">Spells</h3>
+        <p>No spells learned</p>
+      </section>
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <h3 className="text-2xl font-semibold">Item Manager</h3>
+        <InventoryManager characterId={id as string} />
+      </section>
+    </div>
   );
 };
 
