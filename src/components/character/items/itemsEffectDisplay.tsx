@@ -53,11 +53,11 @@ function ItemEffectsDisplay({ itemId }: { itemId: string }) {
   const hasValidEffects =
     damageTypes.some(
       (type) =>
-        (effects?.[`${type}_dice_count` as keyof ItemEffect] ?? 0) > 0 &&
-        (effects?.[`${type}_dice_sides` as keyof ItemEffect] ?? 0) > 0
+        (effects?.[`${type}_dice_count` as keyof ItemEffect] ?? "") !== 0 &&
+        (effects?.[`${type}_dice_sides` as keyof ItemEffect] ?? "") !== 0
     ) ||
-    (effects?.healing_dice_count ?? 0) > 0 ||
-    (effects?.armor_class ?? 0) > 0;
+    (effects?.healing_dice_count ?? "") !== 0 ||
+    (effects?.armor_class ?? "") !== 0;
 
   if (!hasValidEffects) return null;
 
