@@ -6,6 +6,10 @@ import supabase from "@/lib/supabase/client";
 import InventoryManager from "@/components/character/items/inventoryManager";
 import ItemEffectsTooltip from "@/components/character/items/ItemEffectsTooltip";
 import SkillsTable from "@/components/character/skills";
+import { Button } from "@/components/ui/cards/button";
+import { Card } from "@/components/ui/cards/card";
+import { CardContent } from "@/components/ui/cards/cardContent";
+
 interface Character {
   id: string;
   user_id: string;
@@ -42,6 +46,7 @@ const CharacterDetails = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeButton, setActiveButton] = useState<"Inventory" | "Items">("Inventory");
 
   const fetchData = async () => {
     if (!id) return;
@@ -172,7 +177,43 @@ const CharacterDetails = () => {
        
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
-        <h3 className="text-2xl font-semibold">Inventory</h3>
+        <div className="grid-cols-3">
+          <Button
+            variant={activeButton === "Inventory" ? "default" : "outline"}
+            onClick={() => setActiveButton("Inventory")}
+          >Inventory</Button>
+          <p>|</p>
+          <Button
+            variant={activeButton === "Items" ? "default" : "outline"}
+            onClick={() => setActiveButton("Items")}
+          >Items</Button>
+        </div>
+        <button className="text-2xl font-semibold" onClick={() => setActiveButton("Items")} >Items</button>
+        <Card className="w-80 p-4 text-center">
+        <CardContent>
+          {activeButton === "Inventory" ? inventory.length === 0 ? (
+          <p className="text-gray-500">No items in inventory.</p>
+        ) : (
+          <ul className="space-y-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
+            {inventory.map((item) => (
+              <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                <ItemEffectsTooltip itemName={item.name}>
+                  <h4 className="text-lg font-semibold">{item.name}</h4>
+                  {item.description && <p className="text-gray-600">{item.description}</p>}
+                  <p className="text-sm text-gray-500">Type: {item.type}</p>
+                  <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                </ItemEffectsTooltip>
+                <div className="mt-2 grid-cols-2">
+                    <button className="w-1/2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
+                    <button className="w-1/2 bg-red-400 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
+                  </div>
+              </li>
+            ))}
+          </ul>
+        ) : ( <InventoryManager characterId={character.id} /> )}
+        </CardContent>
+      </Card>
         {inventory.length === 0 ? (
           <p className="text-gray-500">No items in inventory.</p>
         ) : (
@@ -194,10 +235,6 @@ const CharacterDetails = () => {
             ))}
           </ul>
         )}
-        <div className="hidden">
-          <h3 className="text-2xl font-semibold">Item Manager</h3>
-          <InventoryManager characterId={character.id} />
-        </div>
       </section>
 
 

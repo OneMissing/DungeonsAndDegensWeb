@@ -59,21 +59,13 @@ const SkillsTable = ({ characterId }: SkillsTableProps) => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="p-4 border rounded-lg bg-white shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
-      <table className="min-w-full border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border px-4 py-2">Skill</th>
-            <th className="border px-4 py-2">Decrease</th>
-            <th className="border px-4 py-2">Value</th>
-            <th className="border px-4 py-2">Increase</th>
-          </tr>
-        </thead>
+    <div className="rounded-lg bg-white shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
+      <table className="min-w-full border    rounded-lg bg-white">
         <tbody>
           {Object.entries(skills).map(([skill, value]) => (
             <tr key={skill} className="text-center">
-              <td className="border px-4 py-2 font-semibold">{skill.replace(/_/g, " ")}</td>
-              <td className="border px-4 py-2">
+              <td className=" px-4 py-2 font-semibold">{skill.replace(/_/g, " ")}</td>
+              <td className=" px-4 py-2">
                 <button
                   className="bg-red-500 text-white px-3 py-1 rounded"
                   onClick={() => updateSkill(skill, value - 1)}
@@ -82,8 +74,8 @@ const SkillsTable = ({ characterId }: SkillsTableProps) => {
                   -
                 </button>
               </td>
-              <td className="border px-4 py-2">{value}</td>
-              <td className="border px-4 py-2">
+              <td className=" px-4 py-2">{value}</td>
+              <td className=" px-4 py-2">
                 <button
                   className="bg-green-500 text-white px-3 py-1 rounded"
                   onClick={() => updateSkill(skill, value + 1)}
