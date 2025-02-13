@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import supabase from "@/lib/supabase/client";
 import InventoryManager from "@/components/character/items/inventoryManager";
 import ItemEffectsTooltip from "@/components/character/items/ItemEffectsTooltip";
-
+import SkillsTable from "@/components/character/skills";
 interface Character {
   id: string;
   user_id: string;
@@ -167,7 +167,7 @@ const CharacterDetails = () => {
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
       <h3 className="text-2xl font-semibold">Skills</h3>
-
+      <SkillsTable />
       </section>
       
 
