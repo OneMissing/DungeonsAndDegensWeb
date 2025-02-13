@@ -76,26 +76,16 @@ const CharacterDetails = () => {
       if (inventoryError) throw new Error("Failed to load inventory.");
 
       // Format inventory and remove duplicates
-      const formattedInventory = inventoryData
-        .map((entry: any) => ({
-          id: entry.items.id,
-          name: entry.items.name,
-          description: entry.items.description,
-          type: entry.items.type,
-          weight: entry.items.weight,
-          value: entry.items.value,
-          quantity: entry.quantity,
-          inventoryId: entry.id,
-        }))
-        .reduce((acc: InventoryItem[], item) => {
-          const existing = acc.find((i) => i.id === item.id);
-          if (existing) {
-            existing.quantity += item.quantity;
-          } else {
-            acc.push(item);
-          }
-          return acc;
-        }, []);
+      const formattedInventory = inventoryData.map((entry: any) => ({
+        id: entry.items.id,
+        name: entry.items.name,
+        description: entry.items.description,
+        type: entry.items.type,
+        weight: entry.items.weight,
+        value: entry.items.value,
+        quantity: entry.quantity,
+        inventoryId: entry.id,
+      }));
 
       setInventory(formattedInventory);
     } catch (err) {
@@ -109,6 +99,14 @@ const CharacterDetails = () => {
     fetchData();
   }, [id]);
 
+  const updateInventoryState = (itemId: string, change: number) => {
+    setInventory((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, quantity: item.quantity + change } : item
+      ).filter((item) => item.quantity > 0)
+    );
+  };
+
   const addItem = async (itemId: string) => {
     try {
       const item = inventory.find((i) => i.id === itemId);
@@ -119,7 +117,7 @@ const CharacterDetails = () => {
         .update({ quantity: item.quantity + 1 })
         .eq("id", item.inventoryId);
 
-      fetchData();
+      updateInventoryState(itemId, 1);
     } catch (err) {
       console.error("Error adding item:", err);
     }
@@ -139,7 +137,7 @@ const CharacterDetails = () => {
           .eq("id", item.inventoryId);
       }
 
-      fetchData();
+      updateInventoryState(itemId, -1);
     } catch (err) {
       console.error("Error removing item:", err);
     }
@@ -148,6 +146,7 @@ const CharacterDetails = () => {
   if (loading) return <p className="text-center text-gray-500">Loading character...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
   if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
+
 
   return (
     <div className="w-full px-4 py-6 mx-auto">
