@@ -61,10 +61,10 @@ Link:hover {
     border-color: #d4af37;
 }
 
-@keyframes fadeIn {
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -72,6 +72,7 @@ Link:hover {
   }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.2s ease-out;
+.animate-fadeInUp {
+  animation: fadeInUp 0.25s ease-out;
 }
+
