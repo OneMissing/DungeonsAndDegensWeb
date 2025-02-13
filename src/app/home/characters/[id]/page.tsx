@@ -179,7 +179,7 @@ const CharacterDetails = () => {
 
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
-        <div className="flex flex-col">
+        <div className="grid-cols-2">
           <Button
             className="w-1/2"
             variant={activeButton === "Inventory" ? "default" : "outline"}
@@ -191,7 +191,7 @@ const CharacterDetails = () => {
             onClick={() => setActiveButton("Items")}
           >Items</Button>
         </div>
-        <Card className="w-80 p-4 text-center">
+        <Card>
           <CardContent>
             {activeButton === "Inventory" ? (
               inventory.length === 0 ? (
