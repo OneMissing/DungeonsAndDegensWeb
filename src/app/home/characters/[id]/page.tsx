@@ -189,35 +189,48 @@ const CharacterDetails = () => {
                     <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                     <div className="mt-2">
                     <div className="mt-2">
-                    {inventory.map((item) => {
-                        const { start: addStart, stop: addStop } = handleButtonPress(addItem, item.id);
-                        const { start: removeStart, stop: removeStop } = handleButtonPress(removeItem, item.id);
-                      
-                        return (
-                          <div key={item.id} className="flex flex-col gap-2">
-                            <button
-                              className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-700"
-                              onMouseDown={addStart}
-                              onMouseUp={addStop}
-                              onMouseLeave={addStop}
-                              onTouchStart={addStart}
-                              onTouchEnd={addStop}
-                            >
-                              Add Item
-                            </button>
-                            <button
-                              className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-700"
-                              onMouseDown={removeStart}
-                              onMouseUp={removeStop}
-                              onMouseLeave={removeStop}
-                              onTouchStart={removeStart}
-                              onTouchEnd={removeStop}
-                            >
-                              Use Item
-                            </button>
-                          </div>
-                        );
-                      })}
+                    <div className="mt-2">
+  {inventory.map((item, index) => {
+    const { start: addStart, stop: addStop } = handleButtonPress(addItem, item.id);
+    const { start: removeStart, stop: removeStop } = handleButtonPress(removeItem, item.id);
+
+    return (
+      <div key={item.id || index} className="p-4 bg-white rounded-lg shadow-md">
+        {/* Item details */}
+        <h3 className="text-lg font-bold text-yellow-600">{item.name}</h3>
+        <p className="text-sm text-gray-600">{item.description}</p>
+        <p className="text-sm">Type: {item.type}</p>
+        <p className="text-sm">Weight: {item.weight} | Value: {item.value} gp</p>
+        <p className="text-sm font-semibold">Quantity: {item.quantity}</p>
+
+        {/* Single set of buttons */}
+        <div className="flex flex-col gap-2 mt-3">
+          <button
+            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-700"
+            onMouseDown={addStart}
+            onMouseUp={addStop}
+            onMouseLeave={addStop}
+            onTouchStart={addStart}
+            onTouchEnd={addStop}
+          >
+            Add Item
+          </button>
+          <button
+            className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-700"
+            onMouseDown={removeStart}
+            onMouseUp={removeStop}
+            onMouseLeave={removeStop}
+            onTouchStart={removeStart}
+            onTouchEnd={removeStop}
+          >
+            Use Item
+          </button>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
                     </div>
 
                     </div>
