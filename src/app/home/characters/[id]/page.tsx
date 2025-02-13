@@ -82,6 +82,24 @@ const CharacterDetails = () => {
     }
   };
   
+  const handleButtonPress = (callback: (itemId: string) => void, itemId: string) => {
+    let interval: NodeJS.Timeout;
+    let isHeld = false;
+    const start = () => {
+      if (!isHeld) {
+        isHeld = true;
+        callback(itemId);
+        interval = setInterval(() => callback(itemId), 200);
+      }
+    };
+    const stop = () => {
+      isHeld = false;
+      clearInterval(interval);
+    };
+    return { start, stop };
+  };
+  
+
   const fetchData = async () => {
     if (!id) return;
     try {
@@ -157,11 +175,11 @@ const CharacterDetails = () => {
         {/* Middle Column: Inventory */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-h-[calc(100svh-8rem)] min-h-0">
         <h3 className="text-2xl font-semibold mb-4 ">Inventory</h3>
-          <div className="bg-gray-100 rounded-lg w-full max-h-[calc(100svh-11rem)] overflow-y-auto min-h-0">
+          <div className="bg-gray-100 rounded-lg w-full max-h-[calc(100svh-14rem)] overflow-y-auto min-h-0">
           {inventory.length === 0 ? (
-            <p className="text-gray-500 mt-2">No items in inventory.</p>
+            <p className="text-gray-500">No items in inventory.</p>
           ) : (
-            <ul className="mt-4 space-y-4">
+            <ul className="space-y-4">
               {inventory.map((item) => (
                 <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                     <h4 className="text-lg font-semibold">{item.name}</h4>
@@ -170,8 +188,35 @@ const CharacterDetails = () => {
                     <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
                     <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                     <div className="mt-2">
-                      <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
-                      <button className="w-full bg-red-500 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
+                      {inventory.map((item) => {
+                        const addItemHandlers = handleButtonPress(addItem, item.id);
+                        const removeItemHandlers = handleButtonPress(removeItem, item.id);
+                      
+                        return (
+                          <div key={item.id}>
+                            <button
+                              className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-700"
+                              onMouseDown={addItemHandlers.start}
+                              onMouseUp={addItemHandlers.stop}
+                              onMouseLeave={addItemHandlers.stop}
+                              onTouchStart={addItemHandlers.start}
+                              onTouchEnd={addItemHandlers.stop}
+                            >
+                              Add Item
+                            </button>
+                            <button
+                              className="w-full bg-red-500 text-white py-2 rounded-lg mt-2 hover:bg-red-700"
+                              onMouseDown={removeItemHandlers.start}
+                              onMouseUp={removeItemHandlers.stop}
+                              onMouseLeave={removeItemHandlers.stop}
+                              onTouchStart={removeItemHandlers.start}
+                              onTouchEnd={removeItemHandlers.stop}
+                            >
+                              Use Item
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                 </li>
               ))}
