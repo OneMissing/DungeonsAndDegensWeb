@@ -156,7 +156,7 @@ const CharacterDetails = () => {
 
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full min-h-[calc(100vh-4.5rem)] overflow-hidden mt-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full min-h-[calc(100vh-4.5rem)] overflow-hidden mt-4 ml-4 mr-4">
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h2 className="text-4xl font-bold text-center">{character.name}</h2>
         <p className="text-lg text-gray-600 text-center">{character.race} - {character.class} (Level {character.level})</p>
