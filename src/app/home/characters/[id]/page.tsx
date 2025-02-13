@@ -188,35 +188,38 @@ const CharacterDetails = () => {
                     <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
                     <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                     <div className="mt-2">
-                      {inventory.map((item) => {
-                        const addItemHandlers = handleButtonPress(addItem, item.id);
-                        const removeItemHandlers = handleButtonPress(removeItem, item.id);
+                    <div className="mt-2">
+                    {inventory.map((item) => {
+                        const { start: addStart, stop: addStop } = handleButtonPress(addItem, item.id);
+                        const { start: removeStart, stop: removeStop } = handleButtonPress(removeItem, item.id);
                       
                         return (
-                          <div key={item.id}>
+                          <div key={item.id} className="flex flex-col gap-2">
                             <button
                               className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-700"
-                              onMouseDown={addItemHandlers.start}
-                              onMouseUp={addItemHandlers.stop}
-                              onMouseLeave={addItemHandlers.stop}
-                              onTouchStart={addItemHandlers.start}
-                              onTouchEnd={addItemHandlers.stop}
+                              onMouseDown={addStart}
+                              onMouseUp={addStop}
+                              onMouseLeave={addStop}
+                              onTouchStart={addStart}
+                              onTouchEnd={addStop}
                             >
                               Add Item
                             </button>
                             <button
-                              className="w-full bg-red-500 text-white py-2 rounded-lg mt-2 hover:bg-red-700"
-                              onMouseDown={removeItemHandlers.start}
-                              onMouseUp={removeItemHandlers.stop}
-                              onMouseLeave={removeItemHandlers.stop}
-                              onTouchStart={removeItemHandlers.start}
-                              onTouchEnd={removeItemHandlers.stop}
+                              className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-700"
+                              onMouseDown={removeStart}
+                              onMouseUp={removeStop}
+                              onMouseLeave={removeStop}
+                              onTouchStart={removeStart}
+                              onTouchEnd={removeStop}
                             >
                               Use Item
                             </button>
                           </div>
                         );
                       })}
+                    </div>
+
                     </div>
                 </li>
               ))}
