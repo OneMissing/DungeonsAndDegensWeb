@@ -43,13 +43,23 @@ const CharacterDetails = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-    const removeItem = async (itemId: string) => {
+    const addItem = async (itemId: string) => {
+    try {
+      const item = inventory.find((item) => item.id === itemId);
+      if (!item) return;
+
+      const newQuantity = item.quantity + 1;
+      await supabase.from("inventory").update({ quantity: newQuantity }).eq("id", itemId);
+      fetchData();
+    } catch (err) {
+      console.error("Error adding item:", err);
+    }
+  };
+  const removeItem = async (itemId: string) => {
     try {
       const item = inventory.find((item) => item.id === itemId);
       if (!item || item.quantity <= 0) return;
-
       const newQuantity = item.quantity - 1;
-
       if (newQuantity === 0) {
         await supabase.from("inventory").delete().eq("id", itemId);
       } else {
@@ -62,7 +72,6 @@ const CharacterDetails = () => {
   };
   const fetchData = async () => {
     if (!id) return;
-
     try {
       const { data: characterData, error: characterError } = await supabase
         .from("characters")
@@ -118,7 +127,6 @@ const CharacterDetails = () => {
 
   return (
     <div className="w-full px-4 py-6 mx-auto">
-      {/* Grid Layout (Three Columns) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
         {/* Left Column: Character Stats */}
         <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-h-[calc(100svh-8rem)] overflow-y-auto min-h-0">
@@ -150,12 +158,15 @@ const CharacterDetails = () => {
             <ul className="mt-4 space-y-4">
               {inventory.map((item) => (
                 <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
-                  <button onClick={() => removeItem(item.id)} className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded" > - </button>
-                  <h4 className="text-lg font-semibold">{item.name}</h4>
-                  {item.description && <p className="text-gray-600">{item.description}</p>}
-                  <p className="text-sm text-gray-500">Type: {item.type}</p>
-                  <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                    <h4 className="text-lg font-semibold">{item.name}</h4>
+                    {item.description && <p className="text-gray-600">{item.description}</p>}
+                    <p className="text-sm text-gray-500">Type: {item.type}</p>
+                    <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+                    <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                    <div className="mt-2">
+                      <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
+                      <button className="w-full bg-red-500 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
+                    </div>
                 </li>
               ))}
             </ul>
