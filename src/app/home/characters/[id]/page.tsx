@@ -35,13 +35,31 @@ interface InventoryItem {
   inventoryId: string;
 }
 
+
+
 const CharacterDetails = () => {
   const { id } = useParams();
   const [character, setCharacter] = useState<Character | null>(null);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+    const removeItem = async (itemId: string) => {
+    try {
+      const item = inventory.find((item) => item.id === itemId);
+      if (!item || item.quantity <= 0) return;
 
+      const newQuantity = item.quantity - 1;
+
+      if (newQuantity === 0) {
+        await supabase.from("inventory").delete().eq("id", itemId);
+      } else {
+        await supabase.from("inventory").update({ quantity: newQuantity }).eq("id", itemId);
+      }
+      fetchData();
+    } catch (err) {
+      console.error("Error removing item:", err);
+    }
+  };
   const fetchData = async () => {
     if (!id) return;
 
@@ -132,6 +150,7 @@ const CharacterDetails = () => {
             <ul className="mt-4 space-y-4">
               {inventory.map((item) => (
                 <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                  <button onClick={() => removeItem(item.id)} className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded" > - </button>
                   <h4 className="text-lg font-semibold">{item.name}</h4>
                   {item.description && <p className="text-gray-600">{item.description}</p>}
                   <p className="text-sm text-gray-500">Type: {item.type}</p>
