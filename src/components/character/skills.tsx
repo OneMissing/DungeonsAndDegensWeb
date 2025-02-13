@@ -59,10 +59,7 @@ const SkillsTable = ({ characterId }: SkillsTableProps) => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="p-4 border rounded-lg bg-white shadow-md">
-      <h3 className="text-lg font-semibold mb-4">Character Skills</h3>
-
-      <table className="min-w-full border border-gray-300">
+      <table className="min-w-full border border-gray-300 p-4 rounded-lg bg-white shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
         <thead>
           <tr className="bg-gray-200">
             <th className="border px-4 py-2">Skill</th>
@@ -97,7 +94,6 @@ const SkillsTable = ({ characterId }: SkillsTableProps) => {
           ))}
         </tbody>
       </table>
-    </div>
   );
 };
 
