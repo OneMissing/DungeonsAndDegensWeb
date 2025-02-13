@@ -47,6 +47,7 @@ const CharacterDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeButton, setActiveButton] = useState<"Inventory" | "Items">("Inventory");
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
   const fetchData = async () => {
     if (!id) return;
@@ -54,7 +55,6 @@ const CharacterDetails = () => {
     try {
       setLoading(true);
 
-      // Fetch character details
       const { data: characterData, error: characterError } = await supabase
         .from("characters")
         .select("*")
@@ -62,7 +62,6 @@ const CharacterDetails = () => {
         .single();
       if (characterError) throw new Error("Character not found.");
 
-      // Fetch character stats
       const { data: statsData, error: statsError } = await supabase
         .from("character_stats")
         .select("strength, dexterity, constitution, intelligence, wisdom, charisma")
@@ -70,7 +69,6 @@ const CharacterDetails = () => {
         .single();
       if (statsError) throw new Error("Failed to load character stats.");
 
-      // Merge character and stats
       setCharacter({ ...characterData, ...statsData });
 
       // Fetch inventory
@@ -80,7 +78,6 @@ const CharacterDetails = () => {
         .eq("character_id", id);
       if (inventoryError) throw new Error("Failed to load inventory.");
 
-      // Format inventory and remove duplicates
       const formattedInventory = inventoryData.map((entry: any) => ({
         id: entry.items.id,
         name: entry.items.name,
@@ -99,6 +96,11 @@ const CharacterDetails = () => {
       setLoading(false);
     }
   };
+
+  const toggleExpand = (itemId: string) => {
+    setExpandedItem(expandedItem === itemId ? null : itemId);
+  };
+
 
   useEffect(() => {
     fetchData();
@@ -189,30 +191,41 @@ const CharacterDetails = () => {
         </div>
         <button className="text-2xl font-semibold" onClick={() => setActiveButton("Items")} >Items</button>
         <Card className="w-80 p-4 text-center">
-        <CardContent>
-          {activeButton === "Inventory" ? inventory.length === 0 ? (
-          <p className="text-gray-500">No items in inventory.</p>
-        ) : (
-          <ul className="space-y-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
-            {inventory.map((item) => (
-              <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
-                <ItemEffectsTooltip itemName={item.name}>
-                  <h4 className="text-lg font-semibold">{item.name}</h4>
-                  {item.description && <p className="text-gray-600">{item.description}</p>}
-                  <p className="text-sm text-gray-500">Type: {item.type}</p>
-                  <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                </ItemEffectsTooltip>
-                <div className="mt-2 grid-cols-2">
-                    <button className="w-1/2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
-                    <button className="w-1/2 bg-red-400 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
-                  </div>
-              </li>
-            ))}
-          </ul>
-        ) : ( <InventoryManager characterId={character.id} /> )}
-        </CardContent>
-      </Card>
+          <CardContent>
+            {activeButton === "Inventory" ? (
+              inventory.length === 0 ? (
+                <p className="text-gray-500">No items in inventory.</p>
+              ) : (
+                <ul className="space-y-4 overflow-y-auto mt-4">
+                  {inventory.map((item) => (
+                    <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                      <h4 
+                        className="text-lg font-semibold cursor-pointer text-yellow-600"
+                        onClick={() => toggleExpand(item.id)}
+                      >
+                        {item.name}
+                      </h4>
+                      {expandedItem === item.id && (
+                        <div>
+                          {item.description && <p className="text-gray-600">{item.description}</p>}
+                          <p className="text-sm text-gray-500">Type: {item.type}</p>
+                          <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+                          <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                          <div className="mt-2 grid grid-cols-2 gap-2">
+                            <button className="bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add</button>
+                            <button className="bg-red-400 text-white py-2 rounded-lg hover:bg-red-700" onClick={() => removeItem(item.id)}>Use</button>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )
+            ) : (
+              <InventoryManager characterId={character.id} />
+            )}
+          </CardContent>
+        </Card>
         {inventory.length === 0 ? (
           <p className="text-gray-500">No items in inventory.</p>
         ) : (
