@@ -77,7 +77,7 @@ function ItemEffectsDisplay({ itemId }: { itemId: string }) {
       })}
       {effects.healing_dice_count! > 0 && effects.healing_dice_sides! > 0 && (
             <p className="text-green-400">
-              <span className="font-semibold">Heals:</span>{" "}
+              <span className="font-semibold">Heal:</span>{" "}
               {effects.healing_dice_count}d{effects.healing_dice_sides}
             </p>
           )}
