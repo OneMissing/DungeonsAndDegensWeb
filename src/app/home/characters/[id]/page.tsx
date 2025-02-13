@@ -149,8 +149,8 @@ const CharacterDetails = () => {
 
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full min-h-[calc(100vh-3.5rem)] overflow-hidden">
-      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full min-h-[calc(100vh-3.5rem)] overflow-hidden mt-4">
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h2 className="text-4xl font-bold text-center">{character.name}</h2>
         <p className="text-lg text-gray-600 text-center">{character.race} - {character.class} (Level {character.level})</p>
         <h3 className="text-2xl font-semibold">Attributes</h3>
@@ -163,12 +163,12 @@ const CharacterDetails = () => {
           <li><strong>CHA:</strong> {character.charisma}</li>
         </ul>
       </section>
-      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-5rem)] md:h-[calc(100vh-5rem)]">
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h3 className="text-2xl font-semibold">Inventory</h3>
         {inventory.length === 0 ? (
           <p className="text-gray-500">No items in inventory.</p>
         ) : (
-          <ul className="space-y-4 min-h-0 md:min-h-[calc(100vh-14rem)] md:h-[calc(100vh-14rem)] overflow-y-visible md:overflow-y-auto">
+          <ul className="space-y-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
             {inventory.map((item) => (
               <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                 <ItemEffectsTooltip itemName={item.name}>
@@ -179,19 +179,19 @@ const CharacterDetails = () => {
                   <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                 </ItemEffectsTooltip>
                 <div className="mt-2 grid-cols-2">
-                    <button className="w-auto bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
-                    <button className="w-auto bg-red-400 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
+                    <button className="w-1/2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
+                    <button className="w-1/2 bg-red-400 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
                   </div>
               </li>
             ))}
           </ul>
         )}
       </section>
-      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] overflow-y-auto">
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h3 className="text-2xl font-semibold">Spells</h3>
         <p>No spells learned</p>
       </section>
-      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] overflow-y-auto">
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h3 className="text-2xl font-semibold">Item Manager</h3>
         <InventoryManager characterId={id as string} />
       </section>
