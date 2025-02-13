@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "@/lib/supabase/client";
 import InventoryManager from "@/components/character/items/inventoryManager";
+import ItemEffectsTooltip from "@/components/character/items/ItemEffectsTooltip";
 
 interface Character {
   id: string;
@@ -182,11 +183,13 @@ const CharacterDetails = () => {
             <ul className="space-y-4">
               {inventory.map((item) => (
                 <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                    <ItemEffectsTooltip itemName={item.name}>
                     <h4 className="text-lg font-semibold">{item.name}</h4>
                     {item.description && <p className="text-gray-600">{item.description}</p>}
                     <p className="text-sm text-gray-500">Type: {item.type}</p>
                     <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
                     <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                    </ItemEffectsTooltip>
                     <div className="mt-2">
                     <div className="mt-2">
                     <div className="mt-2">
