@@ -35,31 +35,21 @@ type ItemEffect = {
 };
 
 type Props = {
-  itemName: string;
+  itemId: string;
   children: ReactNode;
 };
 
-export default function ItemEffectsTooltip({ itemName, children }: Props) {
+export default function ItemEffectsTooltip({ itemId, children }: Props) {
   const [effects, setEffects] = useState<ItemEffect | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     async function fetchEffects() {
-      const { data: itemData, error: itemError } = await supabase
-        .from("items")
-        .select("id")
-        .eq("name", itemName)
-        .single();
-
-      if (itemError) {
-        console.error("Error fetching item ID:", itemError);
-        return;
-      }
 
       const { data, error } = await supabase
         .from("item_effects")
         .select("*")
-        .eq("item_id", itemData.id)
+        .eq("item_id", itemId)
         .single();
 
       if (error) {
@@ -69,7 +59,7 @@ export default function ItemEffectsTooltip({ itemName, children }: Props) {
       }
     }
     fetchEffects();
-  }, [itemName]);
+  }, [itemId]);
 
   if (!effects) return <>{children}</>;
 
