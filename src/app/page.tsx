@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 export default function App() {
   return (
-    <div className="relative h-screen w-full bg-black">
+    (<div className="relative h-screen w-full bg-black">
       <div className="absolute inset-0">
         <Image 
           src="/landingBG.webp"
@@ -17,7 +17,6 @@ export default function App() {
         />
         <div className="absolute inset-0 bg-black opacity-50"></div>
       </div>
-
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center p-4">
         <motion.h1 
           className="text-5xl md:text-7xl font-bold mb-6"
@@ -42,13 +41,16 @@ export default function App() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1 }}
         >
-          <Link href="/home" passHref> 
-          <a className="text-lg px-8 py-4 bg-red-600 hover:bg-red-700 rounded-2xl shadow-lg">
+          <Link
+            href="/home"
+            passHref
+            className="text-lg px-8 py-4 bg-red-600 hover:bg-red-700 rounded-2xl shadow-lg"> 
+          
               Start Your Adventure
-           </a>
+           
           </Link>
         </motion.div>
       </div>
-    </div>
+    </div>)
   );
 }
