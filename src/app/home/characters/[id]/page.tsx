@@ -149,11 +149,10 @@ const CharacterDetails = () => {
 
 
   return (
-    <div className="w-full mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full h-[calc(100vh-3.5rem)]">
         
         {/* Character Stats */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md h-full">
           <h2 className="text-4xl font-bold text-center">{character.name}</h2>
           <p className="text-lg text-gray-600 text-center">
             {character.race} - {character.class} (Level {character.level})
@@ -170,12 +169,12 @@ const CharacterDetails = () => {
         </div>
 
         {/* Inventory */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md h-full">
           <h3 className="text-2xl font-semibold">Inventory</h3>
           {inventory.length === 0 ? (
             <p className="text-gray-500">No items in inventory.</p>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-4 h-full overflow-y-visible md:overflow-y-auto">
               {inventory.map((item) => (
                 <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
                   <ItemEffectsTooltip itemName={item.name}>
@@ -195,13 +194,18 @@ const CharacterDetails = () => {
           )}
         </div>
 
+        {/* Spells */}
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md h-full">
+          <h3 className="text-2xl font-semibold">Spells</h3>
+          <p>No spells learned</p>
+        </div>
+
         {/* Item Manager */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md">
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md h-full">
           <h3 className="text-2xl font-semibold">Item Manager</h3>
           <InventoryManager characterId={id as string} onItemAdded={fetchData} />
         </div>
       </div>
-    </div>
   );
 };
 
