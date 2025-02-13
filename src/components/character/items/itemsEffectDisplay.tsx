@@ -53,20 +53,20 @@ function ItemEffectsDisplay({ itemId }: { itemId: string }) {
   const hasValidEffects =
     damageTypes.some(
       (type) =>
-        (effects?.[`${type}_dice_count` as keyof ItemEffect] ?? "") !== 0 &&
-        (effects?.[`${type}_dice_sides` as keyof ItemEffect] ?? "") !== 0
+        (effects?.[`${type}_dice_count` as keyof ItemEffect] ?? 0) > 0 &&
+        (effects?.[`${type}_dice_sides` as keyof ItemEffect] ?? 0) > 0
     ) ||
-    (effects?.healing_dice_count ?? "") !== 0 ||
-    (effects?.armor_class ?? "") !== 0;
+    (effects?.healing_dice_count ?? 0) > 0 ||
+    (effects?.armor_class ?? 0) > 0;
 
   if (!hasValidEffects) return null;
 
   return (
     <div>
       {damageTypes.map((type) => {
-        const count = effects?.[`${type}_dice_count` as keyof ItemEffect];
-        const sides = effects?.[`${type}_dice_sides` as keyof ItemEffect];
-        return count && sides ? (
+        const count = effects?.[`${type}_dice_count` as keyof ItemEffect] ?? 0;
+        const sides = effects?.[`${type}_dice_sides` as keyof ItemEffect] ?? 0;
+        return count > 0 && sides > 0 ? (
           <p key={type} className="text-gray-300">
             <span className="font-semibold">
               {type.charAt(0).toUpperCase() + type.slice(1)} Damage:
@@ -75,13 +75,13 @@ function ItemEffectsDisplay({ itemId }: { itemId: string }) {
           </p>
         ) : null;
       })}
-      {effects?.healing_dice_count && effects?.healing_dice_sides && (
+      {effects?.healing_dice_count && effects?.healing_dice_sides && effects.healing_dice_count > 0 && effects.healing_dice_sides > 0 && (
         <p className="text-green-400">
           <span className="font-semibold">Heals:</span>{" "}
           {effects.healing_dice_count}d{effects.healing_dice_sides}
         </p>
       )}
-      {effects?.armor_class && (
+      {effects?.armor_class && effects.armor_class > 0 && (
         <p className="text-blue-400">
           <span className="font-semibold">Armor Class:</span>{" "}
           {effects.armor_class}
