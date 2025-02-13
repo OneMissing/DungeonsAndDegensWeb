@@ -3,78 +3,52 @@
 import { useState, useEffect } from "react";
 import  supabase  from "@/lib/supabase/client";
 
-interface Skill {
-  id: string;
-  name: string;
-  value: number;
+interface SkillsTableProps {
+  characterId: string;
 }
 
-const SkillsTable = () => {
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [characterId, setCharacterId] = useState<string | null>(null);
+const SkillsTable = ({ characterId }: SkillsTableProps) => {
+  const [skills, setSkills] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCharacterAndSkills = async () => {
+    if (!characterId) {
+      setError("Character ID is missing.");
+      return;
+    }
+
+    const fetchSkills = async () => {
       setLoading(true);
       setError(null);
 
-      // Get the authenticated user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        setError("User not found.");
-        setLoading(false);
-        return;
-      }
-
-      // Fetch the user's character ID
-      const { data: characterData, error: characterError } = await supabase
-        .from("characters")
-        .select("id")
-        .eq("user_id", user.id)
+      const { data, error } = await supabase
+        .from("character_skills")
+        .select("*")
+        .eq("character_id", characterId)
         .single();
 
-      if (characterError || !characterData) {
-        setError("Character not found.");
-        setLoading(false);
-        return;
-      }
-
-      setCharacterId(characterData.id);
-
-      // Fetch character's skills
-      const { data: skillsData, error: skillsError } = await supabase
-        .from("user_skills")
-        .select("id, name, value")
-        .eq("user_id", characterData.id);
-
-      if (skillsError) {
+      if (error) {
         setError("Failed to fetch skills.");
       } else {
+        // Remove character_id from the object to keep only skill values
+        const { character_id, ...skillsData } = data;
         setSkills(skillsData);
       }
 
       setLoading(false);
     };
 
-    fetchCharacterAndSkills();
-  }, []);
+    fetchSkills();
+  }, [characterId]);
 
-  const updateSkill = async (skillId: string, newValue: number) => {
-    if (!characterId) return;
+  const updateSkill = async (skill: string, newValue: number) => {
+    setSkills((prev) => ({ ...prev, [skill]: newValue }));
 
-    // Update state first for better UI responsiveness
-    setSkills((prev) =>
-      prev.map((s) => (s.id === skillId ? { ...s, value: newValue } : s))
-    );
-
-    // Update the database
     const { error } = await supabase
-      .from("user_skills")
-      .update({ value: newValue })
-      .eq("id", skillId)
-      .eq("user_id", characterId);
+      .from("character_skills")
+      .update({ [skill]: newValue })
+      .eq("character_id", characterId);
 
     if (error) {
       console.error("Error updating skill:", error);
@@ -99,23 +73,23 @@ const SkillsTable = () => {
           </tr>
         </thead>
         <tbody>
-          {skills.map((skill) => (
-            <tr key={skill.id} className="text-center">
-              <td className="border px-4 py-2 font-semibold">{skill.name}</td>
+          {Object.entries(skills).map(([skill, value]) => (
+            <tr key={skill} className="text-center">
+              <td className="border px-4 py-2 font-semibold">{skill.replace(/_/g, " ")}</td>
               <td className="border px-4 py-2">
                 <button
                   className="bg-red-500 text-white px-3 py-1 rounded"
-                  onClick={() => updateSkill(skill.id, skill.value - 1)}
-                  disabled={skill.value <= 0}
+                  onClick={() => updateSkill(skill, value - 1)}
+                  disabled={value <= 0}
                 >
                   -
                 </button>
               </td>
-              <td className="border px-4 py-2">{skill.value}</td>
+              <td className="border px-4 py-2">{value}</td>
               <td className="border px-4 py-2">
                 <button
                   className="bg-green-500 text-white px-3 py-1 rounded"
-                  onClick={() => updateSkill(skill.id, skill.value + 1)}
+                  onClick={() => updateSkill(skill, value + 1)}
                 >
                   +
                 </button>

@@ -167,9 +167,9 @@ const CharacterDetails = () => {
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
       <h3 className="text-2xl font-semibold">Skills</h3>
-      <SkillsTable />
+      <SkillsTable characterId={id as string}/>
       </section>
-      
+       
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h3 className="text-2xl font-semibold">Inventory</h3>
