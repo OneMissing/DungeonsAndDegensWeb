@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import  supabase  from "@/lib/supabase/client";
+import supabase from "@/lib/supabase/client";
 
-interface SkillsTableProps {
+interface SkillsGridProps {
   characterId: string;
 }
 
-const SkillsTable = ({ characterId }: SkillsTableProps) => {
+const SkillsTable = ({ characterId }: SkillsGridProps) => {
   const [skills, setSkills] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,34 +59,30 @@ const SkillsTable = ({ characterId }: SkillsTableProps) => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="rounded-lg bg-white shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
-      <table className="min-w-full border    rounded-lg bg-white">
-        <tbody>
-          {Object.entries(skills).map(([skill, value]) => (
-            <tr key={skill} className="text-center">
-              <td className=" px-4 py-2 font-semibold">{skill.replace(/_/g, " ")}</td>
-              <td className=" px-4 py-2">
-                <button
-                  className="bg-red-500 text-white px-3 py-1 rounded"
-                  onClick={() => updateSkill(skill, value - 1)}
-                  disabled={value <= 0}
-                >
-                  -
-                </button>
-              </td>
-              <td className=" px-4 py-2">{value}</td>
-              <td className=" px-4 py-2">
-                <button
-                  className="bg-green-500 text-white px-3 py-1 rounded"
-                  onClick={() => updateSkill(skill, value + 1)}
-                >
-                  +
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="rounded-lg bg-white shadow-md p-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {Object.entries(skills).map(([skill, value]) => (
+          <div key={skill} className="flex flex-col items-center p-4 bg-gray-100 rounded-lg shadow">
+            <span className="font-semibold text-lg">{skill.replace(/_/g, " ")}</span>
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                className="bg-red-500 text-white px-3 py-1 rounded"
+                onClick={() => updateSkill(skill, value - 1)}
+                disabled={value <= 0}
+              >
+                -
+              </button>
+              <span className="text-xl font-bold">{value}</span>
+              <button
+                className="bg-green-500 text-white px-3 py-1 rounded"
+                onClick={() => updateSkill(skill, value + 1)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
