@@ -132,6 +132,7 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
                 key={item.id}
                 onClick={() => {
                   setSelectedItem(item);
+                  setSearchTerm(item.name);
                 }}
                 className="p-2 cursor-pointer hover:bg-gray-200"
               >
