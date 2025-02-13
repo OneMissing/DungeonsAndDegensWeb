@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "@/lib/supabase/client";
-import InventoryManager from "@/components/character/inventoryManager";
+import InventoryManager from "@/components/character/items/inventoryManager";
 
 interface Character {
   id: string;
@@ -155,8 +155,9 @@ const CharacterDetails = () => {
         </div>
 
         {/* Middle Column: Inventory */}
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-h-[calc(100svh-8rem)] overflow-y-auto min-h-0">
-          <h3 className="text-2xl font-semibold mb-4">Inventory</h3>
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-h-[calc(100svh-8rem)] min-h-0">
+        <h3 className="text-2xl font-semibold mb-4 ">Inventory</h3>
+          <div className="bg-gray-100 rounded-lg w-full max-h-[calc(100svh-11rem)] overflow-y-auto min-h-0">
           {inventory.length === 0 ? (
             <p className="text-gray-500 mt-2">No items in inventory.</p>
           ) : (
@@ -176,6 +177,7 @@ const CharacterDetails = () => {
               ))}
             </ul>
           )}
+          </div>
         </div>
 
         {/* New Column: Spells */}

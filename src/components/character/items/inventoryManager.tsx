@@ -120,7 +120,7 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full p-2 border rounded mb-2"
-        disabled={!!selectedItem} // Disable search input when an item is selected
+        disabled={!!selectedItem}
       />
 
       {searchTerm && !selectedItem && (
@@ -132,7 +132,6 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
                 key={item.id}
                 onClick={() => {
                   setSelectedItem(item);
-                  setSearchTerm(""); // Hide search results
                 }}
                 className="p-2 cursor-pointer hover:bg-gray-200"
               >
@@ -144,10 +143,9 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
 
       {selectedItem && (
         <div className="flex justify-between items-center mt-2">
-          <p className="text-gray-700 font-semibold">Selected: {selectedItem.name}</p>
           <button
             className="text-sm text-red-500 hover:underline"
-            onClick={() => setSelectedItem(null)}
+            onClick={() => {setSelectedItem(null); setSearchTerm("");}}
           >
             Deselect
           </button>
