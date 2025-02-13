@@ -149,7 +149,7 @@ const CharacterDetails = () => {
 
 
   return (
-    <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="mx-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto xl:overflow-y-hidden">
       <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
         <h2 className="text-4xl font-bold text-center text-gray-800">{character.name}</h2>
         <p className="text-lg text-gray-600 text-center mb-4">
@@ -171,7 +171,7 @@ const CharacterDetails = () => {
         {inventory.length === 0 ? (
           <p className="text-gray-500">No items in inventory.</p>
         ) : (
-          <ul className="space-y-4 max-h-96 overflow-y-auto">
+          <ul className="space-y-4 max-h-full sm:max-h-full md:h-[caalc(100svh-14rem)] lg:h-[caalc(100svh-14rem)] xl:h-[caalc(100svh-14rem)] overflow-y-hidden sm:overflow-y-hidden md:overflow-y-auto lg:overflow-y-auto xl:overflow-y-auto">
             {inventory.map((item) => (
               <li key={item.id} className="border p-4 rounded-lg bg-gray-50 shadow-sm flex flex-col">
                 <ItemEffectsTooltip itemName={item.name}>
@@ -189,7 +189,11 @@ const CharacterDetails = () => {
 
       <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 h-full">
         <h3 className="text-2xl font-semibold">Spells</h3>
-        <p>No spells learned</p>
+        <ul className="space-y-4 max-h-full sm:max-h-full md:h-[caalc(100svh-14rem)] lg:h-[caalc(100svh-14rem)] xl:h-[caalc(100svh-14rem)] overflow-y-hidden sm:overflow-y-hidden md:overflow-y-auto lg:overflow-y-auto xl:overflow-y-auto">
+          <li>
+            <p>No spells learned</p>
+          </li>
+        </ul>
       </div>
 
       <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 h-full">
