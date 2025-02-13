@@ -216,7 +216,7 @@ const CharacterDetails = () => {
                             {item.description && <p className="text-gray-600">{item.description}</p>}
                             <p className="text-sm text-gray-500">Type: {item.type}</p>
                             <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                            <ItemEffectsDisplay itemId={item.id} />
+                            <ItemEffectsDisplay itemName={item.name} />
                             <div className="mt-2 grid grid-cols-2 gap-2">
                               <button className="bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add</button>
                               <button className="bg-red-400 text-white py-2 rounded-lg hover:bg-red-700" onClick={() => removeItem(item.id)}>Use</button>

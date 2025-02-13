@@ -49,12 +49,22 @@ const damageTypes = [
   "thunder",
 ];
 
-export async function fetchItemEffects(itemId: string): Promise<string[]> {
+export async function fetchItemEffects(itemName: string): Promise<string[]> {
+  const { data: itemData, error: itemError } = await supabase
+    .from("items")
+    .select("id")
+    .eq("name", itemName)
+    .single();
+
+  if (itemError) {
+    console.error("Error fetching item ID:", itemError);
+    return [];
+  }
 
   const { data, error } = await supabase
     .from("item_effects")
     .select("*")
-    .eq("item_id", itemId);
+    .eq("item_id", itemData.id);
 
   if (error) {
     console.error("Error fetching item effects:", error);
