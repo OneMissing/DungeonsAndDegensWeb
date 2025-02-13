@@ -1,6 +1,5 @@
 "use client";
 
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "@/lib/supabase/client";
@@ -150,7 +149,7 @@ const CharacterDetails = () => {
 
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full min-h-[calc(100vh-3.5rem)] overflow-hidden mt-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full min-h-[calc(100vh-4.5rem)] overflow-hidden mt-4">
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h2 className="text-4xl font-bold text-center">{character.name}</h2>
         <p className="text-lg text-gray-600 text-center">{character.race} - {character.class} (Level {character.level})</p>
@@ -164,70 +163,49 @@ const CharacterDetails = () => {
           <li><strong>CHA:</strong> {character.charisma}</li>
         </ul>
       </section>
+
+
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
-  <h3 className="text-2xl font-semibold">Inventory</h3>
-  {inventory.length === 0 ? (
-    <p className="text-gray-500">No items in inventory.</p>
-  ) : (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="inventory">
-        {(provided) => (
-          <ul
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            className="space-y-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-auto mt-4"
-          >
-            {inventory.map((item, index) => (
-              <Draggable key={item.id} draggableId={item.id} index={index}>
-                {(provided) => (
-                  <li
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    className="border p-4 rounded-lg shadow-sm bg-white cursor-move"
-                  >
-                    <ItemEffectsTooltip itemName={item.name}>
-                      <h4 className="text-lg font-semibold">{item.name}</h4>
-                      {item.description && <p className="text-gray-600">{item.description}</p>}
-                      <p className="text-sm text-gray-500">Type: {item.type}</p>
-                      <p className="text-sm text-gray-500">
-                        Weight: {item.weight} | Value: {item.value} gp
-                      </p>
-                      <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                    </ItemEffectsTooltip>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      <button
-                        className="bg-green-500 text-white py-2 rounded-lg hover:bg-green-700"
-                        onClick={() => addItem(item.id)}
-                      >
-                        Add Item
-                      </button>
-                      <button
-                        className="bg-red-400 text-white py-2 rounded-lg hover:bg-red-700"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        Use Item
-                      </button>
-                    </div>
-                  </li>
-                )}
-              </Draggable>
+      <h3 className="text-2xl font-semibold">Skills</h3>
+
+      </section>
+      
+
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
+        <h3 className="text-2xl font-semibold">Inventory</h3>
+        {inventory.length === 0 ? (
+          <p className="text-gray-500">No items in inventory.</p>
+        ) : (
+          <ul className="space-y-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
+            {inventory.map((item) => (
+              <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                <ItemEffectsTooltip itemName={item.name}>
+                  <h4 className="text-lg font-semibold">{item.name}</h4>
+                  {item.description && <p className="text-gray-600">{item.description}</p>}
+                  <p className="text-sm text-gray-500">Type: {item.type}</p>
+                  <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
+                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                </ItemEffectsTooltip>
+                <div className="mt-2 grid-cols-2">
+                    <button className="w-1/2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add Item</button>
+                    <button className="w-1/2 bg-red-400 text-white py-2 rounded-lg mt-2 hover:bg-red-700" onClick={() => removeItem(item.id)}>Use Item</button>
+                  </div>
+              </li>
             ))}
-            {provided.placeholder}
           </ul>
         )}
-      </Droppable>
-    </DragDropContext>
-  )}
-</section>
+      </section>
+
+
+      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
+        <h3 className="text-2xl font-semibold">Item Manager</h3>
+        <InventoryManager characterId={id as string} />
+      </section>
+
 
       <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
         <h3 className="text-2xl font-semibold">Spells</h3>
         <p>No spells learned</p>
-      </section>
-      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
-        <h3 className="text-2xl font-semibold">Item Manager</h3>
-        <InventoryManager characterId={id as string} />
       </section>
     </div>
   );
