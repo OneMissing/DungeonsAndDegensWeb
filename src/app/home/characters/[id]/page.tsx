@@ -7,8 +7,6 @@ import InventoryManager from "@/components/character/items/inventoryManager";
 import ItemEffectsTooltip from "@/components/character/items/ItemEffectsTooltip";
 import SkillsTable from "@/components/character/skills";
 import { Button } from "@/components/ui/cards/button";
-import { Card } from "@/components/ui/cards/card";
-import { CardContent } from "@/components/ui/cards/cardContent";
 
 interface Character {
   id: string;
@@ -189,9 +187,6 @@ const CharacterDetails = () => {
             onClick={() => setActiveButton("Items")}
           >Items</Button>
         </div>
-        <button className="text-2xl font-semibold" onClick={() => setActiveButton("Items")} >Items</button>
-        <Card className="w-80 p-4 text-center">
-          <CardContent>
             {activeButton === "Inventory" ? (
               inventory.length === 0 ? (
                 <p className="text-gray-500">No items in inventory.</p>
@@ -224,8 +219,6 @@ const CharacterDetails = () => {
             ) : (
               <InventoryManager characterId={character.id} />
             )}
-          </CardContent>
-        </Card>
         {inventory.length === 0 ? (
           <p className="text-gray-500">No items in inventory.</p>
         ) : (
