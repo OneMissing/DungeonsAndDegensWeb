@@ -75,18 +75,18 @@ function ItemEffectsDisplay({ itemId }: { itemId: string }) {
           </p>
         ) : null;
       })}
-      {effects?.healing_dice_count && effects?.healing_dice_sides && effects.healing_dice_count > 0 && effects.healing_dice_sides > 0 && (
-        <p className="text-green-400">
-          <span className="font-semibold">Heals:</span>{" "}
-          {effects.healing_dice_count}d{effects.healing_dice_sides}
-        </p>
-      )}
-      {effects?.armor_class && effects.armor_class > 0 && (
-        <p className="text-blue-400">
-          <span className="font-semibold">Armor Class:</span>{" "}
-          {effects.armor_class}
-        </p>
-      )}
+      {effects.healing_dice_count! > 0 && effects.healing_dice_sides! > 0 && (
+            <p className="text-green-400">
+              <span className="font-semibold">Heals:</span>{" "}
+              {effects.healing_dice_count}d{effects.healing_dice_sides}
+            </p>
+          )}
+      {effects.armor_class! > 0 && (
+            <p className="text-blue-400">
+              <span className="font-semibold">Armor Class:</span>{" "}
+              {effects.armor_class}
+            </p>
+          )}
     </div>
   );
 }
