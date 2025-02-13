@@ -43,33 +43,45 @@ const CharacterDetails = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-    const addItem = async (itemId: string) => {
+  const addItem = async (itemId: string) => {
     try {
       const item = inventory.find((item) => item.id === itemId);
       if (!item) return;
-
+  
       const newQuantity = item.quantity + 1;
-      await supabase.from("inventory").update({ quantity: newQuantity }).eq("id", itemId);
-      fetchData();
+      await supabase.from("inventory").update({ quantity: newQuantity }).eq("id", item.inventoryId);
+      setInventory((prev) =>
+        prev.map((i) => (i.id === itemId ? { ...i, quantity: newQuantity } : i))
+      );
+  
+      await fetchData();
     } catch (err) {
       console.error("Error adding item:", err);
     }
   };
+  
   const removeItem = async (itemId: string) => {
     try {
       const item = inventory.find((item) => item.id === itemId);
       if (!item || item.quantity <= 0) return;
       const newQuantity = item.quantity - 1;
       if (newQuantity === 0) {
-        await supabase.from("inventory").delete().eq("id", itemId);
+        await supabase.from("inventory").delete().eq("id", item.inventoryId);
       } else {
-        await supabase.from("inventory").update({ quantity: newQuantity }).eq("id", itemId);
+        await supabase.from("inventory").update({ quantity: newQuantity }).eq("id", item.inventoryId);
       }
-      fetchData();
+      setInventory((prev) =>
+        prev
+          .map((i) => (i.id === itemId ? { ...i, quantity: newQuantity } : i))
+          .filter((i) => i.quantity > 0)
+      );
+  
+      await fetchData();
     } catch (err) {
       console.error("Error removing item:", err);
     }
   };
+  
   const fetchData = async () => {
     if (!id) return;
     try {
@@ -78,26 +90,19 @@ const CharacterDetails = () => {
         .select("*")
         .eq("id", id)
         .single();
-
       if (characterError) throw new Error("Character not found.");
-
       const { data: statsData, error: statsError } = await supabase
         .from("character_stats")
         .select("strength, dexterity, constitution, intelligence, wisdom, charisma")
         .eq("character_id", id)
         .single();
-
       if (statsError) throw new Error("Failed to load character stats.");
-
       setCharacter({ ...characterData, ...statsData });
-
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("id, quantity, items(id, name, description, type, weight, value)")
         .eq("character_id", id);
-
       if (inventoryError) throw new Error("Failed to load inventory.");
-
       const formattedInventory = inventoryData.map((entry: any) => ({
         id: entry.items.id,
         name: entry.items.name,
