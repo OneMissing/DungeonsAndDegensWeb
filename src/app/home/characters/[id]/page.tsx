@@ -199,16 +199,13 @@ const CharacterDetails = () => {
               ) : (
                 <ul className="space-y-4 overflow-y-auto mt-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] md:overflow-y-auto">
                   {inventory.map((item) => (
-                    <li key={item.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                    <li key={item.id} className="border p-2 rounded-lg shadow-sm bg-white">
 
 
                       {expandedItem === item.id ? (
                         <div>
-                          <div className="grid grid-cols-2 items-center">
-                            <h4
-                              className="text-lg font-semibold cursor-pointer text-yellow-600"
-                              onClick={() => toggleExpand(item.id)}
-                            >
+                          <div className="grid grid-cols-2 items-center" onClick={() => toggleExpand(item.id)}>
+                            <h4 className="text-lg font-semibold cursor-pointer text-yellow-600">
                               {item.name}
                             </h4>
                             <h6 className="text-lg font-semibold cursor-pointer text-yellow-600">
@@ -228,11 +225,8 @@ const CharacterDetails = () => {
                         </div>
                       ) : (
                         <ItemEffectsTooltip itemId={item.id}>
-                          <div className="grid grid-cols-2 items-center">
-                            <h4
-                              className="text-lg font-semibold cursor-pointer text-yellow-600"
-                              onClick={() => toggleExpand(item.id)}
-                            >
+                          <div className="grid grid-cols-2 items-center" onClick={() => toggleExpand(item.id)}>
+                            <h4 className="text-lg font-semibold cursor-pointer text-yellow-600">
                               {item.name}
                             </h4>
                             <h6 className="text-lg font-semibold cursor-pointer text-yellow-600">
