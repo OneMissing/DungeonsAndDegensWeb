@@ -5,7 +5,6 @@ import supabase from "@/lib/supabase/client";
 import { Button } from "@/components/ui/cards/button";
 import { Card } from "@/components/ui/cards/card";
 import { CardContent } from "@/components/ui/cards/cardContent";
-import InventoryManager from "@/components/character/items/inventoryManager";
 import ItemEffectsTooltip from "@/components/character/items/ItemEffectsTooltip";
 import ItemEffectsDisplay from "@/components/character/items/itemsEffectDisplay";
 
@@ -20,11 +19,20 @@ interface InventoryItem {
   inventoryId: string;
 }
 
+interface Item {
+  id: string;
+  name: string;
+}
+
 interface InventorySectionProps {
   characterId: string;
 }
 
 const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
+  const [items, setItems] = useState<Item[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [quantity, setQuantity] = useState(1);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +71,62 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
   useEffect(() => {
     fetchInventory();
   }, [characterId]);
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      const { data, error } = await supabase.from("items").select("id, name");
+      if (error) console.error("Failed to fetch items:", error);
+      else setItems(data);
+    };
+
+    fetchItems();
+  }, []);
+
+  const handleAddItem = async () => {
+    if (!selectedItem || quantity < 1) return;
+
+    setLoading(true);
+    setError(null);
+
+    const { data: existingItem, error: fetchError } = await supabase
+      .from("inventory")
+      .select("id, quantity")
+      .eq("character_id", characterId)
+      .eq("item_id", selectedItem.id)
+      .single();
+
+    if (fetchError && fetchError.code !== "PGRST116") {
+      setError("Failed to check inventory.");
+      setLoading(false);
+      return;
+    }
+
+    if (existingItem) {
+      const { error: updateError } = await supabase
+        .from("inventory")
+        .update({ quantity: existingItem.quantity + quantity })
+        .eq("id", existingItem.id);
+
+      if (updateError) {
+        setError("Failed to update item quantity.");
+        setLoading(false);
+        return;
+      }
+    } else {
+      const { error: insertError } = await supabase
+        .from("inventory")
+        .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
+
+      if (insertError) {
+        setError("Failed to add item.");
+        setLoading(false);
+        return;
+      }
+      fetchInventory();
+    }
+
+    setLoading(false);
+  };
 
   const toggleExpand = (itemId: string) => {
     setExpandedItem(expandedItem === itemId ? null : itemId);
@@ -200,7 +264,70 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
               </ul>
             )
           ) : (
-            <InventoryManager characterId={characterId} onItemAdded={fetchInventory} />
+            <div className="p-4 border rounded-lg bg-white shadow-md">
+              <h3 className="text-lg font-semibold mb-2">Add Item</h3>
+
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="number"
+                  className="p-2 border rounded w-20"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                />
+                <button
+                  className={`p-2 w-full text-white rounded transition ${selectedItem
+                      ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                      : "bg-gray-400 cursor-not-allowed opacity-50"
+                    }`}
+                  onClick={handleAddItem}
+                  disabled={!selectedItem || loading}
+                >
+                  {loading ? "Adding..." : "Add Item"}
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Search item..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full p-2 border rounded mb-2"
+                disabled={!!selectedItem}
+              />
+
+              {searchTerm && !selectedItem && (
+                <ul className="rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
+                  {items
+                    .filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((item) => (
+                      <li
+                        key={item.id}
+                        onClick={() => {
+                          setSelectedItem(item);
+                          setSearchTerm(item.name);
+                        }}
+                        className="p-2 cursor-pointer hover:bg-gray-200"
+                      >
+                        {item.name}
+                      </li>
+                    ))}
+                </ul>
+              )}
+
+              {selectedItem && (
+                <div className="flex justify-between items-center mt-2">
+                  <button
+                    className="text-sm text-red-500 hover:underline"
+                    onClick={() => { setSelectedItem(null); setSearchTerm(""); }}
+                  >
+                    Deselect
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
