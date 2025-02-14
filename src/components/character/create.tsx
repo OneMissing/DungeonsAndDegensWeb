@@ -66,6 +66,14 @@ const CreateCharacter = ({ userId }: { userId: string | null }) => {
 
       if (statsError) throw statsError;
 
+            const { error: skillsError } = await supabase.from("character_skills").insert([
+        { 
+          character_id: characterId
+        },
+      ]);
+
+      if (skillsError) throw skillsError;
+      
       // Reset form & navigate to home
       setName("");
       setRace("");
