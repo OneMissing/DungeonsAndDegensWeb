@@ -59,7 +59,7 @@ const SkillsGrid = ({ characterId }: SkillsGridProps) => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="rounded-lg bg-white shadow-md p-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
+    <div className="rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
       <div className="flex flex-col gap-2">
         {Object.entries(skills).map(([skill, value]) => (
           <div key={skill} className="flex items-center justify-between p-2 bg-gray-100 rounded-lg shadow">
