@@ -33,6 +33,7 @@ const CharacterDetails = () => {
 
   const fetchData = async () => {
     if (!id) return <p className="text-center text-red-500">Wrong charcter Link</p>;
+    setLoading(false);
   };
 
   useEffect(() => {
