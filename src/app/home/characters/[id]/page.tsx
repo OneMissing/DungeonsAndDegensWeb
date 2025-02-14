@@ -241,7 +241,7 @@ const CharacterDetails = () => {
                 </ul>
               )
             ) : (
-              <InventoryManager characterId={character.id} />
+              <InventoryManager characterId={character.id} onItemAdded={() => fetchData()} />
             )}
           </CardContent>
         </Card>
