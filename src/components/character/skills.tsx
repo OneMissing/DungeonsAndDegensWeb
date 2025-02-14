@@ -7,6 +7,11 @@ interface SkillsGridProps {
   characterId: string;
 }
 
+function formatSkill(skill: string): string {
+  const replaced = skill.replace(/_/g, " ");
+  return replaced.charAt(0).toUpperCase() + replaced.slice(1);
+}
+
 const SkillsGrid = ({ characterId }: SkillsGridProps) => {
   const [skills, setSkills] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
@@ -17,6 +22,8 @@ const SkillsGrid = ({ characterId }: SkillsGridProps) => {
       setError("Character ID is missing.");
       return;
     }
+
+
 
     const fetchSkills = async () => {
       setLoading(true);
@@ -59,30 +66,38 @@ const SkillsGrid = ({ characterId }: SkillsGridProps) => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
-      <div className="flex flex-col gap-2">
-        {Object.entries(skills).map(([skill, value]) => (
-          <div key={skill} className="flex items-center justify-between p-2 bg-gray-100 rounded-lg shadow">
-            <span className="font-semibold text-lg">{skill.replace(/_/g, " ")} ({value})</span>
-            <div className="flex items-center gap-2">
-              <button
-                className="bg-red-500 text-white px-3 py-1 rounded"
-                onClick={() => updateSkill(skill, value - 1)}
-                disabled={value <= 0}
-              >
-                -
-              </button>
-              <button
-                className="bg-green-500 text-white px-3 py-1 rounded"
-                onClick={() => updateSkill(skill, value + 1)}
-              >
-                +
-              </button>
+    <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
+      <h3 className="text-2xl font-semibold">Skills</h3>
+      <div className="rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
+        <div className="flex flex-col gap-2">
+          {Object.entries(skills).map(([skill, value]) => (
+            <div
+              key={skill}
+              className="flex items-center justify-between p-2 bg-gray-100 rounded-lg shadow"
+            >
+              <span className="font-semibold text-lg">
+                {formatSkill(skill)} ({value})
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  className="bg-red-500 text-white px-3 py-1 rounded-full"
+                  onClick={() => updateSkill(skill, value - 1)}
+                  disabled={value <= 0}
+                >
+                  -
+                </button>
+                <button
+                  className="bg-green-500 text-white px-3 py-1 rounded-full "
+                  onClick={() => updateSkill(skill, value + 1)}
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
