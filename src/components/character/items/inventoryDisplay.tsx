@@ -122,6 +122,7 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
         setLoading(false);
         return;
       }
+      updateInventoryState(selectedItem.id, quantity)
     }
 
     setLoading(false);
