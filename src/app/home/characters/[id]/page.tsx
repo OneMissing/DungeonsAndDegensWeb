@@ -3,13 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "@/lib/supabase/client";
-import InventoryManager from "@/components/character/items/inventoryManager";
-import ItemEffectsTooltip from "@/components/character/items/ItemEffectsTooltip";
 import SkillsTable from "@/components/character/skills";
-import { Button } from "@/components/ui/cards/button";
-import { Card } from "@/components/ui/cards/card";
-import { CardContent } from "@/components/ui/cards/cardContent";
-import ItemEffectsDisplay from "@/components/character/items/itemsEffectDisplay"
+import InventorySection from "@/components/character/items/inventoryDisplay";
 
 interface Character {
   id: string;
@@ -102,54 +97,9 @@ const CharacterDetails = () => {
     setExpandedItem(expandedItem === itemId ? null : itemId);
   };
 
-
   useEffect(() => {
     fetchData();
   }, [id]);
-
-  const updateInventoryState = (itemId: string, change: number) => {
-    setInventory((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, quantity: item.quantity + change } : item
-      ).filter((item) => item.quantity > 0)
-    );
-  };
-
-  const addItem = async (itemId: string) => {
-    try {
-      const item = inventory.find((i) => i.id === itemId);
-      if (!item) return;
-
-      await supabase
-        .from("inventory")
-        .update({ quantity: item.quantity + 1 })
-        .eq("id", item.inventoryId);
-
-      updateInventoryState(itemId, 1);
-    } catch (err) {
-      console.error("Error adding item:", err);
-    }
-  };
-
-  const removeItem = async (itemId: string) => {
-    try {
-      const item = inventory.find((i) => i.id === itemId);
-      if (!item || item.quantity <= 0) return;
-
-      if (item.quantity === 1) {
-        await supabase.from("inventory").delete().eq("id", item.inventoryId);
-      } else {
-        await supabase
-          .from("inventory")
-          .update({ quantity: item.quantity - 1 })
-          .eq("id", item.inventoryId);
-      }
-
-      updateInventoryState(itemId, -1);
-    } catch (err) {
-      console.error("Error removing item:", err);
-    }
-  };
 
   if (loading) return <p className="text-center text-gray-500">Loading character...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
@@ -177,75 +127,8 @@ const CharacterDetails = () => {
         <SkillsTable characterId={id as string} />
       </section>
 
-
-      <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
-        <div className="grid-cols-2">
-          <Button
-            className="w-1/2"
-            variant={activeButton === "Inventory" ? "default" : "outline"}
-            onClick={() => setActiveButton("Inventory")}
-          >Inventory</Button>
-          <Button
-            className="w-1/2"
-            variant={activeButton === "Items" ? "default" : "outline"}
-            onClick={() => setActiveButton("Items")}
-          >Items</Button>
-        </div>
-        <Card>
-          <CardContent>
-            {activeButton === "Inventory" ? (
-              inventory.length === 0 ? (
-                <p className="text-gray-500">No items in inventory.</p>
-              ) : (
-                <ul className="space-y-4 overflow-y-auto mt-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] md:overflow-y-auto">
-                  {inventory.map((item) => (
-                    <li key={item.id} className="border p-2 rounded-lg shadow-sm bg-white">
-
-
-                      {expandedItem === item.id ? (
-                        <div>
-                          <div className="grid grid-cols-2 items-center" onClick={() => toggleExpand(item.id)}>
-                            <h4 className="text-lg font-semibold cursor-pointer text-yellow-600">
-                              {item.name}
-                            </h4>
-                            <h6 className="text-lg font-semibold cursor-pointer text-yellow-600">
-                              {item.quantity}×
-                            </h6>
-                          </div>
-                          <div>
-                            {item.description && <p className="text-gray-600">{item.description}</p>}
-                            <p className="text-sm text-gray-500">Type: {item.type}</p>
-                            <p className="text-sm text-gray-500">Weight: {item.weight} | Value: {item.value} gp</p>
-                            <ItemEffectsDisplay itemId={item.id} />
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                              <button className="bg-green-500 text-white py-2 rounded-lg hover:bg-green-700" onClick={() => addItem(item.id)}>Add</button>
-                              <button className="bg-red-400 text-white py-2 rounded-lg hover:bg-red-700" onClick={() => removeItem(item.id)}>Use</button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <ItemEffectsTooltip itemId={item.id}>
-                          <div className="grid grid-cols-2 items-center" onClick={() => { toggleExpand(item.id);}}>
-                            <h4 className="text-lg font-semibold cursor-pointer text-yellow-600">
-                              {item.name}
-                            </h4>
-                            <h6 className="text-lg font-semibold cursor-pointer text-yellow-600">
-                              {item.quantity}×
-                            </h6>
-                          </div>
-                        </ItemEffectsTooltip>)}
-
-
-                    </li>
-                  ))}
-                </ul>
-              )
-            ) : (
-              <InventoryManager characterId={character.id} />
-            )}
-          </CardContent>
-        </Card>
-      </section>
+      {/*inventory*/}
+      <InventorySection characterId={id as string}/>
 
 
 
