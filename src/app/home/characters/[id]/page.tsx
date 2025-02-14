@@ -225,7 +225,7 @@ const CharacterDetails = () => {
                         </div>
                       ) : (
                         <ItemEffectsTooltip itemId={item.id}>
-                          <div className="grid grid-cols-2 items-center" onClick={() => toggleExpand(item.id)}>
+                          <div className="grid grid-cols-2 items-center" onClick={() => { toggleExpand(item.id);}}>
                             <h4 className="text-lg font-semibold cursor-pointer text-yellow-600">
                               {item.name}
                             </h4>
@@ -241,7 +241,7 @@ const CharacterDetails = () => {
                 </ul>
               )
             ) : (
-              <InventoryManager characterId={character.id} onItemAdded={() => fetchData()} />
+              <InventoryManager characterId={character.id} />
             )}
           </CardContent>
         </Card>

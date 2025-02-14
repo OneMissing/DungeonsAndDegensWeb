@@ -16,11 +16,11 @@ interface InventoryItem {
 
 interface InventoryProps {
   characterId: string;
-  onItemAdded?: () => void;
 }
 
-const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
+const InventoryManager = ({ characterId }: InventoryProps) => {
   const [items, setItems] = useState<Item[]>([]);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -37,13 +37,29 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
     fetchItems();
   }, []);
 
+  const fetchInventory = async () => {
+    const { data, error } = await supabase
+      .from("inventory")
+      .select("id, item_id, quantity")
+      .eq("character_id", characterId);
+
+    if (error) {
+      console.error("Failed to fetch inventory:", error);
+    } else {
+      setInventory(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventory();
+  }, [characterId]);
+
   const handleAddItem = async () => {
     if (!selectedItem || quantity < 1) return;
 
     setLoading(true);
     setError(null);
 
-    // Check if the item already exists in the character's inventory
     const { data: existingItem, error: fetchError } = await supabase
       .from("inventory")
       .select("id, quantity")
@@ -58,7 +74,6 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
     }
 
     if (existingItem) {
-      // If the item exists, update the quantity
       const { error: updateError } = await supabase
         .from("inventory")
         .update({ quantity: existingItem.quantity + quantity })
@@ -70,7 +85,6 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
         return;
       }
     } else {
-      // If the item does not exist, insert a new entry
       const { error: insertError } = await supabase
         .from("inventory")
         .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
@@ -82,11 +96,13 @@ const InventoryManager = ({ characterId, onItemAdded }: InventoryProps) => {
       }
     }
 
-    if (onItemAdded) onItemAdded();
-
+    setSelectedItem(null);
+    setSearchTerm("");
+    setQuantity(1);
     setLoading(false);
-  };
 
+    await fetchInventory();
+  }
   return (
     <div className="p-4 border rounded-lg bg-white shadow-md">
       <h3 className="text-lg font-semibold mb-2">Add Item</h3>
