@@ -82,52 +82,6 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
     fetchItems();
   }, []);
 
-  const handleAddItem = async () => {
-    if (!selectedItem || quantity < 1) return;
-
-    setLoading(true);
-    setError(null);
-
-    const { data: existingItem, error: fetchError } = await supabase
-      .from("inventory")
-      .select("id, quantity")
-      .eq("character_id", characterId)
-      .eq("item_id", selectedItem.id)
-      .single();
-
-    if (fetchError && fetchError.code !== "PGRST116") {
-      setError("Failed to check inventory.");
-      setLoading(false);
-      return;
-    }
-
-    if (existingItem) {
-      const { error: updateError } = await supabase
-        .from("inventory")
-        .update({ quantity: existingItem.quantity + quantity })
-        .eq("id", existingItem.id);
-
-      if (updateError) {
-        setError("Failed to update item quantity.");
-        setLoading(false);
-        return;
-      }
-    } else {
-      const { error: insertError } = await supabase
-        .from("inventory")
-        .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
-
-      if (insertError) {
-        setError("Failed to add item.");
-        setLoading(false);
-        return;
-      }
-      updateInventoryState(selectedItem.id, quantity)
-    }
-
-    setLoading(false);
-  };
-
   const toggleExpand = (itemId: string) => {
     setExpandedItem(expandedItem === itemId ? null : itemId);
   };
@@ -172,6 +126,44 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
     } catch (err) {
       console.error("Error removing item:", err);
     }
+  };
+
+  const handleAddItem = async () => {
+    if (!selectedItem || quantity < 1) return;
+
+    setLoading(true);
+    setError(null);
+
+    const { data: existingItem, error: fetchError } = await supabase
+      .from("inventory")
+      .select("id, quantity")
+      .eq("character_id", characterId)
+      .eq("item_id", selectedItem.id)
+      .single();
+
+    if (fetchError && fetchError.code !== "PGRST116") {
+      setError("Failed to check inventory.");
+      setLoading(false);
+      return;
+    }
+
+    if (existingItem) {
+      for (let index = 0; index < quantity; index++) {
+        addItem(existingItem.id);
+      }
+    } else {
+      const { error: insertError } = await supabase
+        .from("inventory")
+        .insert([{ character_id: characterId, item_id: selectedItem.id, quantity }]);
+
+      if (insertError) {
+        setError("Failed to add item.");
+        setLoading(false);
+        return;
+      }
+    }
+    updateInventoryState(selectedItem.id, quantity);
+    setLoading(false);
   };
 
   if (loading) return <p className="text-center text-gray-500">Loading inventory...</p>;
