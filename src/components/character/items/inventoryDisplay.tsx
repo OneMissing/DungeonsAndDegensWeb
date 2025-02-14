@@ -122,7 +122,6 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
         setLoading(false);
         return;
       }
-      fetchInventory();
     }
 
     setLoading(false);
