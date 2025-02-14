@@ -28,26 +28,11 @@ interface Character {
 
 const CharacterDetails = () => {
   const { id } = useParams();
-  const [character, setCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
   const fetchData = async () => {
-    if (!id) return;
-
-    try {
-      setLoading(true);
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleExpand = (itemId: string) => {
-    setExpandedItem(expandedItem === itemId ? null : itemId);
+    if (!id) return <p className="text-center text-red-500">Wrong charcter Link</p>;
   };
 
   useEffect(() => {
@@ -56,7 +41,6 @@ const CharacterDetails = () => {
 
   if (loading) return <p className="text-center text-gray-500">Loading character...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
-  if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full min-h-[calc(100vh-4.5rem)] overflow-hidden pt-4 pl-4 pr-4">
