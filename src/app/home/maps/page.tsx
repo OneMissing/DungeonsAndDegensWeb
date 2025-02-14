@@ -2,15 +2,18 @@
 import { useState, useEffect, useRef } from "react";
 import supabase from "@/lib/supabase/client";
 
+const TILE_SIZE = 50;
+const CANVAS_WIDTH = 800;
+const CANVAS_HEIGHT = 600;
+
 const MapCreatePage = () => {
   const [loading, setLoading] = useState(false);
-  const [mapData, setMapData] = useState<any>(null); // Store map data (JSON or image)
+  const [mapData, setMapData] = useState<any>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [user, setUser] = useState<any>(null); // Store user session
+  const [user, setUser] = useState<any>(null);
 
-  // Function to get the user session
   const getUserSession = async () => {
-    const { data, error } = await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
     return data?.user || null;
   };
 
@@ -20,25 +23,22 @@ const MapCreatePage = () => {
       setUser(userSession);
 
       if (userSession) {
-        // Fetch the user's last saved map
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from("maps")
           .select("map_data")
           .eq("user_id", userSession.id)
           .limit(1)
           .single();
 
-        if (data && !error) {
+        if (data) {
           setMapData(data.map_data);
           drawMap(data.map_data);
         }
       }
     };
-
     fetchUserAndMap();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
-  // Function to initialize the map (can be a simple grid or previous saved map data)
   const drawMap = (map: any) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -46,65 +46,48 @@ const MapCreatePage = () => {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGrid(ctx);
 
-    if (map) {
-      const tiles = map.tiles || [];
-      tiles.forEach((tile: any) => {
+    if (map?.tiles) {
+      map.tiles.forEach((tile: any) => {
         ctx.fillStyle = tile.color;
-        ctx.fillRect(tile.x, tile.y, 50, 50);
+        ctx.fillRect(tile.x, tile.y, TILE_SIZE, TILE_SIZE);
       });
     }
   };
 
-  // Save the current canvas as a map and store it in Supabase
+  const drawGrid = (ctx: CanvasRenderingContext2D) => {
+    ctx.strokeStyle = "#ccc";
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= CANVAS_WIDTH; x += TILE_SIZE) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, CANVAS_HEIGHT);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= CANVAS_HEIGHT; y += TILE_SIZE) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(CANVAS_WIDTH, y);
+      ctx.stroke();
+    }
+  };
+
   const saveMap = async () => {
     setLoading(true);
+    if (!user || !canvasRef.current) return;
 
-    if (!user || !canvasRef.current) {
-      console.error("User not found or canvas not available");
-      setLoading(false);
-      return;
-    }
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    if (ctx) {
-      // Capture the current map data (JSON or image)
-      const mapData = {
-        tiles: [] as any[], // Example: Create a basic tile structure for the map
-      };
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-      // You can convert the canvas to an image and store as Base64 or JSON
-      // Here, we store the map as tiles with colors
-      for (let y = 0; y < canvas.height; y += 50) {
-        for (let x = 0; x < canvas.width; x += 50) {
-          const color = `#${imageData.data[(y * canvas.width + x) * 4].toString(16)}`;
-          mapData.tiles.push({ x, y, color });
-        }
-      }
-
-      // Save the map data to Supabase
-      const { error } = await supabase.from("maps").upsert([
-        {
-          user_id: user.id,
-          map_data: mapData,
-        },
-      ]);
-
-      if (error) {
-        console.error("Error saving map:", error);
-      } else {
-        alert("Map saved successfully!");
+    const mapData = { tiles: [] as any[] };
+    for (let y = 0; y < CANVAS_HEIGHT; y += TILE_SIZE) {
+      for (let x = 0; x < CANVAS_WIDTH; x += TILE_SIZE) {
+        mapData.tiles.push({ x, y, color: "#ffffff" });
       }
     }
 
+    await supabase.from("maps").upsert([{ user_id: user.id, map_data: mapData }]);
     setLoading(false);
   };
 
-  // Example: Basic drawing functionality (click to add tiles)
   const handleCanvasClick = (e: React.MouseEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -114,9 +97,11 @@ const MapCreatePage = () => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    const snappedX = x - (x % TILE_SIZE);
+    const snappedY = y - (y % TILE_SIZE);
 
-    ctx.fillStyle = "blue"; // Example: Blue tile
-    ctx.fillRect(x - (x % 50), y - (y % 50), 50, 50); // Snap to grid
+    ctx.fillStyle = "blue";
+    ctx.fillRect(snappedX, snappedY, TILE_SIZE, TILE_SIZE);
   };
 
   return (
@@ -124,8 +109,8 @@ const MapCreatePage = () => {
       <h1>Create or Edit Your Map</h1>
       <canvas
         ref={canvasRef}
-        width={800}
-        height={600}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
         style={{ border: "1px solid black" }}
         onClick={handleCanvasClick}
       />
