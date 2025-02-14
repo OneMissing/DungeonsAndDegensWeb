@@ -7,7 +7,7 @@ interface SkillsGridProps {
   characterId: string;
 }
 
-const SkillsTable = ({ characterId }: SkillsGridProps) => {
+const SkillsGrid = ({ characterId }: SkillsGridProps) => {
   const [skills, setSkills] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,11 +60,11 @@ const SkillsTable = ({ characterId }: SkillsGridProps) => {
 
   return (
     <div className="rounded-lg bg-white shadow-md p-4 min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="flex flex-col gap-2">
         {Object.entries(skills).map(([skill, value]) => (
-          <div key={skill} className="flex flex-col items-center p-4 bg-gray-100 rounded-lg shadow">
-            <span className="font-semibold text-lg">{skill.replace(/_/g, " ")}</span>
-            <div className="flex items-center gap-2 mt-2">
+          <div key={skill} className="flex items-center justify-between p-2 bg-gray-100 rounded-lg shadow">
+            <span className="font-semibold text-lg">{skill.replace(/_/g, " ")} ({value})</span>
+            <div className="flex items-center gap-2">
               <button
                 className="bg-red-500 text-white px-3 py-1 rounded"
                 onClick={() => updateSkill(skill, value - 1)}
@@ -72,7 +72,6 @@ const SkillsTable = ({ characterId }: SkillsGridProps) => {
               >
                 -
               </button>
-              <span className="text-xl font-bold">{value}</span>
               <button
                 className="bg-green-500 text-white px-3 py-1 rounded"
                 onClick={() => updateSkill(skill, value + 1)}
@@ -87,4 +86,4 @@ const SkillsTable = ({ characterId }: SkillsGridProps) => {
   );
 };
 
-export default SkillsTable;
+export default SkillsGrid;
