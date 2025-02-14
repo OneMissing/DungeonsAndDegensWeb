@@ -130,26 +130,17 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
 
   const handleAddItem = async () => {
     if (!selectedItem || quantity < 1) return;
-
     setLoading(true);
     setError(null);
-
-    const { data: existingItem, error: fetchError } = await supabase
-      .from("inventory")
-      .select("id, quantity")
-      .eq("character_id", characterId)
-      .eq("item_id", selectedItem.id)
-      .single();
-
-    if (fetchError && fetchError.code !== "PGRST116") {
-      setError("Failed to check inventory.");
-      setLoading(false);
-      return;
-    }
-
-    if (existingItem) {
-      for (let index = 0; index < quantity; index++) {
-        addItem(existingItem.id);
+    const existingItem = inventory.find((entry) => entry.id === selectedItem.id) || null;
+    if (existingItem != null) {
+      try {
+        await supabase
+          .from("inventory")
+          .update({ quantity: existingItem.quantity + quantity })
+          .eq("id", existingItem.id);
+      } catch (err) {
+        console.error("Error adding item:", err);
       }
     } else {
       const { error: insertError } = await supabase
