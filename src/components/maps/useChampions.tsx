@@ -17,8 +17,8 @@ const useChampions = () => {
       setLoading(true);
       
       // Get authenticated user
-      const { data: user, error: authError } = await supabase.auth.getUser();
-      if (authError || !user?.user) {
+      const { data: user, error: authError } = await supabase.auth.getSession();
+      if (authError || !user?.session ) {
         console.error("Authentication error:", authError);
         setLoading(false);
         return;
@@ -28,7 +28,7 @@ const useChampions = () => {
       const { data, error } = await supabase
         .from("characters")
         .select("*")
-        .eq("user_id", user.user.id);
+        .eq("user_id", user.session.user.id);
 
       if (error) {
         console.error("Error fetching champions:", error);

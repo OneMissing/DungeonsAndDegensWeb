@@ -317,7 +317,7 @@ const InfiniteGrid = () => {
   </div>
 
   {activeTab === 'tiles' ? (
-    <>
+    <div>
       <h3>Select Tile Type</h3>
       {Object.keys(tileColors).map((tileType) => (
         <button
@@ -354,11 +354,11 @@ const InfiniteGrid = () => {
         <button onClick={() => setSelectionMode('single')}>Single Tile</button>
         <button onClick={() => setSelectionMode('rectangle')}>Rectangle Select</button>
       </div>
-    </>
+    </div>
   ) : (
-    <>
+    <div>
       <h3>Select Champion</h3>
-      {champions.map((champion) => (
+      {!loading?champions.map((champion) => (
         <div
           key={champion.id}
           draggable
@@ -374,8 +374,8 @@ const InfiniteGrid = () => {
         >
           {champion.name}
         </div>
-      ))}
-    </>
+      )): "Loading"}
+    </div>
   )}
 </div>
 
