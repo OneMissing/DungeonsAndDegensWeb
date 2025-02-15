@@ -279,7 +279,7 @@ const InfiniteGrid = () => {
           y={y}
           width={GRID_SIZE}
           height={GRID_SIZE}
-          fill={tileColors[tileType] || tileColors.floor}
+          fill={tileColors[tileType as keyof typeof tileColors] || tileColors.floor}
         />
       );
     });
