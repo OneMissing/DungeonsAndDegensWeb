@@ -374,7 +374,7 @@ const InfiniteGrid = () => {
         >
           {champion.name}
         </div>
-      )): "Loading"}
+      )): (<div> Loading... </div>)}
     </div>
   )}
 </div>
