@@ -190,7 +190,12 @@ const placeTile = useCallback((x: number, y: number) => {
   const handleMouseUp = useCallback(() => {
     if (!isSelecting) return;
 
-    if (selectionMode === 'rectangle' && selectionRect) {
+    if (selectionMode === 'object' && imageRef.current) {
+      const newX = Math.floor(imageRef.current.x() / GRID_SIZE) * GRID_SIZE;
+      const newY = Math.floor(imageRef.current.y() / GRID_SIZE) * GRID_SIZE;
+      imageRef.current.position({ x: newX, y: newY });
+      imageRef.current.getLayer()?.batchDraw();
+    } else if (selectionMode === 'rectangle' && selectionRect) {
       const startX = Math.min(selectionRect.x, selectionRect.x + selectionRect.width);
       const endX = Math.max(selectionRect.x, selectionRect.x + selectionRect.width);
       const startY = Math.min(selectionRect.y, selectionRect.y + selectionRect.height);
@@ -361,6 +366,7 @@ const placeTile = useCallback((x: number, y: number) => {
   const handleItemImport = async (src: string) => {
     const image = new window.Image();
     image.onload = () => {
+      // Set the imported image to fit 1 tile
       setImportedImage(image);
       setImagePosition({ x: 0, y: 0 });
     };
@@ -513,8 +519,8 @@ const placeTile = useCallback((x: number, y: number) => {
                 image={importedImage}
                 x={imagePosition.x}
                 y={imagePosition.y}
-                width={importedImage.width}
-                height={importedImage.height}
+                width={GRID_SIZE}
+                height={GRID_SIZE} 
                 ref={imageRef}
                 onLoad={() => {
                   // Ensuring the image is fully loaded and will render correctly
