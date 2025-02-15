@@ -1,7 +1,7 @@
 'use client';
 
 import Konva from 'konva';
-import React, { useRef, useState, useCallback, useMemo, JSX } from 'react';
+import React, { useRef, useState, useCallback, useMemo, JSX, useEffect } from 'react';
 import { Stage, Layer, Line, Rect } from 'react-konva';
 import useChampions from './useChampions';
 
@@ -29,7 +29,26 @@ const InfiniteGrid = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [activeTile, setActiveTile] = useState('wall');
   const [activeTab, setActiveTab] = useState<'tiles' | 'champions'>('tiles');
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
+  useEffect(() => {
+    // Function to update window dimensions
+    const updateSize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    // Run the function once when the component mounts
+    updateSize();
+
+    // Listen for window resize events
+    window.addEventListener("resize", updateSize);
+
+    // Cleanup function to remove event listener
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
   const [selectionRect, setSelectionRect] = useState<{
     x: number;
     y: number;
@@ -227,8 +246,8 @@ const InfiniteGrid = () => {
     if (!stage) return elements;
   
     // Get viewport dimensions
-    const viewWidth = window.innerWidth;
-    const viewHeight = window.innerHeight;
+    const viewWidth = windowSize.width;
+    const viewHeight = windowSize.height;
   
     // Calculate how much extra grid space is needed based on zoom level
     const extraPadding = GRID_SIZE * 5 / scale; // Extend grid beyond viewport when zoomed out
@@ -362,8 +381,8 @@ const InfiniteGrid = () => {
 
   
       <Stage
-  width={window.innerWidth - 200} // Adjust for sidebar width
-  height={window.innerHeight}
+  width={windowSize.width - 200}
+  height={windowSize.height}
   draggable
   onWheel={handleWheel}
   onDragMove={handleDragMove}
