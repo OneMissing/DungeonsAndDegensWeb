@@ -58,20 +58,23 @@ const InfiniteGrid = () => {
   const [tiles, setTiles] = useState<{ [key: string]: string | undefined }>({});
   const [selectionMode, setSelectionMode] = useState<'single' | 'rectangle' | 'object'>('single');
   const [isSelecting, setIsSelecting] = useState(false);
-  const placeTile = useCallback((x: number, y: number) => {
-    const gridX = Math.floor(x / GRID_SIZE) * GRID_SIZE;
-    const gridY = Math.floor(y / GRID_SIZE) * GRID_SIZE;
-    const key = `${gridX},${gridY}`;
-    setTiles((prevTiles) => {
-      const newTiles = { ...prevTiles };
-      if (activeTile === 'eraser') {
-        delete newTiles[key]; // Erase tile
-      } else {
-        newTiles[key] = activeTile; // Place tile
-      }
-      return newTiles;
-    });
-  }, [activeTile]);
+
+
+const placeTile = useCallback((x: number, y: number) => {
+  const gridX = Math.floor(x / GRID_SIZE) * GRID_SIZE;
+  const gridY = Math.floor(y / GRID_SIZE) * GRID_SIZE;
+  const key = `${gridX},${gridY}`;
+  setTiles((prevTiles) => {
+    const newTiles = { ...prevTiles };
+    if (activeTile === 'eraser') {
+      delete newTiles[key]; // Erase tile
+    } else {
+      newTiles[key] = activeTile; // Place tile
+    }
+    return newTiles;
+  });
+}, [activeTile]);
+
 
 
   const handleWheel = useCallback((e: { evt: { preventDefault: () => void; deltaY: number; }; }) => {
@@ -101,26 +104,35 @@ const InfiniteGrid = () => {
   }, []);
 
   const handleDragMove = useCallback((e: { target: { x: () => any; y: () => any; }; }) => {
+    if (e.evt.buttons !== 2) return; // Only move when right-click (button 2) is held
     setPosition({ x: e.target.x(), y: e.target.y() });
-  }, []);
+    if (selectionMode === 'object' && imageRef.current) {
+      const newX = Math.floor(e.target.x() / GRID_SIZE) * GRID_SIZE;
+      const newY = Math.floor(e.target.y() / GRID_SIZE) * GRID_SIZE;
+      imageRef.current.position({ x: newX, y: newY });
+      imageRef.current.getLayer()?.batchDraw();
+    }
+  }, [selectionMode]);
+  
+  
 
   const handleMouseDown = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
       e.evt.preventDefault(); // Prevent default right-click menu
-
+  
       const stage = stageRef.current;
       if (!stage) return;
-
+  
       const pointer = stage.getPointerPosition();
       if (!pointer) return;
-
+  
       const absPos = stage.getAbsolutePosition();
       const adjustedPointer = {
         x: (pointer.x - absPos.x) / scale,
         y: (pointer.y - absPos.y) / scale,
       };
-
-      if (e.evt.button === 2) {
+  
+      if (e.evt.button === 2) { // Right-click (button 2)
         if (selectionMode === 'single') {
           placeTile(adjustedPointer.x, adjustedPointer.y);
           setIsSelecting(true);
@@ -132,13 +144,14 @@ const InfiniteGrid = () => {
             height: 0,
           });
           setIsSelecting(true);
-        } else {
+        } else if (selectionMode === 'object') {
           handleItemImport('../structures/item_001.webp');
         }
       }
     },
     [scale, selectionMode, placeTile]
   );
+  
 
 
 
@@ -183,7 +196,7 @@ const InfiniteGrid = () => {
       const endY = Math.max(selectionRect.y, selectionRect.y + selectionRect.height);
 
       setTiles((prevTiles) => {
-        const updatedTiles = { ...prevTiles }; 
+        const updatedTiles = { ...prevTiles };
 
         for (let x = startX; x < endX; x += GRID_SIZE) {
           for (let y = startY; y < endY; y += GRID_SIZE) {
@@ -191,12 +204,13 @@ const InfiniteGrid = () => {
             const gridY = Math.floor(y / GRID_SIZE) * GRID_SIZE;
             const key = `${gridX},${gridY}`;
 
-            if (activeTile === 'eraser') delete updatedTiles[key]; 
-            else updatedTiles[key] = activeTile; 
+            if (activeTile === 'eraser') delete updatedTiles[key];
+            else updatedTiles[key] = activeTile;
           }
         }
-        return updatedTiles; 
-      })}
+        return updatedTiles;
+      })
+    }
     setSelectionRect(null);
     setIsSelecting(false);
   }, [isSelecting, selectionMode, selectionRect, activeTile]);
@@ -218,7 +232,15 @@ const InfiniteGrid = () => {
     const gridX = Math.floor(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
     const gridY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
     const key = `${gridX},${gridY}`;
-
+/**const rect = imageRef.current?.getBoundingClientRect();
+    if (rect) {
+      setOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    }
+    setIsDragging(true); // Start dragging on right click
+  }; */
     if (selectionMode === 'single') {
       setTiles((prevTiles) => {
         const newTiles = { ...prevTiles };
@@ -307,17 +329,17 @@ const InfiniteGrid = () => {
       const fileInput = event.target as HTMLInputElement; // Cast to HTMLInputElement
       const file = fileInput.files?.[0];
       if (!file) return;
-  
+
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
           const importedData = JSON.parse(e.target?.result as string);
-  
+
           // Set the tiles and other data from the imported data
           setTiles(importedData.tiles || {});
           setPosition(importedData.position || { x: 0, y: 0 });
           setScale(importedData.scale || 1);
-  
+
           // You can add more properties here based on your imported data structure
         } catch (error: unknown) {
           // Type assertion: error is an instance of Error
@@ -325,42 +347,39 @@ const InfiniteGrid = () => {
             alert('Error importing data: ' + error.message);
           } else {
             alert('An unknown error occurred during import.');
-    }}};
+          }
+        }
+      };
       reader.readAsText(file);
     };
-    input.click(); 
+    input.click();
   };
-  
+
   const [importedItem, setImportedItem] = useState<{ type: string; x: number; y: number } | null>(null);
 
-  const handleItemImport = async (imageUrl: string) => {
-    const img = new window.Image(); 
-  
-    img.src = imageUrl;
-  
-    img.onload = () => {
-      // Center the image in the middle of the screen
-      const centerX = window.innerWidth / 2 - img.width / 2;
-      const centerY = window.innerHeight / 2 - img.height / 2;
-  
-      setImportedImage(img); // Store the loaded image
-      setImagePosition({ x: centerX, y: centerY }); // Position at the center
+  const handleItemImport = async (src: string) => {
+    const image = new window.Image();
+    image.onload = () => {
+      setImportedImage(image);
+      setImagePosition({ x: 0, y: 0 });
     };
+    image.src = src;
   };
-
   
 
-  
-  
+
+
+
+
   return (
     <div className='relative w-full'>
-        <div className='bg-gray-700 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 top-[calc(100svh-7rem)] z-50 w-96 rounded-lg pb-3 pl-2 pr-2'>
+      <div className='bg-gray-700 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 top-[calc(100svh-7rem)] z-50 w-96 rounded-lg pb-3 pl-2 pr-2'>
         <h1 className='text-center w-full p-2'>Mode</h1>
         <Button
           className="w-1/3"
           variant={selectionMode === 'rectangle' ? "default" : "outline"}
           onClick={() => setSelectionMode('rectangle')}
-        > Rectangle </Button>                
+        > Rectangle </Button>
         <Button
           className="w-1/3"
           variant={selectionMode === 'single' ? "default" : "outline"}
@@ -371,7 +390,7 @@ const InfiniteGrid = () => {
           variant={selectionMode === 'object' ? "default" : "outline"}
           onClick={() => setSelectionMode('object')}
         > Objects </Button>
-        </div>
+      </div>
       <div style={{ display: 'flex' }}>
         <div style={{ width: '300px', padding: '10px', background: '#f0f0f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -435,7 +454,7 @@ const InfiniteGrid = () => {
                 </div>
               )) : (<div> Loading... </div>)}
             </div>
-          ): (<div>      <button
+          ) : (<div><button
             onClick={() => handleItemImport('../structures/item_001.webp')}
             style={{
               display: 'block',
@@ -445,19 +464,33 @@ const InfiniteGrid = () => {
               cursor: 'pointer',
             }}
           >
-                  <NextImage 
-        src="../structures/item_001.webp" 
-        alt="Item Image" 
-        width={100} // Specify the image width
-        height={100} // Specify the image height
-      />
-          </button></div>)}
+            <NextImage
+              src="structures/item_001.webp"
+              alt="Item Image"
+              width={100}
+              height={100}
+            />Chest</button><button
+              onClick={() => handleItemImport('../structures/item_002.webp')}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '10px',
+                marginTop: '10px',
+                cursor: 'pointer',
+              }}
+            >
+              <NextImage
+                src="structures/item_002.webp"
+                alt="Item Image"
+                width={100}
+                height={100}
+              />Sword</button></div>)}
         </div>
 
 
         <Stage
           width={windowSize.width - 300}
-          height={windowSize.height - 65  }
+          height={windowSize.height - 65}
           draggable
           onDragMove={handleDragMove}
           onContextMenu={handleRightClick}
@@ -471,27 +504,27 @@ const InfiniteGrid = () => {
           y={position.y}
           ref={stageRef}
         >
-  {/* Grid and Tiles */}
-  <Layer>
-        {drawGrid.filter((el) => el.type === Rect)}
-        {importedImage && (
-  <Image
-    image={importedImage}
-    x={imagePosition.x}
-    y={imagePosition.y}
-    width={importedImage.width}
-    height={importedImage.height}
-    ref={imageRef}
-    onLoad={() => {
-      // Ensuring the image is fully loaded and will render correctly
-      imageRef.current?.getLayer()?.batchDraw();
-    }}
-  />
-)}
-      </Layer>
+          {/* Grid and Tiles */}
+          <Layer>
+            {drawGrid.filter((el) => el.type === Rect)}
+            {importedImage && (
+              <Image
+                image={importedImage}
+                x={imagePosition.x}
+                y={imagePosition.y}
+                width={importedImage.width}
+                height={importedImage.height}
+                ref={imageRef}
+                onLoad={() => {
+                  // Ensuring the image is fully loaded and will render correctly
+                  imageRef.current?.getLayer()?.batchDraw();
+                }}
+              />
+            )}
+          </Layer>
 
-  {/* Grid Lines Layer (Above tiles) */}
-  <Layer>{drawGrid.filter((el) => el.type === Line)}</Layer>
+          {/* Grid Lines Layer (Above tiles) */}
+          <Layer>{drawGrid.filter((el) => el.type === Line)}</Layer>
 
           {/* Selection Outline Layer (Always on top) */}
           <Layer>
