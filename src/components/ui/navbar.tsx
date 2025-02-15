@@ -23,7 +23,7 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            href="/maps"
+            href="/home/maps"
             className="text-xl hover:text-yellow-400 transition duration-300">
             Maps
           </Link>
