@@ -103,8 +103,9 @@ const placeTile = useCallback((x: number, y: number) => {
     setPosition(newPos);
   }, []);
 
-  const handleDragMove = useCallback((e: { target: { x: () => any; y: () => any; }; }) => {
-    if (e.evt.buttons !== 2) return; // Only move when right-click (button 2) is held
+  const handleDragMove = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (e.evt.button !== 2) return; 
+  
     setPosition({ x: e.target.x(), y: e.target.y() });
     if (selectionMode === 'object' && imageRef.current) {
       const newX = Math.floor(e.target.x() / GRID_SIZE) * GRID_SIZE;
