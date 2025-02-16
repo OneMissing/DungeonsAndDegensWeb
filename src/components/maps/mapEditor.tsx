@@ -52,21 +52,22 @@ const InfiniteGrid = () => {
     { id: 'shape3', x: 350, y: 50, width: 100, height: 100, color: 'green' },
   ]; // Example shapes data
   const rectRef = useRef<Konva.Rect | null>(null);
-  const [draggingStructure, setDraggingStructure] = useState<Structure | null>(null); 
+  const [draggingStructure, setDraggingStructure] = useState<Structure | null>(null);
   const [structures, setStructures] = useState<Structure[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const { champions, loading } = useChampions();
   const stageRef = useRef<Konva.Stage | null>(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [activeTile, setActiveTile] = useState('wall');
-  const [activeTab, setActiveTab] = useState<'tiles' | 'champions' | 'items'>('tiles');
+
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [importedImage, setImportedImage] = useState<HTMLImageElement | null>(null);
   const [imagePosition, setImagePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const imageRef = useRef<Konva.Image | null>(null);
   const [tiles, setTiles] = useState<{ [key: string]: string | undefined }>({});
   const [selectionMode, setSelectionMode] = useState<'single' | 'rectangle' | 'object'>('single');
+  const [activeTile, setActiveTile] = useState('wall');
+  const [activeTab, setActiveTab] = useState<'tiles' | 'champions' | 'items'>('tiles');
   const [isSelecting, setIsSelecting] = useState(false);
 
   useEffect(() => {
@@ -91,20 +92,20 @@ const InfiniteGrid = () => {
 
 
 
-const placeTile = useCallback((x: number, y: number) => {
-  const gridX = Math.floor(x / GRID_SIZE) * GRID_SIZE;
-  const gridY = Math.floor(y / GRID_SIZE) * GRID_SIZE;
-  const key = `${gridX},${gridY}`;
-  setTiles((prevTiles) => {
-    const newTiles = { ...prevTiles };
-    if (activeTile === 'eraser') {
-      delete newTiles[key]; 
-    } else {
-      newTiles[key] = activeTile; 
-    }
-    return newTiles;
-  });
-}, [activeTile]);
+  const placeTile = useCallback((x: number, y: number) => {
+    const gridX = Math.floor(x / GRID_SIZE) * GRID_SIZE;
+    const gridY = Math.floor(y / GRID_SIZE) * GRID_SIZE;
+    const key = `${gridX},${gridY}`;
+    setTiles((prevTiles) => {
+      const newTiles = { ...prevTiles };
+      if (activeTile === 'eraser') {
+        delete newTiles[key];
+      } else {
+        newTiles[key] = activeTile;
+      }
+      return newTiles;
+    });
+  }, [activeTile]);
 
 
 
@@ -135,16 +136,16 @@ const placeTile = useCallback((x: number, y: number) => {
   }, []);
 
   const handleDragMove = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (e.evt.button !== 2) return; 
-  
+    if (e.evt.button !== 2) return;
+
     setPosition({ x: e.target.x(), y: e.target.y() });
     if (isDragging && selectionMode === 'object') {
       const stage = stageRef.current;
       if (!stage) return; // Ensure stage is not null
-    
+
       const pointer = stage.getPointerPosition();
       if (!pointer) return; // Ensure pointer is not null before accessing properties
-    
+
       const newX = pointer.x;
       const newY = pointer.y;
       setStructures((prevStructures) =>
@@ -156,25 +157,25 @@ const placeTile = useCallback((x: number, y: number) => {
       );
     }
   }, [selectionMode]);
-  
+
   const handleStructure = useCallback(
-    (e: Konva.KonvaEventObject<MouseEvent>, shapeId: string) => { 
+    (e: Konva.KonvaEventObject<MouseEvent>, shapeId: string) => {
       e.evt.preventDefault();
       const stage = stageRef.current;
       if (!stage) return;
-  
+
       const pointer = stage.getPointerPosition();
       if (!pointer) return;
-  
+
       const absPos = stage.getAbsolutePosition();
       const adjustedPointer = {
         x: (pointer.x - absPos.x) / scale,
         y: (pointer.y - absPos.y) / scale,
       };
-  
-      if (e.evt.button === 2) { 
+
+      if (e.evt.button === 2) {
         if (selectionMode === 'single') {
-          setDragging(shapeId); // Set the dragged shape's ID
+          setDragging(shapeId);
           const shape = e.target as Konva.Rect;
           shape.startDrag();
         } else if (selectionMode === 'rectangle') {
@@ -186,7 +187,7 @@ const placeTile = useCallback((x: number, y: number) => {
           });
           setIsSelecting(true);
         } else if (selectionMode === 'object' && e.evt.button === 2) {
-          setDragging(shapeId); // Set the dragged shape's ID (which should be a string)
+          setDragging(shapeId); 
           const shape = e.target as Konva.Rect;
           shape.startDrag();
         }
@@ -197,20 +198,19 @@ const placeTile = useCallback((x: number, y: number) => {
 
   const handleMouseDown = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
-      e.evt.preventDefault(); // Prevent default right-click menu
-  
+      e.evt.preventDefault(); 
+
       const stage = stageRef.current;
       if (!stage) return;
-  
       const pointer = stage.getPointerPosition();
       if (!pointer) return;
-  
+
       const absPos = stage.getAbsolutePosition();
       const adjustedPointer = {
         x: (pointer.x - absPos.x) / scale,
         y: (pointer.y - absPos.y) / scale,
       };
-  
+
       if (e.evt.button === 2) { // Right-click (button 2)
         if (selectionMode === 'single') {
           placeTile(adjustedPointer.x, adjustedPointer.y);
@@ -313,8 +313,8 @@ const placeTile = useCallback((x: number, y: number) => {
     if (selectionMode === 'single') {
       setTiles((prevTiles) => {
         const newTiles = { ...prevTiles };
-        if (activeTile === 'eraser') delete newTiles[key]; 
-        else newTiles[key] = activeTile; 
+        if (activeTile === 'eraser') delete newTiles[key];
+        else newTiles[key] = activeTile;
         return newTiles;
       });
     }
@@ -333,9 +333,9 @@ const placeTile = useCallback((x: number, y: number) => {
     const endX = Math.ceil((-position.x + width + extraPadding) / GRID_SIZE) * GRID_SIZE;
     const startY = Math.floor((-position.y - extraPadding) / GRID_SIZE) * GRID_SIZE;
     const endY = Math.ceil((-position.y + height + extraPadding) / GRID_SIZE) * GRID_SIZE;
-    for (let x = startX; x <= endX; x += GRID_SIZE) 
+    for (let x = startX; x <= endX; x += GRID_SIZE)
       elements.push(<Line key={`v-${x}`} points={[x, startY, x, endY]} stroke="gray" strokeWidth={0.5} />);
-    for (let y = startY; y <= endY; y += GRID_SIZE) 
+    for (let y = startY; y <= endY; y += GRID_SIZE)
       elements.push(<Line key={`h-${y}`} points={[startX, y, endX, y]} stroke="gray" strokeWidth={0.5} />);
     if (selectionRect) {
       elements.push(
@@ -364,7 +364,8 @@ const placeTile = useCallback((x: number, y: number) => {
           height={GRID_SIZE}
           fill={tileColors[tileType as keyof typeof tileColors] || tileColors.floor}
         />
-    )});
+      )
+    });
     return elements;
   }, [position, scale, tiles, selectionRect]);
 
@@ -372,14 +373,14 @@ const placeTile = useCallback((x: number, y: number) => {
     setStructures([
       ...structures,
       {
-        id: (structures.length + 1).toString(), 
+        id: (structures.length + 1).toString(),
         x: 100,
         y: 100,
-        width: 50, 
+        width: 50,
         height: 50,
-        color: 'blue', 
+        color: 'blue',
         isSelected: false,
-        itemPath, 
+        itemPath,
       }
     ]);
   };
@@ -506,20 +507,20 @@ const placeTile = useCallback((x: number, y: number) => {
 
 
         <Stage
-  width={windowSize.width - 300}
-  height={windowSize.height - 65}
-  draggable
-  onDragMove={handleDragMove}
-  onWheel={handleWheel}
-  onMouseDown={(e) => handleMouseDown(e)}
-  onMouseMove={handleMouseMove}
-  onMouseUp={handleMouseUp}
-  scaleX={scale}
-  scaleY={scale}
-  x={position.x}
-  y={position.y}
-  ref={stageRef}
->
+          width={windowSize.width - 300}
+          height={windowSize.height - 65}
+          draggable
+          onDragMove={handleDragMove}
+          onWheel={handleWheel}
+          onMouseDown={(e) => handleMouseDown(e)}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          scaleX={scale}
+          scaleY={scale}
+          x={position.x}
+          y={position.y}
+          ref={stageRef}
+        >
           {/* Grid and Tiles */}
           <Layer>
             {drawGrid.filter((el) => el.type === Rect)}
@@ -529,7 +530,7 @@ const placeTile = useCallback((x: number, y: number) => {
                 x={imagePosition.x}
                 y={imagePosition.y}
                 width={GRID_SIZE}
-                height={GRID_SIZE} 
+                height={GRID_SIZE}
                 ref={imageRef}
                 onLoad={() => {
                   imageRef.current?.getLayer()?.batchDraw();
@@ -542,20 +543,20 @@ const placeTile = useCallback((x: number, y: number) => {
           <Layer>{drawGrid.filter((el) => el.type === Line)}</Layer>
 
           <Layer>
-    {structures.map((structure) => (
-      <Rect
-      ref={rectRef}
-        key={structure.id}
-        x={structure.x}
-        y={structure.y}
-        width={50}
-        height={50}
-        fill={structure.isSelected ? 'red' : 'blue'}
-        draggable={true}
-        onContextMenu={(e) => handleStructure(e, structure.id)} 
-      />
-    ))}
-  </Layer>
+            {structures.map((structure) => (
+              <Rect
+                ref={rectRef}
+                key={structure.id}
+                x={structure.x}
+                y={structure.y}
+                width={50}
+                height={50}
+                fill={structure.isSelected ? 'red' : 'blue'}
+                draggable={true}
+                onContextMenu={(e) => handleStructure(e, structure.id)}
+              />
+            ))}
+          </Layer>
 
           {/* Selection Outline Layer */}
           <Layer>
