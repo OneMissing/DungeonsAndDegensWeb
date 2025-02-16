@@ -1,6 +1,5 @@
 'use client';
 
-import KonvaEventObject  from 'konva';
 import Konva from 'konva';
 import React, { useRef, useState, useCallback, useMemo, JSX, useEffect } from 'react';
 import { Stage, Layer, Line, Rect, Image } from 'react-konva';
@@ -252,7 +251,7 @@ const placeTile = useCallback((x: number, y: number) => {
     setIsSelecting(false);
   }, [isSelecting, selectionMode, selectionRect, activeTile]);
 
-  const handleRightClick = useCallback((e: KonvaEventObject<PointerEvent>, structureId: string ) => {
+  const handleRightClick = useCallback((e: Konva.KonvaEventObject<PointerEvent>, structureId: string) => {
     e.evt.preventDefault();
     const stage = stageRef.current;
     if (!stage) return;
@@ -275,7 +274,7 @@ const placeTile = useCallback((x: number, y: number) => {
         return newTiles;
       });
     }
-  }, [scale, activeTile, selectionMode]);
+  }, [scale, activeTile, selectionMode, stageRef]);
 
   const drawGrid = useMemo(() => {
     const elements: JSX.Element[] = [];
