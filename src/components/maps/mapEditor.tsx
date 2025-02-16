@@ -35,9 +35,23 @@ type Structure = {
   itemPath: string;
 };
 
-
+interface ShapeData {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+}
 
 const InfiniteGrid = () => {
+  const [dragging, setDragging] = useState<string | null>(null); // Track which shape is being dragged by ID
+  const shapes = [
+    { id: 'shape1', x: 50, y: 50, width: 100, height: 100, color: 'red' },
+    { id: 'shape2', x: 200, y: 50, width: 100, height: 100, color: 'blue' },
+    { id: 'shape3', x: 350, y: 50, width: 100, height: 100, color: 'green' },
+  ]; // Example shapes data
+  const rectRef = useRef<Konva.Rect | null>(null);
   const [draggingStructure, setDraggingStructure] = useState<Structure | null>(null); 
   const [structures, setStructures] = useState<Structure[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -146,8 +160,7 @@ const placeTile = useCallback((x: number, y: number) => {
   
 
   const handleMouseDown = useCallback(
-    (e: Konva.KonvaEventObject<MouseEvent>) => {
-      e.evt.preventDefault();
+    (e: Konva.KonvaEventObject<MouseEvent>, shapeId: string) => { e.evt.preventDefault();
   
       const stage = stageRef.current;
       if (!stage) return;
@@ -163,8 +176,9 @@ const placeTile = useCallback((x: number, y: number) => {
   
       if (e.evt.button === 2) { 
         if (selectionMode === 'single') {
-          placeTile(adjustedPointer.x, adjustedPointer.y);
-          setIsSelecting(true);
+          setDragging(shapeId); // Set the dragged shape's ID
+          const shape = e.target as Konva.Rect;
+          shape.startDrag();
         } else if (selectionMode === 'rectangle') {
           setSelectionRect({
             x: adjustedPointer.x,
@@ -174,12 +188,9 @@ const placeTile = useCallback((x: number, y: number) => {
           });
           setIsSelecting(true);
         } else if (selectionMode === 'object' && e.evt.button === 2) {
-          const clickedOn = e.target;
-          if (!clickedOn) return;
-          const structure = structures.find((s) => s.id === clickedOn.id());
-          if (structure) setDraggingStructure(structure);
-          setIsDragging(true);
-        
+          setDragging(shapeId); // Set the dragged shape's ID (which should be a string)
+          const shape = e.target as Konva.Rect;
+          shape.startDrag();
         }
       }
     },
@@ -219,12 +230,13 @@ const placeTile = useCallback((x: number, y: number) => {
 
   const handleMouseUp = useCallback(() => {
     if (!isSelecting) return;
-
     if (selectionMode === 'object' && imageRef.current) {
       const newX = Math.floor(imageRef.current.x() / GRID_SIZE) * GRID_SIZE;
       const newY = Math.floor(imageRef.current.y() / GRID_SIZE) * GRID_SIZE;
       imageRef.current.position({ x: newX, y: newY });
       imageRef.current.getLayer()?.batchDraw();
+      setDragging(null);
+
     } else if (selectionMode === 'rectangle' && selectionRect) {
       const startX = Math.min(selectionRect.x, selectionRect.x + selectionRect.width);
       const endX = Math.max(selectionRect.x, selectionRect.x + selectionRect.width);
@@ -467,7 +479,7 @@ const placeTile = useCallback((x: number, y: number) => {
   draggable
   onDragMove={handleDragMove}
   onWheel={handleWheel}
-  onMouseDown={handleMouseDown}
+  onMouseDown={(e) => handleMouseDown(e, 'shapeId')}
   onMouseMove={handleMouseMove}
   onMouseUp={handleMouseUp}
   scaleX={scale}
@@ -500,6 +512,7 @@ const placeTile = useCallback((x: number, y: number) => {
           <Layer>
     {structures.map((structure) => (
       <Rect
+      ref={rectRef}
         key={structure.id}
         x={structure.x}
         y={structure.y}
