@@ -157,9 +157,7 @@ const placeTile = useCallback((x: number, y: number) => {
     }
   }, [selectionMode]);
   
-  
-
-  const handleMouseDown = useCallback(
+  const handleStructure = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>, shapeId: string) => { 
       e.evt.preventDefault();
       const stage = stageRef.current;
@@ -191,6 +189,40 @@ const placeTile = useCallback((x: number, y: number) => {
           setDragging(shapeId); // Set the dragged shape's ID (which should be a string)
           const shape = e.target as Konva.Rect;
           shape.startDrag();
+        }
+      }
+    },
+    [scale, selectionMode, placeTile]
+  );
+
+  const handleMouseDown = useCallback(
+    (e: Konva.KonvaEventObject<MouseEvent>) => {
+      e.evt.preventDefault(); // Prevent default right-click menu
+  
+      const stage = stageRef.current;
+      if (!stage) return;
+  
+      const pointer = stage.getPointerPosition();
+      if (!pointer) return;
+  
+      const absPos = stage.getAbsolutePosition();
+      const adjustedPointer = {
+        x: (pointer.x - absPos.x) / scale,
+        y: (pointer.y - absPos.y) / scale,
+      };
+  
+      if (e.evt.button === 2) { // Right-click (button 2)
+        if (selectionMode === 'single') {
+          placeTile(adjustedPointer.x, adjustedPointer.y);
+          setIsSelecting(true);
+        } else if (selectionMode === 'rectangle') {
+          setSelectionRect({
+            x: adjustedPointer.x,
+            y: adjustedPointer.y,
+            width: 0,
+            height: 0,
+          });
+          setIsSelecting(true);
         }
       }
     },
@@ -479,7 +511,7 @@ const placeTile = useCallback((x: number, y: number) => {
   draggable
   onDragMove={handleDragMove}
   onWheel={handleWheel}
-  onMouseDown={(e) => {e.evt.preventDefault();handleMouseDown(e, 'shapeId');}}
+  onMouseDown={(e) => handleMouseDown(e)}
   onMouseMove={handleMouseMove}
   onMouseUp={handleMouseUp}
   scaleX={scale}
@@ -519,8 +551,8 @@ const placeTile = useCallback((x: number, y: number) => {
         width={50}
         height={50}
         fill={structure.isSelected ? 'red' : 'blue'}
-        draggable
-        onContextMenu={(e) => {e.evt.preventDefault();handleRightClick(e, structure.id)}}
+        draggable={true}
+        onContextMenu={(e) => handleStructure(e, structure.id)} 
       />
     ))}
   </Layer>
