@@ -1,5 +1,6 @@
 'use client';
 
+import KonvaEventObject  from 'konva';
 import Konva from 'konva';
 import React, { useRef, useState, useCallback, useMemo, JSX, useEffect } from 'react';
 import { Stage, Layer, Line, Rect, Image } from 'react-konva';
@@ -22,10 +23,26 @@ const tileColors = {
 type Champion = {
   id: string;
   name: string;
-  // Add other fields if necessary
 };
 
+type Structure = {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+  isSelected?: boolean;
+  itemPath: string;
+};
+
+
+
 const InfiniteGrid = () => {
+  const [draggingStructure, setDraggingStructure] = useState<Structure | null>(null); 
+  const [structures, setStructures] = useState<Structure[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const { champions, loading } = useChampions();
   const stageRef = useRef<Konva.Stage | null>(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -35,6 +52,9 @@ const InfiniteGrid = () => {
   const [importedImage, setImportedImage] = useState<HTMLImageElement | null>(null);
   const [imagePosition, setImagePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const imageRef = useRef<Konva.Image | null>(null);
+  const [tiles, setTiles] = useState<{ [key: string]: string | undefined }>({});
+  const [selectionMode, setSelectionMode] = useState<'single' | 'rectangle' | 'object'>('single');
+  const [isSelecting, setIsSelecting] = useState(false);
 
   useEffect(() => {
     const updateSize = () => {
@@ -55,9 +75,7 @@ const InfiniteGrid = () => {
     width: number;
     height: number;
   } | null>(null);
-  const [tiles, setTiles] = useState<{ [key: string]: string | undefined }>({});
-  const [selectionMode, setSelectionMode] = useState<'single' | 'rectangle' | 'object'>('single');
-  const [isSelecting, setIsSelecting] = useState(false);
+
 
 
 const placeTile = useCallback((x: number, y: number) => {
@@ -67,9 +85,9 @@ const placeTile = useCallback((x: number, y: number) => {
   setTiles((prevTiles) => {
     const newTiles = { ...prevTiles };
     if (activeTile === 'eraser') {
-      delete newTiles[key]; // Erase tile
+      delete newTiles[key]; 
     } else {
-      newTiles[key] = activeTile; // Place tile
+      newTiles[key] = activeTile; 
     }
     return newTiles;
   });
@@ -107,11 +125,22 @@ const placeTile = useCallback((x: number, y: number) => {
     if (e.evt.button !== 2) return; 
   
     setPosition({ x: e.target.x(), y: e.target.y() });
-    if (selectionMode === 'object' && imageRef.current) {
-      const newX = Math.floor(e.target.x() / GRID_SIZE) * GRID_SIZE;
-      const newY = Math.floor(e.target.y() / GRID_SIZE) * GRID_SIZE;
-      imageRef.current.position({ x: newX, y: newY });
-      imageRef.current.getLayer()?.batchDraw();
+    if (isDragging && selectionMode === 'object') {
+      const stage = stageRef.current;
+      if (!stage) return; // Ensure stage is not null
+    
+      const pointer = stage.getPointerPosition();
+      if (!pointer) return; // Ensure pointer is not null before accessing properties
+    
+      const newX = pointer.x;
+      const newY = pointer.y;
+      setStructures((prevStructures) =>
+        prevStructures.map((s) =>
+          s.id === draggingStructure?.id
+            ? { ...s, x: newX, y: newY }
+            : s
+        )
+      );
     }
   }, [selectionMode]);
   
@@ -119,7 +148,7 @@ const placeTile = useCallback((x: number, y: number) => {
 
   const handleMouseDown = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
-      e.evt.preventDefault(); // Prevent default right-click menu
+      e.evt.preventDefault();
   
       const stage = stageRef.current;
       if (!stage) return;
@@ -133,7 +162,7 @@ const placeTile = useCallback((x: number, y: number) => {
         y: (pointer.y - absPos.y) / scale,
       };
   
-      if (e.evt.button === 2) { // Right-click (button 2)
+      if (e.evt.button === 2) { 
         if (selectionMode === 'single') {
           placeTile(adjustedPointer.x, adjustedPointer.y);
           setIsSelecting(true);
@@ -145,16 +174,18 @@ const placeTile = useCallback((x: number, y: number) => {
             height: 0,
           });
           setIsSelecting(true);
-        } else if (selectionMode === 'object') {
-          handleItemImport('../structures/item_001.webp');
+        } else if (selectionMode === 'object' && e.evt.button === 2) {
+          const clickedOn = e.target;
+          if (!clickedOn) return;
+          const structure = structures.find((s) => s.id === clickedOn.id());
+          if (structure) setDraggingStructure(structure);
+          setIsDragging(true);
+        
         }
       }
     },
     [scale, selectionMode, placeTile]
   );
-  
-
-
 
   const handleMouseMove = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -221,11 +252,10 @@ const placeTile = useCallback((x: number, y: number) => {
     setIsSelecting(false);
   }, [isSelecting, selectionMode, selectionRect, activeTile]);
 
-  const handleRightClick = useCallback((e: { evt: { preventDefault: () => void; }; }) => {
+  const handleRightClick = useCallback((e: KonvaEventObject<PointerEvent>, structureId: string ) => {
     e.evt.preventDefault();
     const stage = stageRef.current;
     if (!stage) return;
-
     const pointer = stage.getPointerPosition();
     if (!pointer) return;
 
@@ -234,63 +264,36 @@ const placeTile = useCallback((x: number, y: number) => {
       x: (pointer.x - absPos.x) / scale,
       y: (pointer.y - absPos.y) / scale,
     };
-
     const gridX = Math.floor(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
     const gridY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
     const key = `${gridX},${gridY}`;
-/**const rect = imageRef.current?.getBoundingClientRect();
-    if (rect) {
-      setOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
-    setIsDragging(true); // Start dragging on right click
-  }; */
     if (selectionMode === 'single') {
       setTiles((prevTiles) => {
         const newTiles = { ...prevTiles };
-        if (activeTile === 'eraser') {
-          delete newTiles[key]; // Erase tile
-        } else {
-          newTiles[key] = activeTile; // Change tile type
-        }
+        if (activeTile === 'eraser') delete newTiles[key]; 
+        else newTiles[key] = activeTile; 
         return newTiles;
       });
     }
-  }, [scale, activeTile, selectionMode]); // ✅ Dependency array correctly placed  
+  }, [scale, activeTile, selectionMode]);
 
   const drawGrid = useMemo(() => {
     const elements: JSX.Element[] = [];
     const stage = stageRef.current;
     if (!stage) return elements;
-
-    // Get viewport dimensions
     const viewWidth = windowSize.width;
     const viewHeight = windowSize.height;
-
-    // Calculate how much extra grid space is needed based on zoom level
-    const extraPadding = GRID_SIZE * 5 / scale; // Extend grid beyond viewport when zoomed out
-
+    const extraPadding = GRID_SIZE * 5 / scale;
     const width = (viewWidth / scale) + extraPadding * 2;
     const height = (viewHeight / scale) + extraPadding * 2;
-
     const startX = Math.floor((-position.x - extraPadding) / GRID_SIZE) * GRID_SIZE;
     const endX = Math.ceil((-position.x + width + extraPadding) / GRID_SIZE) * GRID_SIZE;
     const startY = Math.floor((-position.y - extraPadding) / GRID_SIZE) * GRID_SIZE;
     const endY = Math.ceil((-position.y + height + extraPadding) / GRID_SIZE) * GRID_SIZE;
-
-    // Draw vertical grid lines
-    for (let x = startX; x <= endX; x += GRID_SIZE) {
+    for (let x = startX; x <= endX; x += GRID_SIZE) 
       elements.push(<Line key={`v-${x}`} points={[x, startY, x, endY]} stroke="gray" strokeWidth={0.5} />);
-    }
-
-    // Draw horizontal grid lines
-    for (let y = startY; y <= endY; y += GRID_SIZE) {
+    for (let y = startY; y <= endY; y += GRID_SIZE) 
       elements.push(<Line key={`h-${y}`} points={[startX, y, endX, y]} stroke="gray" strokeWidth={0.5} />);
-    }
-
-    // Draw selection rectangle
     if (selectionRect) {
       elements.push(
         <Rect
@@ -306,11 +309,9 @@ const placeTile = useCallback((x: number, y: number) => {
       );
     }
 
-    // Draw tiles
     Object.entries(tiles).forEach(([key, tileType]) => {
       const [x, y] = key.split(',').map(Number);
       if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-
       elements.push(
         <Rect
           key={`tile-${key}`}
@@ -320,59 +321,25 @@ const placeTile = useCallback((x: number, y: number) => {
           height={GRID_SIZE}
           fill={tileColors[tileType as keyof typeof tileColors] || tileColors.floor}
         />
-      );
-    });
-
+    )});
     return elements;
-  }, [position, scale, tiles, selectionRect]); // Ensure selectionRect is included in dependencies
+  }, [position, scale, tiles, selectionRect]);
 
-  const { champions, loading } = useChampions();
-  const handleImport = async () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = async (event) => {
-      const fileInput = event.target as HTMLInputElement; // Cast to HTMLInputElement
-      const file = fileInput.files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedData = JSON.parse(e.target?.result as string);
-
-          // Set the tiles and other data from the imported data
-          setTiles(importedData.tiles || {});
-          setPosition(importedData.position || { x: 0, y: 0 });
-          setScale(importedData.scale || 1);
-
-          // You can add more properties here based on your imported data structure
-        } catch (error: unknown) {
-          // Type assertion: error is an instance of Error
-          if (error instanceof Error) {
-            alert('Error importing data: ' + error.message);
-          } else {
-            alert('An unknown error occurred during import.');
-          }
-        }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
+  const addItem = (itemPath: string) => {
+    setStructures([
+      ...structures,
+      {
+        id: (structures.length + 1).toString(), 
+        x: 100,
+        y: 100,
+        width: 50, 
+        height: 50,
+        color: 'blue', 
+        isSelected: false,
+        itemPath, 
+      }
+    ]);
   };
-
-  const [importedItem, setImportedItem] = useState<{ type: string; x: number; y: number } | null>(null);
-
-  const handleItemImport = async (src: string) => {
-    const image = new window.Image();
-    image.onload = () => {
-      // Set the imported image to fit 1 tile
-      setImportedImage(image);
-      setImagePosition({ x: 0, y: 0 });
-    };
-    image.src = src;
-  };
-  
 
 
 
@@ -462,7 +429,7 @@ const placeTile = useCallback((x: number, y: number) => {
               )) : (<div> Loading... </div>)}
             </div>
           ) : (<div><button
-            onClick={() => handleItemImport('../structures/item_001.webp')}
+            onClick={() => addItem('/structures/item_001.webp')}
             style={{
               display: 'block',
               width: '100%',
@@ -477,7 +444,7 @@ const placeTile = useCallback((x: number, y: number) => {
               width={100}
               height={100}
             />Chest</button><button
-              onClick={() => handleItemImport('../structures/item_002.webp')}
+              onClick={() => addItem('/structures/item_002.webp')}
               style={{
                 display: 'block',
                 width: '100%',
@@ -496,21 +463,20 @@ const placeTile = useCallback((x: number, y: number) => {
 
 
         <Stage
-          width={windowSize.width - 300}
-          height={windowSize.height - 65}
-          draggable
-          onDragMove={handleDragMove}
-          onContextMenu={handleRightClick}
-          onWheel={handleWheel}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          scaleX={scale}
-          scaleY={scale}
-          x={position.x}
-          y={position.y}
-          ref={stageRef}
-        >
+  width={windowSize.width - 300}
+  height={windowSize.height - 65}
+  draggable
+  onDragMove={handleDragMove}
+  onWheel={handleWheel}
+  onMouseDown={handleMouseDown}
+  onMouseMove={handleMouseMove}
+  onMouseUp={handleMouseUp}
+  scaleX={scale}
+  scaleY={scale}
+  x={position.x}
+  y={position.y}
+  ref={stageRef}
+>
           {/* Grid and Tiles */}
           <Layer>
             {drawGrid.filter((el) => el.type === Rect)}
@@ -523,17 +489,31 @@ const placeTile = useCallback((x: number, y: number) => {
                 height={GRID_SIZE} 
                 ref={imageRef}
                 onLoad={() => {
-                  // Ensuring the image is fully loaded and will render correctly
                   imageRef.current?.getLayer()?.batchDraw();
                 }}
               />
             )}
           </Layer>
 
-          {/* Grid Lines Layer (Above tiles) */}
+          {/* Grid Lines Layer */}
           <Layer>{drawGrid.filter((el) => el.type === Line)}</Layer>
 
-          {/* Selection Outline Layer (Always on top) */}
+          <Layer>
+    {structures.map((structure) => (
+      <Rect
+        key={structure.id}
+        x={structure.x}
+        y={structure.y}
+        width={50}
+        height={50}
+        fill={structure.isSelected ? 'red' : 'blue'}
+        draggable={false} // Dragging will be handled manually
+        onContextMenu={(e) => handleRightClick(e, structure.id)} // Pass structure.id here
+      />
+    ))}
+  </Layer>
+
+          {/* Selection Outline Layer */}
           <Layer>
             {selectionRect && (
               <Rect
