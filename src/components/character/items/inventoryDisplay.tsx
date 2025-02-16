@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import supabase from "@/lib/supabase/client";
+import { createClient} from "@/lib/supabase/client";
 import { Button } from "@/components/ui/cards/button";
 import { Card } from "@/components/ui/cards/card";
 import { CardContent } from "@/components/ui/cards/cardContent";
@@ -29,6 +29,7 @@ interface InventorySectionProps {
 }
 
 const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
+  const supabase = createClient();
   const [items, setItems] = useState<Item[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);

@@ -1,5 +1,5 @@
 "use client";
-import supabase from "@/lib/supabase/client";
+import {createClient} from "@/lib/supabase/client";
 
 type ItemEffect = {
   acid_dice_count?: number;
@@ -50,6 +50,7 @@ const damageTypes = [
 ];
 
 export async function fetchItemEffects(itemId: string): Promise<string[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("item_effects")
     .select("*")

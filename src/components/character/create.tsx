@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import supabase from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 const CreateCharacter = ({ userId }: { userId: string | null }) => {
+  const supabase = createClient();
   const [name, setName] = useState("");
   const [race, setRace] = useState("");
   const [characterClass, setCharacterClass] = useState("");

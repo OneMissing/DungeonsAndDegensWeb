@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import supabase from "@/lib/supabase/client"; // Adjust the path if needed
+import {createClient} from "@/lib/supabase/client"; // Adjust the path if needed
 
 type Champion = {
   id: string;
@@ -9,6 +9,7 @@ type Champion = {
 };
 
 const useChampions = () => {
+  const supabase = createClient();
   const [champions, setChampions] = useState<Champion[]>([]);
   const [loading, setLoading] = useState(true);
 

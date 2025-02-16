@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, ReactNode } from "react";
-import supabase from "@/lib/supabase/client";
+import { createClient} from "@/lib/supabase/client";
 
 type ItemEffect = {
   acid_dice_count?: number;
@@ -40,6 +40,7 @@ type Props = {
 };
 
 export default function ItemEffectsTooltip({ itemId, children }: Props) {
+  const supabase = createClient();
   const [effects, setEffects] = useState<ItemEffect | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import supabase from "@/lib/supabase/client";
 import SkillsTable from "@/components/character/skills";
 import InventorySection from "@/components/character/items/inventoryDisplay";
 import CharacterInfo from "@/components/character/characterInfo";

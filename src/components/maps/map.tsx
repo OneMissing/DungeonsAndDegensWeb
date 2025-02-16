@@ -7,7 +7,7 @@ import { default as NextImage } from "next/image";
 import { KonvaEventObject, Node, NodeConfig } from 'konva/lib/Node';
 import Konva from 'konva';
 import useImage from 'use-image';
-import supabase from '@/lib/supabase/client';
+import {createClient} from '@/lib/supabase/client';
 
 const GRID_SIZE = 50;
 const MIN_SCALE = 0.5;
@@ -32,6 +32,7 @@ type StructureProps = {
 };
 
 const Map = () => {
+    const supabase = createClient();
     const [renderTrigger, setRenderTrigger] = useState(0);
     const [imageCache, setImageCache] = useState<{ [key: string]: HTMLImageElement | null }>({});
     const stageRef = useRef<Konva.Stage | null>(null);

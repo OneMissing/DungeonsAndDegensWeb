@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import supabase from "@/lib/supabase/client";
+import { createClient} from "@/lib/supabase/client";
 
 interface SkillsGridProps {
   characterId: string;
@@ -16,7 +16,7 @@ const SkillsGrid = ({ characterId }: SkillsGridProps) => {
   const [skills, setSkills] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const supabase = createClient();
   useEffect(() => {
     if (!characterId) {
       setError("Character ID is missing.");
