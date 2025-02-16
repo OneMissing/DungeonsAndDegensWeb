@@ -160,8 +160,8 @@ const placeTile = useCallback((x: number, y: number) => {
   
 
   const handleMouseDown = useCallback(
-    (e: Konva.KonvaEventObject<MouseEvent>, shapeId: string) => { e.evt.preventDefault();
-  
+    (e: Konva.KonvaEventObject<MouseEvent>, shapeId: string) => { 
+      e.evt.preventDefault();
       const stage = stageRef.current;
       if (!stage) return;
   
@@ -440,7 +440,7 @@ const placeTile = useCallback((x: number, y: number) => {
               )) : (<div> Loading... </div>)}
             </div>
           ) : (<div><button
-            onClick={() => addItem('/structures/item_001.webp')}
+            onClick={() => addItem('structures/item_001.webp')}
             style={{
               display: 'block',
               width: '100%',
@@ -455,7 +455,7 @@ const placeTile = useCallback((x: number, y: number) => {
               width={100}
               height={100}
             />Chest</button><button
-              onClick={() => addItem('/structures/item_002.webp')}
+              onClick={() => addItem('structures/item_002.webp')}
               style={{
                 display: 'block',
                 width: '100%',
@@ -479,7 +479,7 @@ const placeTile = useCallback((x: number, y: number) => {
   draggable
   onDragMove={handleDragMove}
   onWheel={handleWheel}
-  onMouseDown={(e) => handleMouseDown(e, 'shapeId')}
+  onMouseDown={(e) => {e.evt.preventDefault();handleMouseDown(e, 'shapeId');}}
   onMouseMove={handleMouseMove}
   onMouseUp={handleMouseUp}
   scaleX={scale}
@@ -519,8 +519,8 @@ const placeTile = useCallback((x: number, y: number) => {
         width={50}
         height={50}
         fill={structure.isSelected ? 'red' : 'blue'}
-        draggable={false} // Dragging will be handled manually
-        onContextMenu={(e) => handleRightClick(e, structure.id)} // Pass structure.id here
+        draggable
+        onContextMenu={(e) => {e.evt.preventDefault();handleRightClick(e, structure.id)}}
       />
     ))}
   </Layer>
