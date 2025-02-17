@@ -67,18 +67,9 @@ const Map = () => {
         const occupiedByCharacter = characters.some(
             (otherChar) => otherChar.x === x && otherChar.y === y
         );
-        const occupiedByStructure = structures.some(
-            (structure) =>
-                x >= structure.x &&
-                x < structure.x + structure.width &&
-                y >= structure.y &&
-                y < structure.y + structure.height
-        );
 
-        return occupiedByCharacter || occupiedByStructure || occupiedByWall;
+        return occupiedByCharacter  || occupiedByWall;
     };
-    
-    
 
     useEffect(() => {
         const newCache: { [key: string]: HTMLImageElement | null } = {};
