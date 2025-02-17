@@ -434,15 +434,15 @@ const loadCanvasFromSupabase = async (
             return;
         }
 
-        const structures = Array.isArray(mapData.structures) ? mapData.structures : [];
-        const tiles =
+        const structures: Structure[] = Array.isArray(mapData.structures) ? mapData.structures : [];
+        const tiles: { [key: string]: string | null } =
             typeof mapData.tiles === "object" && mapData.tiles !== null ? mapData.tiles : {};
-        const characters = Array.isArray(mapData.characters) ? mapData.characters : [];
+        const characters: Character[] = Array.isArray(mapData.characters) ? mapData.characters : [];
 
         setStructures(structures);
         setTiles(tiles);
         setCharacters(
-            characters.map((char) => ({
+            characters.map((char: Character) => ({
                 ...char,
                 isDragging: false,
                 isSelected: false, 
@@ -452,6 +452,7 @@ const loadCanvasFromSupabase = async (
         console.error("Unexpected error in loadCanvasFromSupabase:", err);
     }
 };
+
 
     const saveCanvasToSupabase = async (
     structures: Structure[],
