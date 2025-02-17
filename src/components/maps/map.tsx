@@ -398,87 +398,101 @@ const Map = () => {
         };
     };
 
-    const loadCanvasFromSupabase = async (
-        setStructures: React.Dispatch<React.SetStateAction<Structure[]>>,
-        setTiles: React.Dispatch<React.SetStateAction<{ [key: string]: string | null | undefined }>>,
-        setCharacters: React.Dispatch<React.SetStateAction<Character[]>>
-    ) => {
-        try {
-            const user = await supabase.auth.getUser();
-            if (!user.data?.user) {
-                console.error("User not authenticated");
-                return;
-            }
-
-            const { data, error } = await supabase
-                .from("maps")
-                .select("data")
-                .eq("user_id", user.data.user.id)
-                .order("created_at", { ascending: false })
-                .limit(1);
-
-            if (error) {
-                console.error("Supabase error:", error);
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                console.warn("No map data found.");
-                return;
-            }
-
-            const mapData = data[0]?.data;
-
-            if (!mapData || typeof mapData !== "object") {
-                console.error("Invalid map data format:", mapData);
-                return;
-            }
-
-            const structures = Array.isArray(mapData.structures) ? mapData.structures : [];
-            const tiles =
-                typeof mapData.tiles === "object" && mapData.tiles !== null ? mapData.tiles : {};
-            const characters = Array.isArray(mapData.characters) ? mapData.characters : [];
-
-            setStructures(structures);
-            setTiles(tiles);
-            setCharacters(characters);
-        } catch (err) {
-            console.error("Unexpected error in loadCanvasFromSupabase:", err);
-        }
-    };
-
-
-    const saveCanvasToSupabase = async (
-        structures: Structure[],
-        tiles: { [key: string]: string | null | undefined },
-        characters: Character[]
-    ) => {
-        const cleanedTiles: Record<string, string | null> = Object.fromEntries(
-            Object.entries(tiles).map(([key, value]) => [key, value ?? null])
-        );
-
+const loadCanvasFromSupabase = async (
+    setStructures: React.Dispatch<React.SetStateAction<Structure[]>>,
+    setTiles: React.Dispatch<React.SetStateAction<{ [key: string]: string | null | undefined }>>,
+    setCharacters: React.Dispatch<React.SetStateAction<Character[]>>
+) => {
+    try {
         const user = await supabase.auth.getUser();
         if (!user.data?.user) {
             console.error("User not authenticated");
             return;
         }
 
-        const canvasData = {
-            structures,
-            tiles: cleanedTiles,
-            characters,
-        };
-
         const { data, error } = await supabase
-            .from('maps')
-            .insert([{ user_id: user.data.user.id, data: canvasData }]);
+            .from("maps")
+            .select("data")
+            .eq("user_id", user.data.user.id)
+            .order("created_at", { ascending: false })
+            .limit(1);
 
         if (error) {
-            console.error('Error saving canvas:', error);
-        } else {
-            console.log('Canvas saved successfully:', data);
+            console.error("Supabase error:", error);
+            return;
         }
+
+        if (!data || data.length === 0) {
+            console.warn("No map data found.");
+            return;
+        }
+
+        const mapData = data[0]?.data;
+
+        if (!mapData || typeof mapData !== "object") {
+            console.error("Invalid map data format:", mapData);
+            return;
+        }
+
+        const structures = Array.isArray(mapData.structures) ? mapData.structures : [];
+        const tiles =
+            typeof mapData.tiles === "object" && mapData.tiles !== null ? mapData.tiles : {};
+        const characters = Array.isArray(mapData.characters) ? mapData.characters : [];
+
+        setStructures(structures);
+        setTiles(tiles);
+        setCharacters(
+            characters.map((char) => ({
+                ...char,
+                isDragging: false,
+                isSelected: false, 
+            }))
+        );
+    } catch (err) {
+        console.error("Unexpected error in loadCanvasFromSupabase:", err);
+    }
+};
+
+    const saveCanvasToSupabase = async (
+    structures: Structure[],
+    tiles: { [key: string]: string | null | undefined },
+    characters: Character[]
+) => {
+    const cleanedTiles: Record<string, string | null> = Object.fromEntries(
+        Object.entries(tiles).map(([key, value]) => [key, value ?? null])
+    );
+
+    const user = await supabase.auth.getUser();
+    if (!user.data?.user) {
+        console.error("User not authenticated");
+        return;
+    }
+
+    const canvasData = {
+        structures,
+        tiles: cleanedTiles,
+        characters: characters.map(({ id, x, y, width, height, name, imagePath }) => ({
+            id,
+            x,
+            y,
+            width,
+            height,
+            name,
+            imagePath,
+        })),
     };
+
+    const { data, error } = await supabase
+        .from("maps")
+        .insert([{ user_id: user.data.user.id, data: canvasData }]);
+
+    if (error) {
+        console.error("Error saving canvas:", error);
+    } else {
+        console.log("Canvas saved successfully:", data);
+    }
+};
+
 
 
 
