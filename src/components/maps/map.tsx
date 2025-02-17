@@ -2,48 +2,25 @@
 import React, { useRef, useState, useCallback, useMemo, JSX, useEffect } from 'react';
 import { Stage, Layer, Line, Rect, Image } from 'react-konva';
 import { Button } from '../ui/cards/button';
-import { default as NextImage } from "next/image";
-import { KonvaEventObject, Node, NodeConfig } from 'konva/lib/Node';
+import { KonvaEventObject } from 'konva/lib/Node';
 import Konva from 'konva';
-import useImage from 'use-image';
 import { createClient } from '@/lib/supabase/client';
+import Sidebar from './sidebar';
+import { Character, Structure } from '@/lib/types/map';
+import { loadCanvas } from '@/lib/types/map';
+import { PopupLoad } from './popup';
 
 const GRID_SIZE = 50;
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 2;
 const SNAP_THRESHOLD = GRID_SIZE - 20;
 
-interface Structure {
-    id: string;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    color: string;
-    isSelected: boolean;
-    itemPath: string;
-    isDragging: boolean;
-}
-
-
-interface Character {
-    id: string;
-    name: string;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    imagePath: string;
-    isSelected: boolean;
-    isDragging: boolean;
-}
-
 const Map = () => {
     const supabase = createClient();
     const [renderTrigger, setRenderTrigger] = useState(0);
     const [imageCache, setImageCache] = useState<{ [key: string]: HTMLImageElement | null }>({});
     const stageRef = useRef<Konva.Stage | null>(null);
-    const [windowSize, setWindowSize] = useState({ width: 800, height: 600 });
+    const [windowSize, setWindowSize] = useState({ width: 400, height: 300 });
     const [isPanning, setIsPanning] = useState(false);
     const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
     const [selectionMode, setSelectionMode] = useState<'single' | 'rectangle' | 'structures'>('structures');
@@ -54,22 +31,78 @@ const Map = () => {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [activeTab, setActiveTab] = useState<'tiles' | 'characters' | 'structures' | 'settings'>('tiles');
     const [selectionRect, setSelectionRect] = useState<{ x: number; y: number; width: number; height: number; } | null>(null);
-    const tileColors = { wall: 'black', sand: 'khaki', water: 'lightblue', wood: 'sienna', floor: 'lightgray', };
     const [activeTile, setActiveTile] = useState<string | null>(null);
     const [tiles, setTiles] = useState<{ [key: string]: string | null | undefined }>({});
     const [isSelecting, setIsSelecting] = useState(false);
-    const [characterImageCache, setCharacterImageCache] = useState<HTMLImageElement | null>(null);
+    const [wasLoaded, setWasloaded] = useState<true| false>(false);
+    const tileColors = {
+        wall: 'black',
+        stonewall: 'darkgray',  
+        sand: 'khaki',
+        water: 'lightblue',
+        floor: 'lightgray',
+        grass: 'green',
+    };
 
-    useEffect(() => {
-        const img = new window.Image();
-        img.src = "/characters/01.webp";
-        img.onload = () => setCharacterImageCache(img);
+    const tileImages = useMemo(() => {
+        const images: Record<string, HTMLImageElement | null> = {};
+        Object.entries(tileColors).forEach(([tileType, src]) => {
+            if (!src) return; // Skip empty tiles
+            const img = new window.Image();
+            img.src = `/tiles/${tileType}.webp`;
+            img.onload = () => {
+                console.log(`✅ Loaded image for tile: ${tileType}`);
+                images[tileType] = img;
+            };
+            images[tileType] = null; 
+        });
+        return images;
     }, []);
     
+    
+    
+    const isTileOccupiedV1 = (x: number, y: number) => {
+        const tileKey = `${x},${y}`;
+        const occupiedByWall = ["wall", "stonewall", "brickwall"].includes(tiles[tileKey] || "");
+        const occupiedByCharacter = characters.some(
+            (otherChar) => otherChar.x === x && otherChar.y === y
+        );
+        const occupiedByStructure = structures.some(
+            (structure) =>
+                x >= structure.x &&
+                x < structure.x + structure.width &&
+                y >= structure.y &&
+                y < structure.y + structure.height
+        );
+
+        return occupiedByCharacter || occupiedByStructure || occupiedByWall;
+    };
+    
+    
+
+    useEffect(() => {
+        const newCache: { [key: string]: HTMLImageElement | null } = {};
+
+        characters.forEach((char) => {
+            const className = char.class.toLowerCase();
+            const imagePath = `/characters/${className}.webp`;
+            if (!imageCache[imagePath]) {
+                const img = new window.Image();
+                img.src = imagePath;
+                img.onload = () => { setImageCache((prevCache) => ({ ...prevCache, [imagePath]: img })) };
+                newCache[imagePath] = null;
+            }
+        });
+        setImageCache((prevCache) => ({ ...prevCache, ...newCache }));
+    }, [characters]);
+
+
+
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Delete") {
+                setCharacters(prevCharacters => prevCharacters.filter(c => !c.isSelected));
                 setStructures((prevStructures) => {
                     const selectedStructures = prevStructures.filter(s => s.isSelected);
                     if (selectedStructures.length === 0) return prevStructures;
@@ -104,7 +137,6 @@ const Map = () => {
     useEffect(() => {
         setRenderTrigger((prev) => prev + 1);
     }, [characters]);
-    
 
     useEffect(() => {
         const fetchChampions = async () => {
@@ -116,7 +148,7 @@ const Map = () => {
                 }
                 const { data, error } = await supabase
                     .from("characters")
-                    .select("id, name")
+                    .select("id, name, class")
                     .eq("user_id", userData.user.id);
                 if (error) {
                     console.error("Error fetching champions:", error);
@@ -125,11 +157,12 @@ const Map = () => {
                 setChampions(data.map(char => ({
                     id: char.id,
                     name: char.name,
-                    x: 0,
-                    y: 0,
+                    class: char.class.toLowerCase(),
+                    x: Math.floor(windowSize.width / 2),
+                    y: Math.floor(windowSize.width / 2),
                     width: GRID_SIZE,
                     height: GRID_SIZE,
-                    imagePath: `/characters/01.png`,
+                    imagePath: `/characters/${char.class.toLowerCase()}.webp`, 
                     isSelected: false,
                     isDragging: false,
                 })));
@@ -137,10 +170,11 @@ const Map = () => {
                 console.error("Unexpected error fetching champions:", err);
             }
         };
+
         fetchChampions();
     }, []);
-    
-    
+
+
 
     useEffect(() => {
         const updateSize = () => {
@@ -168,6 +202,7 @@ const Map = () => {
             return newTiles;
         });
     }, [activeTile]);
+    
 
     const handleMouseDown = useCallback((e: KonvaEventObject<MouseEvent>) => {
         const { button } = e.evt;
@@ -186,6 +221,15 @@ const Map = () => {
             adjustedPointer.y >= structure.y &&
             adjustedPointer.y <= structure.y + structure.height
         );
+        const clickedOnCharacter = characters.some(char =>
+            adjustedPointer.x >= char.x &&
+            adjustedPointer.x <= char.x + char.width &&
+            adjustedPointer.y >= char.y &&
+            adjustedPointer.y <= char.y + char.height
+        );
+        if (!clickedOnCharacter) {
+            setCharacters(prevCharacters => prevCharacters.map(c => ({ ...c, isSelected: false })));
+        }
 
         if (!clickedOnStructure) {
             setStructures(prevStructures =>
@@ -202,10 +246,8 @@ const Map = () => {
                 });
                 setIsSelecting(true);
             } else if (selectionMode === 'single') {
-                placeTile(adjustedPointer.x, adjustedPointer.y);
                 setIsSelecting(true);
             } else if (selectionMode === 'structures') {
-                // Implement logic for placing structures
             }
         } else if (button === 2) {
             e.evt.preventDefault();
@@ -213,7 +255,7 @@ const Map = () => {
             setStartPosition({ x: e.evt.layerX, y: e.evt.layerY });
         }
     },
-        [scale, selectionMode, placeTile]
+        [scale, selectionMode, placeTile, characters]
     );
 
     const handleMouseMove = (e: { evt: { layerX: number; layerY: number; }; }) => {
@@ -273,7 +315,6 @@ const Map = () => {
                         const gridX = Math.floor(x / GRID_SIZE) * GRID_SIZE;
                         const gridY = Math.floor(y / GRID_SIZE) * GRID_SIZE;
                         const key = `${gridX},${gridY}`;
-
                         if (activeTile === 'eraser') delete updatedTiles[key];
                         else updatedTiles[key] = activeTile;
                     }
@@ -310,60 +351,100 @@ const Map = () => {
         const elements: JSX.Element[] = [];
         const stage = stageRef.current;
         if (!stage) return elements;
+    
         const viewWidth = windowSize.width;
         const viewHeight = windowSize.height;
-        const extraPadding = GRID_SIZE * 5 / scale;
+        const extraPadding = (GRID_SIZE * 10) / scale;
         const width = (viewWidth / scale) + extraPadding * 2;
         const height = (viewHeight / scale) + extraPadding * 2;
-        const startX = Math.floor((-position.x - extraPadding) / GRID_SIZE) * GRID_SIZE;
+    
+        const startX = Math.floor((-position.x - extraPadding * 5) / GRID_SIZE) * GRID_SIZE;
         const endX = Math.ceil((-position.x + width + extraPadding) / GRID_SIZE) * GRID_SIZE;
-        const startY = Math.floor((-position.y - extraPadding) / GRID_SIZE) * GRID_SIZE;
+        const startY = Math.floor((-position.y - extraPadding * 5) / GRID_SIZE) * GRID_SIZE;
         const endY = Math.ceil((-position.y + height + extraPadding) / GRID_SIZE) * GRID_SIZE;
-        for (let x = startX; x <= endX; x += GRID_SIZE)
+    
+        // Draw grid lines
+        for (let x = startX; x <= endX; x += GRID_SIZE) {
             elements.push(<Line key={`v-${x}`} points={[x, startY, x, endY]} stroke="gray" strokeWidth={0.5} />);
-        for (let y = startY; y <= endY; y += GRID_SIZE)
+        }
+        for (let y = startY; y <= endY; y += GRID_SIZE) {
             elements.push(<Line key={`h-${y}`} points={[startX, y, endX, y]} stroke="gray" strokeWidth={0.5} />);
+        }
+    
+        // Draw tiles using images
         Object.entries(tiles).forEach(([key, tileType]) => {
             const [x, y] = key.split(',').map(Number);
             if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-            elements.push(
-                <Rect
-                    key={`tile-${key}`}
-                    x={x}
-                    y={y}
-                    width={GRID_SIZE}
-                    height={GRID_SIZE}
-                    fill={tileColors[tileType as keyof typeof tileColors] || tileColors.floor}
-                />
-            )
+    
+            // Ensure tileType is a valid string before using it
+            if (!tileType || typeof tileType !== 'string') {
+                console.warn(`🚨 Invalid tileType at (${x}, ${y}):`, tileType);
+                return;
+            }
+    
+            const image = tileImages[tileType];
+    
+            if (image) {
+                elements.push(
+                    <Image
+                        key={`tile-${key}`}
+                        x={x}
+                        y={y}
+                        width={GRID_SIZE}
+                        height={GRID_SIZE}
+                        image={image} // Use the preloaded image
+                    />
+                );
+            } else {
+                console.warn(`🚨 Tile image not loaded yet for: ${tileType}`);
+            }
         });
-
+    
         return elements;
-    }, [position, scale, tiles, renderTrigger]);
+    }, [position, scale, tiles, renderTrigger, tileImages]);
+    
+    
+    
 
     const addCharacter = (champion: Character) => {
-        setCharacters((prevCharacters) => [
-            ...prevCharacters,
-            {
-                ...champion,
-                id: crypto.randomUUID(), // Ensure unique ID
-                x: 100,
-                y: 100,
-                isSelected: false,
-                isDragging: false,
-            },
-        ]);
+        if (!stageRef.current) return;
+        const stage = stageRef.current;
+        const stageScale = stage.scaleX();
+        const stagePos = stage.position();
+        const centerX = (-stagePos.x + (windowSize.width / 2) - 250) / stageScale;
+        const centerY = (-stagePos.y + (windowSize.height / 2) - 50) / stageScale;
+        const snappedPosition = snapToGrid(centerX, centerY);
+        setCharacters((prevCharacters) => {
+            if (prevCharacters.some(char => char.name === champion.name)) {
+                return prevCharacters; 
+            } return [
+                ...prevCharacters,
+                {
+                    ...champion,
+                    id: crypto.randomUUID(),
+                    x: snappedPosition.x,
+                    y: snappedPosition.y,
+                    isSelected: false,
+                    isDragging: false,
+                },
+            ];
+        });
     };
-    
-    
 
     const addItem = (itemPath: string, w: number, h: number) => {
+        if (!stageRef.current) return;
+        const stage = stageRef.current;
+        const stageScale = stage.scaleX();
+        const stagePos = stage.position();
+        const centerX = (-stagePos.x + (windowSize.width / 2) - 250) / stageScale;
+        const centerY = (-stagePos.y + (windowSize.height / 2) - 50) / stageScale;
+        const snappedPosition = snapToGrid(centerX, centerY);
         setStructures((prevStructures) => [
             ...prevStructures,
             {
                 id: (prevStructures.length + 1).toString(),
-                x: 100,
-                y: 100,
+                x: snappedPosition.x,
+                y: snappedPosition.y,
                 width: GRID_SIZE * w,
                 height: GRID_SIZE * h,
                 color: 'blue',
@@ -374,23 +455,6 @@ const Map = () => {
         ]);
     };
 
-    const loadStructures = (newStructures: Structure[] | ((prev: Structure[]) => Structure[])) => {
-        setStructures((prev) => typeof newStructures === "function" ? newStructures(prev) : [...newStructures]);
-    };
-
-    const loadCharacters = (newCharacters: Character[] | ((prev: Character[]) => Character[])) => {
-        setCharacters((prev) => typeof newCharacters === "function" ? newCharacters(prev) : [...newCharacters]);
-    };
-
-    const loadTiles = (newTiles: { [key: string]: string | null | undefined } | ((prev: { [key: string]: string | null | undefined }) => { [key: string]: string | null | undefined })) => {
-        setTiles((prev) => {
-            const updatedTiles = typeof newTiles === "function" ? newTiles(prev) : newTiles;
-            return Object.fromEntries(Object.entries(updatedTiles).map(([key, value]) => [key, value ?? null]));
-        });
-    };
-
-
-
     const snapToGrid = (x: number, y: number): { x: number; y: number } => {
         return {
             x: Math.floor(x / GRID_SIZE) * GRID_SIZE,
@@ -398,107 +462,72 @@ const Map = () => {
         };
     };
 
-const loadCanvasFromSupabase = async (
-    setStructures: React.Dispatch<React.SetStateAction<Structure[]>>,
-    setTiles: React.Dispatch<React.SetStateAction<{ [key: string]: string | null | undefined }>>,
-    setCharacters: React.Dispatch<React.SetStateAction<Character[]>>
-) => {
-    try {
+
+
+    const saveCanvasToSupabase = async (
+        structures: Structure[],
+        tiles: { [key: string]: string | null | undefined },
+        characters: Character[]
+    ) => {
+        const cleanedTiles: Record<string, string | null> = Object.fromEntries(
+            Object.entries(tiles).map(([key, value]) => [key, value ?? null])
+        );
+
         const user = await supabase.auth.getUser();
         if (!user.data?.user) {
             console.error("User not authenticated");
             return;
         }
 
+        const canvasData = {
+            structures,
+            tiles: cleanedTiles,
+            characters: characters.map(({ id, x, y, width, height, name, class: characterClass, imagePath }) => ({
+                id,
+                x,
+                y,
+                width,
+                height,
+                name,
+                class: characterClass,
+                imagePath,
+            })),
+        };
+
         const { data, error } = await supabase
             .from("maps")
-            .select("data")
-            .eq("user_id", user.data.user.id)
-            .order("created_at", { ascending: false })
-            .limit(1);
+            .insert([{ user_id: user.data.user.id, data: canvasData }]);
 
         if (error) {
-            console.error("Supabase error:", error);
-            return;
+            console.error("Error saving canvas:", error);
+        } else {
+            console.log("Canvas saved successfully:", data);
         }
-
-        if (!data || data.length === 0) {
-            console.warn("No map data found.");
-            return;
-        }
-
-        const mapData = data[0]?.data;
-
-        if (!mapData || typeof mapData !== "object") {
-            console.error("Invalid map data format:", mapData);
-            return;
-        }
-
-        const structures: Structure[] = Array.isArray(mapData.structures) ? mapData.structures : [];
-        const tiles: { [key: string]: string | null } =
-            typeof mapData.tiles === "object" && mapData.tiles !== null ? mapData.tiles : {};
-        const characters: Character[] = Array.isArray(mapData.characters) ? mapData.characters : [];
-
-        setStructures(structures);
-        setTiles(tiles);
-        setCharacters(
-            characters.map((char: Character) => ({
-                ...char,
-                isDragging: false,
-                isSelected: false, 
-            }))
-        );
-    } catch (err) {
-        console.error("Unexpected error in loadCanvasFromSupabase:", err);
-    }
-};
-
-
-    const saveCanvasToSupabase = async (
-    structures: Structure[],
-    tiles: { [key: string]: string | null | undefined },
-    characters: Character[]
-) => {
-    const cleanedTiles: Record<string, string | null> = Object.fromEntries(
-        Object.entries(tiles).map(([key, value]) => [key, value ?? null])
-    );
-
-    const user = await supabase.auth.getUser();
-    if (!user.data?.user) {
-        console.error("User not authenticated");
-        return;
-    }
-
-    const canvasData = {
-        structures,
-        tiles: cleanedTiles,
-        characters: characters.map(({ id, x, y, width, height, name, imagePath }) => ({
-            id,
-            x,
-            y,
-            width,
-            height,
-            name,
-            imagePath,
-        })),
     };
 
-    const { data, error } = await supabase
-        .from("maps")
-        .insert([{ user_id: user.data.user.id, data: canvasData }]);
 
-    if (error) {
-        console.error("Error saving canvas:", error);
-    } else {
-        console.log("Canvas saved successfully:", data);
-    }
-};
-
-
-
+    const buildMap = (mapData: { structures: Structure[]; tiles: { [key: string]: string | null }; characters: Character[] }) => {
+        setStructures(mapData.structures);
+        setTiles(mapData.tiles);
+        setCharacters(
+            mapData.characters.map((char: Character) => ({
+                ...char,
+                class: char.class ? char.class.toLowerCase() : "warrior",
+                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/warrior.webp",
+                isDragging: false,
+                isSelected: false,
+            }))
+        );
+    };
 
     return (
         <div className='relative w-full'>
+
+            {/* Popup Modals */}
+            <PopupLoad buildMap={buildMap} popupLoad={false}  setWasloaded={setWasloaded} />
+
+
+            {/* ModeSelect */}
             <div className='bg-gray-700 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 top-[calc(100svh-7rem)] z-50 w-96 rounded-lg pb-3 pl-2 pr-2'>
                 <h1 className='text-center w-full p-2'>Mode</h1>
                 <Button
@@ -517,129 +546,36 @@ const loadCanvasFromSupabase = async (
                     onClick={() => setSelectionMode('structures')}
                 > structures </Button>
             </div>
-            <div style={{ display: 'flex' }}>
-                <div style={{ width: '300px', padding: '10px', background: '#f0f0f0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                        <button onClick={() => setActiveTab('tiles')} style={{ flex: 1, padding: '8px', background: activeTab === 'tiles' ? '#ddd' : '#fff' }}>Tiles</button>
-                        <button onClick={() => setActiveTab('characters')} style={{ flex: 1, padding: '8px', background: activeTab === 'characters' ? '#ddd' : '#fff' }}>Characters</button>
-                        <button onClick={() => setActiveTab('structures')} style={{ flex: 1, padding: '8px', background: activeTab === 'structures' ? '#ddd' : '#fff' }}>Items</button>
-                        <button onClick={() => setActiveTab('settings')} style={{ flex: 1, padding: '8px', background: activeTab === 'settings' ? '#ddd' : '#fff' }}>Items</button>
-                    </div>
-                    {activeTab === 'tiles' ? (
-                        <div>
-                            <h3>Select Tile Type</h3>
-                            {Object.keys(tileColors).map((tileType) => (
-                                <button
-                                    key={tileType}
-                                    onClick={() => setActiveTile(tileType)}
-                                    style={{
-                                        display: 'block',
-                                        width: '100%',
-                                        padding: '10px',
-                                        marginBottom: '5px',
-                                        background: activeTile === tileType ? '#ddd' : '#fff',
-                                        border: '1px solid #ccc',
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    {tileType.charAt(0).toUpperCase() + tileType.slice(1)}
-                                </button>
-                            ))}
-                            <button
-                                onClick={() => setActiveTile('eraser')}
-                                style={{
-                                    display: 'block',
-                                    width: '100%',
-                                    padding: '10px',
-                                    marginBottom: '5px',
-                                    background: activeTile === 'eraser' ? '#ddd' : '#fff',
-                                    border: '1px solid #ccc',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                Eraser
-                            </button>
-                        </div>
-                    ) : activeTab === 'characters' ? (
-                        <div>
-                            {champions.map((char) => (
-                                <button
-                                    key={char.id}
-                                    onClick={() => addCharacter(char)} 
-                                    style={{
-                                        display: "block",
-                                        width: "100%",
-                                        padding: "10px",
-                                        marginTop: "10px",
-                                        cursor: "pointer",
-                                        position: "relative",
-                                        height: "100px",
-                                        overflow: "hidden",
-                                    }}
-                                >
-                                        <NextImage
-                                            alt={char.name}
-                                            src="/characters/01.webp"
-                                            style={{ objectFit: "cover" }}
-                                            width={100}
-                                            height={100}
-                                        />
-                                    {char.name}
-                                </button>
-                            ))}
+            {/* End of ModeSelect */}
 
-                        </div>
-                    ) : activeTab === 'structures' ? (
-                        <div>
-                            <button
-                                onClick={() => addItem('/structures/item_001.webp', 1, 1)}
-                                style={{
-                                    display: 'block',
-                                    width: '100%',
-                                    padding: '10px',
-                                    marginTop: '10px',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <NextImage
-                                    src="/structures/item_001.webp"
-                                    alt="Item Image"
-                                    width={100}
-                                    height={100}
-                                />Chest
-                            </button>
-                            <button
-                                onClick={() => addItem('/structures/item_002.webp', 2, 2)}
-                                style={{
-                                    display: 'block',
-                                    width: '100%',
-                                    padding: '10px',
-                                    marginTop: '10px',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <NextImage
-                                    src="/structures/item_002.webp"
-                                    alt="Item Image"
-                                    width={100}
-                                    height={100}
-                                />Sword
-                            </button>
-                        </div>
-                    ) : (
-                        <div>
-                            <button onClick={() => saveCanvasToSupabase(structures, tiles, characters)}>
-                                Save Map
-                            </button>
-                            <button onClick={() => loadCanvasFromSupabase(setStructures, setTiles, setCharacters)}>
-                                Load Map
-                            </button>
-                        </div>
-                    )}
-                </div>
+
+            <div style={{ display: 'flex' }}>
+                <Sidebar
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    tileColors={tileColors}
+                    activeTile={activeTile}
+                    setActiveTile={setActiveTile}
+                    champions={champions}
+                    addCharacter={addCharacter}
+                    addItem={addItem}
+                    saveCanvas={() => saveCanvasToSupabase(structures, tiles, characters)}
+                    loadCanvas={() => loadCanvas(setStructures, setTiles, setCharacters)}
+                    characters={characters}
+                    setCharacters={setCharacters}
+                    structures={structures}
+                    tiles={tiles}
+                    setStructures={setStructures}
+                    setTiles={setTiles}
+                    wasLoaded={wasLoaded}
+                    setWasLoaded={setWasloaded}
+                />
+
+
+
 
                 <Stage
-                    width={windowSize.width - 300}
+                    width={windowSize.width - 310}
                     height={windowSize.height - 65}
                     draggable={false}
                     onWheel={handleWheel}
@@ -665,25 +601,25 @@ const loadCanvasFromSupabase = async (
                                 y={structure.y}
                                 width={structure.width}
                                 height={structure.height}
-                                image={imageCache[structure.itemPath] || undefined} // Use cached image or undefined
+                                image={imageCache[structure.itemPath] || undefined}
                                 stroke={structure.isDragging || structure.isSelected ? 'red' : 'transparent'}
-                                strokeWidth={structure.isDragging || structure.isSelected ? 3 : 0} // Keep stroke when selected
+                                strokeWidth={structure.isDragging || structure.isSelected ? 3 : 0}
                                 draggable={selectionMode === 'structures'}
                                 onClick={() => {
-                                    setStructures((prevStructures) =>
-                                        prevStructures.map((s) =>
-                                            s.id === structure.id
-                                                ? { ...s, isSelected: true } // Select this structure
-                                                : { ...s, isSelected: false } // Deselect others
-                                        )
-                                    );
+                                    setStructures((prevStructures) => {
+                                        const updatedStructures = prevStructures.map((s) => s.id === structure.id ? { ...s, isSelected: true } : { ...s, isSelected: false });
+                                        const selectedStructure = updatedStructures.find(s => s.id === structure.id);
+                                        const otherStructures = updatedStructures.filter(s => s.id !== structure.id);
+                                        return selectedStructure ? [...otherStructures, selectedStructure] : updatedStructures;
+                                    });
                                 }}
                                 onDragStart={() => {
-                                    setStructures((prevStructures) =>
-                                        prevStructures.map((s) =>
-                                            s.id === structure.id ? { ...s, isDragging: true, isSelected: true } : { ...s, isDragging: false, isSelected: false }
-                                        )
-                                    );
+                                    setStructures((prevStructures) => {
+                                        const updatedStructures = prevStructures.map((s) => s.id === structure.id ? { ...s, isDragging: true, isSelected: true } : { ...s, isDragging: false, isSelected: false });
+                                        const draggedStructure = updatedStructures.find(s => s.id === structure.id);
+                                        const otherStructures = updatedStructures.filter(s => s.id !== structure.id);
+                                        return draggedStructure ? [...otherStructures, draggedStructure] : updatedStructures;
+                                    });
                                 }}
                                 onDragMove={(e) => {
                                     const stage = e.target.getStage();
@@ -696,10 +632,9 @@ const loadCanvasFromSupabase = async (
                                     let snappedY = Math.round(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
                                     if (Math.abs(adjustedPointer.x - snappedX) < SNAP_THRESHOLD) {
                                         snappedX = Math.floor(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
-                                    }
-                                    if (Math.abs(adjustedPointer.y - snappedY) < SNAP_THRESHOLD) {
+                                    } if (Math.abs(adjustedPointer.y - snappedY) < SNAP_THRESHOLD) {
                                         snappedY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
-                                    }
+                                    } 
                                     e.target.x(snappedX);
                                     e.target.y(snappedY);
                                 }}
@@ -717,65 +652,93 @@ const loadCanvasFromSupabase = async (
                         ))}
                     </Layer>
 
+                    {/* Characters */}
                     <Layer>
-    {characters.map((char) => (
-        <Image
-            key={char.id}
-            x={char.x}
-            y={char.y}
-            width={char.width}
-            height={char.height}
-            image={characterImageCache || undefined} // Always use the cached "/characters/01.webp"
-            stroke={char.isDragging || char.isSelected ? "red" : "transparent"}
-            strokeWidth={char.isDragging || char.isSelected ? 3 : 0}
-            draggable
-            onClick={() => {
-                setCharacters((prevStructures) =>
-                    prevStructures.map((s) =>
-                        s.id === char.id
-                            ? { ...s, isSelected: true } // Select this structure
-                            : { ...s, isSelected: false } // Deselect others
-                    )
-                );
-            }}
-            onDragStart={() => {
-                setCharacters((prevCharacters) =>
-                    prevCharacters.map((s) =>
-                        s.id === char.id ? { ...s, isDragging: true, isSelected: true } : { ...s, isDragging: false, isSelected: false }
-                    )
-                );
-            }}
-            onDragMove={(e) => {
-                const stage = e.target.getStage();
-                if (!stage) return;
-                const pointerPos = stage.getPointerPosition();
-                if (!pointerPos) return;
-                const stageTransform = stage.getAbsoluteTransform().copy().invert();
-                const adjustedPointer = stageTransform.point(pointerPos);
-                let snappedX = Math.round(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
-                let snappedY = Math.round(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
-                if (Math.abs(adjustedPointer.x - snappedX) < SNAP_THRESHOLD) {
-                    snappedX = Math.floor(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
-                }
-                if (Math.abs(adjustedPointer.y - snappedY) < SNAP_THRESHOLD) {
-                    snappedY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
-                }
-                e.target.x(snappedX);
-                e.target.y(snappedY);
-            }}
-            onDragEnd={(e) => {
-                const { x: snappedX, y: snappedY } = snapToGrid(e.target.x(), e.target.y());
-
-                setStructures((prevCharacters) =>
-                    prevCharacters.map((s) =>
-                        s.id === char.id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s
-                    )
-                );
-            }}
-            onContextMenu={(e) => e.evt.preventDefault()}
-        />
-    ))}
-</Layer>
+                        {characters.map((char) => (
+                            <Image
+                                key={char.id}
+                                x={char.x}
+                                y={char.y}
+                                width={char.width}
+                                height={char.height}
+                                image={imageCache[`/characters/${char.class.toLowerCase()}.webp`] || undefined}
+                                stroke={char.isDragging || char.isSelected ? "red" : "transparent"}
+                                strokeWidth={char.isDragging || char.isSelected ? 3 : 0}
+                                draggable={selectionMode === 'structures'}
+                                onClick={() => {
+                                    setCharacters((prevCharacters) =>
+                                        prevCharacters.map((s) =>
+                                            s.id === char.id ? { ...s, isSelected: true } : { ...s, isSelected: false }
+                                        )
+                                    );
+                                }}
+                                onDragStart={() => {
+                                    setCharacters((prevCharacters) =>
+                                        prevCharacters.map((s) =>
+                                            s.id === char.id ? { ...s, isDragging: true, isSelected: true } : { ...s, isDragging: false, isSelected: false }
+                                        )
+                                    );
+                                }}
+                                onDragMove={(e) => {
+                                    const stage = e.target.getStage();
+                                    if (!stage) return;
+                                    const pointerPos = stage.getPointerPosition();
+                                    if (!pointerPos) return;
+                                    const stageTransform = stage.getAbsoluteTransform().copy().invert();
+                                    const adjustedPointer = stageTransform.point(pointerPos);
+                                
+                                    let snappedX = Math.round(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
+                                    let snappedY = Math.round(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
+                                
+                                    if (Math.abs(adjustedPointer.x - snappedX) < SNAP_THRESHOLD) {
+                                        snappedX = Math.floor(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
+                                    }
+                                    if (Math.abs(adjustedPointer.y - snappedY) < SNAP_THRESHOLD) {
+                                        snappedY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
+                                    }
+                                
+                                    const isTileOccupiedV2 = (x: number, y: number) =>
+                                        characters.some(otherChar =>
+                                            otherChar.id !== char.id &&
+                                            otherChar.x === x &&
+                                            otherChar.y === y
+                                        );
+                                
+                                    if (isTileOccupiedV1(snappedX, snappedY)) {
+                                        const offsets = [
+                                            { dx: GRID_SIZE, dy: 0 },  
+                                            { dx: -GRID_SIZE, dy: 0 }, 
+                                            { dx: 0, dy: GRID_SIZE },  
+                                            { dx: 0, dy: -GRID_SIZE }  
+                                        ];
+                                
+                                        for (const { dx, dy } of offsets) {
+                                            const newX = snappedX + dx;
+                                            const newY = snappedY + dy;
+                                            if (!isTileOccupiedV1(newX, newY) || isTileOccupiedV2(snappedX, snappedY)) {
+                                                snappedX = newX;
+                                                snappedY = newY;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                
+                                    e.target.x(snappedX);
+                                    e.target.y(snappedY);
+                                }}
+                                
+                                onDragEnd={(e) => {
+                                    const { x: snappedX, y: snappedY } = snapToGrid(e.target.x(), e.target.y());
+                                    setCharacters((prevCharacters) =>
+                                        prevCharacters.map((s) =>
+                                            s.id === char.id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s
+                                        )
+                                    );
+                                }}
+                                onContextMenu={(e) => e.evt.preventDefault()}
+                            />
+                        ))}
+                    </Layer>
 
 
 
