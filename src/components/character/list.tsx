@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import supabase from "@/lib/supabase/client";
+import {createClient} from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 interface Character {
@@ -13,6 +13,7 @@ interface Character {
 }
 
 const FetchCharacters = ({ userId }: { userId: string | null }) => {
+  const supabase = createClient();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

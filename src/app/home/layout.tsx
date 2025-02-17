@@ -1,27 +1,14 @@
 import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import NavbarHome from '@/components/ui/navbarhome';
+import { createClient } from '@/lib/supabase/server'; // Adjust the import path as needed
 
-export const metadata = {
-  title: 'DnD',
-  description: 'Playable DnD',
-};
+interface HomeLayoutProps {
+  children: ReactNode;
+}
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+export default async function HomeLayout({ children }: HomeLayoutProps) {
   const supabase = await createClient();
-
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data?.user) {
-    redirect('/login');
-  }
-
-  return (
-    <html lang="cs">
-      <body className='mt-14'>
-        <NavbarHome />
-        {children}
-      </body>
-    </html>
-  );
+  const {data: { session },} = await supabase.auth.getSession();
+  if (!session) {redirect('/login');}
+  return <>{children}</>;
 }

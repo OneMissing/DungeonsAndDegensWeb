@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import supabase from "@/lib/supabase/client";
+import {createClient} from "@/lib/supabase/client";
 
 type DamageType = "acid" | "bludgeoning" | "cold" | "fire" | "force" | "lightning" | "necrotic" | "piercing" | "poison" | "psychic" | "radiant" | "slashing" | "thunder";
 
@@ -14,7 +14,7 @@ type ItemEffect = {
 
 function ItemEffectsDisplay({ itemId }: { itemId: string }) {
   const [effects, setEffects] = useState<ItemEffect | null>(null);
-
+  const supabase = createClient();
   useEffect(() => {
     async function fetchEffects() {
       const { data, error } = await supabase

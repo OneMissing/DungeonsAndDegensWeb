@@ -2,13 +2,15 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { logout } from '@/lib/action';
 import { Menu, X } from 'lucide-react';
+
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900">
+    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 h-14">
       <div className="container mx-auto flex justify-between items-center px-6">
         {/* Logo */}
         <Link href="/" className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300">
@@ -23,11 +25,25 @@ const Navbar = () => {
         </button>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex space-x-6">
-          <Link href="/home" className="text-xl hover:text-yellow-400 transition duration-300">Home</Link>
-          <Link href="/adventure" className="text-xl hover:text-yellow-400 transition duration-300">Adventure</Link>
-          <Link href="/about" className="text-xl hover:text-yellow-400 transition duration-300">About</Link>
-          <Link href="/contact" className="text-xl hover:text-yellow-400 transition duration-300">Contact</Link>
+        <div className="flex space-x-6">
+          <Link
+            href="/home"
+            className="text-xl hover:text-yellow-400 transition duration-300">
+            Home
+          </Link>
+          <Link
+            href="/home/maps"
+            className="text-xl hover:text-yellow-400 transition duration-300">
+            Maps
+          </Link>
+          <Link
+            href="/about"
+            className="text-xl hover:text-yellow-400 transition duration-300">
+            About
+          </Link>
+          <button className="text-xl hover:text-red-600 transition duration-300" onClick={logout} >
+            Logout
+          </button>
         </div>
       </div>
 

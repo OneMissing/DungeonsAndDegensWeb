@@ -6,13 +6,15 @@ export const metadata = {
   description: 'Playable DnD',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="cs">
-      <body>
-        <Navbar />
-        {children}
-      </body>
-    </html>
-  );
-}
+  export default async function RootLayout({ children }: { children: ReactNode }) {
+    return (
+      <html lang="cs">
+        <body className="h-screen overflow-hidden">
+          <Navbar />
+          <main className="h-[calc(100vh-3.5rem-5px)] mt-14 overflow-auto">
+            {children}
+          </main>
+        </body>
+      </html>
+    );
+  }
