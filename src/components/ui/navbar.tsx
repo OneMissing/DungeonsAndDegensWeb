@@ -8,7 +8,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="text-white p-4">
+    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900">
       <div className="container mx-auto flex justify-between items-center px-6">
         {/* Logo */}
         <Link href="/" className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300">
@@ -33,7 +33,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden flex flex-col items-center space-y-4 mt-4 bg-gray-800 p-4 rounded-lg">
+        <div className="md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900">
           <Link href="/home" className="text-xl hover:text-yellow-400 transition duration-300">Home</Link>
           <Link href="/adventure" className="text-xl hover:text-yellow-400 transition duration-300">Adventure</Link>
           <Link href="/about" className="text-xl hover:text-yellow-400 transition duration-300">About</Link>
