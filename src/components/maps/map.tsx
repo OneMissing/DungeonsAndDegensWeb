@@ -1,13 +1,12 @@
 "use client";
 import React, { useRef, useState, useCallback, useMemo, JSX, useEffect } from 'react';
 import { Stage, Layer, Line, Rect, Image } from 'react-konva';
-import useChampions from './useChampions';
 import { Button } from '../ui/cards/button';
 import { default as NextImage } from "next/image";
 import { KonvaEventObject, Node, NodeConfig } from 'konva/lib/Node';
 import Konva from 'konva';
 import useImage from 'use-image';
-import {createClient} from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 const GRID_SIZE = 50;
 const MIN_SCALE = 0.5;
@@ -26,10 +25,18 @@ interface Structure {
     isDragging: boolean;
 }
 
-type StructureProps = {
-    structure: Structure;
 
-};
+interface Character {
+    id: string;
+    name: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    imagePath: string;
+    isSelected: boolean;
+    isDragging: boolean;
+}
 
 const Map = () => {
     const supabase = createClient();
@@ -43,16 +50,22 @@ const Map = () => {
     const [structures, setStructures] = useState<Structure[]>([]);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [scale, setScale] = useState(1);
-    const [activeTab, setActiveTab] = useState<'tiles' | 'champions' | 'structures' | 'settings'>('tiles');
+    const [champions, setChampions] = useState<Character[]>([]);
+    const [characters, setCharacters] = useState<Character[]>([]);
+    const [activeTab, setActiveTab] = useState<'tiles' | 'characters' | 'structures' | 'settings'>('tiles');
     const [selectionRect, setSelectionRect] = useState<{ x: number; y: number; width: number; height: number; } | null>(null);
     const tileColors = { wall: 'black', sand: 'khaki', water: 'lightblue', wood: 'sienna', floor: 'lightgray', };
     const [activeTile, setActiveTile] = useState<string | null>(null);
     const [tiles, setTiles] = useState<{ [key: string]: string | null | undefined }>({});
     const [isSelecting, setIsSelecting] = useState(false);
+    const [characterImageCache, setCharacterImageCache] = useState<HTMLImageElement | null>(null);
 
     useEffect(() => {
-        setRenderTrigger(prev => prev + 1);
+        const img = new window.Image();
+        img.src = "/characters/01.webp";
+        img.onload = () => setCharacterImageCache(img);
     }, []);
+    
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -89,16 +102,45 @@ const Map = () => {
     }, [structures]);
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const updateSize = () => {
-                setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-            };
-            updateSize();
-            window.addEventListener("resize", updateSize);
+        setRenderTrigger((prev) => prev + 1);
+    }, [characters]);
+    
 
-            return () => window.removeEventListener("resize", updateSize);
-        }
+    useEffect(() => {
+        const fetchChampions = async () => {
+            try {
+                const { data: userData } = await supabase.auth.getUser();
+                if (!userData?.user) {
+                    console.error("User not authenticated");
+                    return;
+                }
+                const { data, error } = await supabase
+                    .from("characters")
+                    .select("id, name")
+                    .eq("user_id", userData.user.id);
+                if (error) {
+                    console.error("Error fetching champions:", error);
+                    return;
+                }
+                setChampions(data.map(char => ({
+                    id: char.id,
+                    name: char.name,
+                    x: 0,
+                    y: 0,
+                    width: GRID_SIZE,
+                    height: GRID_SIZE,
+                    imagePath: `/characters/01.png`,
+                    isSelected: false,
+                    isDragging: false,
+                })));
+            } catch (err) {
+                console.error("Unexpected error fetching champions:", err);
+            }
+        };
+        fetchChampions();
     }, []);
+    
+    
 
     useEffect(() => {
         const updateSize = () => {
@@ -299,6 +341,21 @@ const Map = () => {
         return elements;
     }, [position, scale, tiles, renderTrigger]);
 
+    const addCharacter = (champion: Character) => {
+        setCharacters((prevCharacters) => [
+            ...prevCharacters,
+            {
+                ...champion,
+                id: crypto.randomUUID(), // Ensure unique ID
+                x: 100,
+                y: 100,
+                isSelected: false,
+                isDragging: false,
+            },
+        ]);
+    };
+    
+    
 
     const addItem = (itemPath: string, w: number, h: number) => {
         setStructures((prevStructures) => [
@@ -318,29 +375,21 @@ const Map = () => {
     };
 
     const loadStructures = (newStructures: Structure[] | ((prev: Structure[]) => Structure[])) => {
-        if (typeof newStructures === "function") {
-            setStructures((prev) => newStructures(prev)); 
-        } else {
-            setStructures(newStructures);
-        }
+        setStructures((prev) => typeof newStructures === "function" ? newStructures(prev) : [...newStructures]);
     };
-    
 
-    const loadTile = (newTiles: { [key: string]: string | null | undefined } | ((prev: { [key: string]: string | null | undefined }) => { [key: string]: string | null })) => {
-        if (typeof newTiles === "function") {
-            setTiles((prev) => {
-                const updatedTiles = newTiles(prev);
-                return Object.fromEntries(
-                    Object.entries(updatedTiles).map(([key, value]) => [key, value ?? null])
-                ); // Ensure no undefined values
-            });
-        } else {
-            setTiles(
-                Object.fromEntries(Object.entries(newTiles).map(([key, value]) => [key, value ?? null]))
-            ); // Ensure no undefined values
-        }
+    const loadCharacters = (newCharacters: Character[] | ((prev: Character[]) => Character[])) => {
+        setCharacters((prev) => typeof newCharacters === "function" ? newCharacters(prev) : [...newCharacters]);
     };
-    
+
+    const loadTiles = (newTiles: { [key: string]: string | null | undefined } | ((prev: { [key: string]: string | null | undefined }) => { [key: string]: string | null | undefined })) => {
+        setTiles((prev) => {
+            const updatedTiles = typeof newTiles === "function" ? newTiles(prev) : newTiles;
+            return Object.fromEntries(Object.entries(updatedTiles).map(([key, value]) => [key, value ?? null]));
+        });
+    };
+
+
 
     const snapToGrid = (x: number, y: number): { x: number; y: number } => {
         return {
@@ -351,82 +400,87 @@ const Map = () => {
 
     const loadCanvasFromSupabase = async (
         setStructures: React.Dispatch<React.SetStateAction<Structure[]>>,
-        setTiles: React.Dispatch<React.SetStateAction<{ [key: string]: string | null | undefined }>>
-      ) => {
-        const user = await supabase.auth.getUser();
-        if (!user.data?.user) {
-          console.error("User not authenticated");
-          return;
+        setTiles: React.Dispatch<React.SetStateAction<{ [key: string]: string | null | undefined }>>,
+        setCharacters: React.Dispatch<React.SetStateAction<Character[]>>
+    ) => {
+        try {
+            const user = await supabase.auth.getUser();
+            if (!user.data?.user) {
+                console.error("User not authenticated");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from("maps")
+                .select("data")
+                .eq("user_id", user.data.user.id)
+                .order("created_at", { ascending: false })
+                .limit(1);
+
+            if (error) {
+                console.error("Supabase error:", error);
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                console.warn("No map data found.");
+                return;
+            }
+
+            const mapData = data[0]?.data;
+
+            if (!mapData || typeof mapData !== "object") {
+                console.error("Invalid map data format:", mapData);
+                return;
+            }
+
+            const structures = Array.isArray(mapData.structures) ? mapData.structures : [];
+            const tiles =
+                typeof mapData.tiles === "object" && mapData.tiles !== null ? mapData.tiles : {};
+            const characters = Array.isArray(mapData.characters) ? mapData.characters : [];
+
+            setStructures(structures);
+            setTiles(tiles);
+            setCharacters(characters);
+        } catch (err) {
+            console.error("Unexpected error in loadCanvasFromSupabase:", err);
         }
-      
-        const { data, error } = await supabase
-          .from('maps')
-          .select('data')
-          .eq('user_id', user.data.user.id) // Only fetch the user's maps
-          .order('created_at', { ascending: false }) // Get the latest map
-          .limit(1)
-          .single();
-      
-        if (error) {
-          console.error('Error loading canvas:', error);
-          return;
-        }
-      
-        if (!data?.data) {
-          console.warn('No map data found.');
-          return;
-        }
-      
-        console.log('Canvas loaded successfully:', data.data);
-      
-        // Update structures state
-        setStructures([...data.data.structures]);
-      
-        // Update tiles state, replacing undefined with null
-        setTiles(
-          Object.fromEntries(
-            Object.entries(data.data.tiles || {}).map(([key, value]) => [key, value ?? null])
-          ) as { [key: string]: string | null | undefined }
-        );
-      };
-      
-      
-    
-    
-    
-    
+    };
+
 
     const saveCanvasToSupabase = async (
         structures: Structure[],
-        tiles: { [key: string]: string | null | undefined }
+        tiles: { [key: string]: string | null | undefined },
+        characters: Character[]
     ) => {
         const cleanedTiles: Record<string, string | null> = Object.fromEntries(
             Object.entries(tiles).map(([key, value]) => [key, value ?? null])
         );
-    
+
         const user = await supabase.auth.getUser();
         if (!user.data?.user) {
             console.error("User not authenticated");
             return;
         }
-    
+
         const canvasData = {
             structures,
             tiles: cleanedTiles,
+            characters,
         };
-    
+
         const { data, error } = await supabase
             .from('maps')
             .insert([{ user_id: user.data.user.id, data: canvasData }]);
-    
+
         if (error) {
             console.error('Error saving canvas:', error);
         } else {
             console.log('Canvas saved successfully:', data);
         }
     };
-    
-    
+
+
 
     return (
         <div className='relative w-full'>
@@ -452,7 +506,7 @@ const Map = () => {
                 <div style={{ width: '300px', padding: '10px', background: '#f0f0f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                         <button onClick={() => setActiveTab('tiles')} style={{ flex: 1, padding: '8px', background: activeTab === 'tiles' ? '#ddd' : '#fff' }}>Tiles</button>
-                        <button onClick={() => setActiveTab('champions')} style={{ flex: 1, padding: '8px', background: activeTab === 'champions' ? '#ddd' : '#fff' }}>Champions</button>
+                        <button onClick={() => setActiveTab('characters')} style={{ flex: 1, padding: '8px', background: activeTab === 'characters' ? '#ddd' : '#fff' }}>Characters</button>
                         <button onClick={() => setActiveTab('structures')} style={{ flex: 1, padding: '8px', background: activeTab === 'structures' ? '#ddd' : '#fff' }}>Items</button>
                         <button onClick={() => setActiveTab('settings')} style={{ flex: 1, padding: '8px', background: activeTab === 'settings' ? '#ddd' : '#fff' }}>Items</button>
                     </div>
@@ -491,10 +545,34 @@ const Map = () => {
                                 Eraser
                             </button>
                         </div>
-                    ) : activeTab === 'champions' ? (
+                    ) : activeTab === 'characters' ? (
                         <div>
-                            <h3>Select Champion</h3>
-                            <div> Loading... </div>
+                            {champions.map((char) => (
+                                <button
+                                    key={char.id}
+                                    onClick={() => addCharacter(char)} 
+                                    style={{
+                                        display: "block",
+                                        width: "100%",
+                                        padding: "10px",
+                                        marginTop: "10px",
+                                        cursor: "pointer",
+                                        position: "relative",
+                                        height: "100px",
+                                        overflow: "hidden",
+                                    }}
+                                >
+                                        <NextImage
+                                            alt={char.name}
+                                            src="/characters/01.webp"
+                                            style={{ objectFit: "cover" }}
+                                            width={100}
+                                            height={100}
+                                        />
+                                    {char.name}
+                                </button>
+                            ))}
+
                         </div>
                     ) : activeTab === 'structures' ? (
                         <div>
@@ -535,12 +613,12 @@ const Map = () => {
                         </div>
                     ) : (
                         <div>
-                            <button onClick={() => saveCanvasToSupabase(structures, tiles)}>
+                            <button onClick={() => saveCanvasToSupabase(structures, tiles, characters)}>
                                 Save Map
                             </button>
-                            <button onClick={() => loadCanvasFromSupabase(setStructures, setTiles)}>
-    Load Map
-</button>
+                            <button onClick={() => loadCanvasFromSupabase(setStructures, setTiles, setCharacters)}>
+                                Load Map
+                            </button>
                         </div>
                     )}
                 </div>
@@ -623,6 +701,68 @@ const Map = () => {
                             />
                         ))}
                     </Layer>
+
+                    <Layer>
+    {characters.map((char) => (
+        <Image
+            key={char.id}
+            x={char.x}
+            y={char.y}
+            width={char.width}
+            height={char.height}
+            image={characterImageCache || undefined} // Always use the cached "/characters/01.webp"
+            stroke={char.isDragging || char.isSelected ? "red" : "transparent"}
+            strokeWidth={char.isDragging || char.isSelected ? 3 : 0}
+            draggable
+            onClick={() => {
+                setCharacters((prevStructures) =>
+                    prevStructures.map((s) =>
+                        s.id === char.id
+                            ? { ...s, isSelected: true } // Select this structure
+                            : { ...s, isSelected: false } // Deselect others
+                    )
+                );
+            }}
+            onDragStart={() => {
+                setCharacters((prevCharacters) =>
+                    prevCharacters.map((s) =>
+                        s.id === char.id ? { ...s, isDragging: true, isSelected: true } : { ...s, isDragging: false, isSelected: false }
+                    )
+                );
+            }}
+            onDragMove={(e) => {
+                const stage = e.target.getStage();
+                if (!stage) return;
+                const pointerPos = stage.getPointerPosition();
+                if (!pointerPos) return;
+                const stageTransform = stage.getAbsoluteTransform().copy().invert();
+                const adjustedPointer = stageTransform.point(pointerPos);
+                let snappedX = Math.round(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
+                let snappedY = Math.round(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
+                if (Math.abs(adjustedPointer.x - snappedX) < SNAP_THRESHOLD) {
+                    snappedX = Math.floor(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
+                }
+                if (Math.abs(adjustedPointer.y - snappedY) < SNAP_THRESHOLD) {
+                    snappedY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
+                }
+                e.target.x(snappedX);
+                e.target.y(snappedY);
+            }}
+            onDragEnd={(e) => {
+                const { x: snappedX, y: snappedY } = snapToGrid(e.target.x(), e.target.y());
+
+                setStructures((prevCharacters) =>
+                    prevCharacters.map((s) =>
+                        s.id === char.id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s
+                    )
+                );
+            }}
+            onContextMenu={(e) => e.evt.preventDefault()}
+        />
+    ))}
+</Layer>
+
+
 
                     {/* Selection Outline Layer */}
                     <Layer>

@@ -185,7 +185,7 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
             inventory.length === 0 ? (
               <p className="text-gray-500">No items in inventory.</p>
             ) : (
-              <ul className="border rounded bg-white overflow-y-auto">
+              <ul className="border rounded bg-white overflow-y-auto min-h-[calc(100vh-14rem)]">
                 {inventory.map((item) => (
                   <li key={item.id} className="border p-2 rounded-lg shadow-sm bg-white">
                     {expandedItem === item.id ? (

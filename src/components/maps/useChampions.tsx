@@ -10,7 +10,7 @@ type Champion = {
 
 const useChampions = () => {
   const supabase = createClient();
-  const [champions, setChampions] = useState<Champion[]>([]);
+  const [characters, setChampions] = useState<Champion[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const useChampions = () => {
         .eq("user_id", user.session.user.id);
 
       if (error) {
-        console.error("Error fetching champions:", error);
+        console.error("Error fetching characters:", error);
       } else {
         setChampions(data || []);
       }
@@ -43,7 +43,7 @@ const useChampions = () => {
     fetchChampions();
   }, []);
 
-  return { champions, loading };
+  return { characters, loading };
 };
 
 export default useChampions;
