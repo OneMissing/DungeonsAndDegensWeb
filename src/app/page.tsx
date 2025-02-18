@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 export default function App() {
   return (
-    <div className="relative h-full w-full bg-black select-none">
+    <div className="relative h-full w-full select-none">
       <div className="absolute inset-0 w-full h-full">
         <Image
           src="/landingBG.webp"

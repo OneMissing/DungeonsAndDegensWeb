@@ -5,6 +5,7 @@ import Link from "next/link";
 import { logout } from "@/lib/action";
 import { Menu, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import ThemeToggle from "../themes/themeToggle";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +42,7 @@ const Navbar = () => {
       >
         About
       </Link>
+      <ThemeToggle />
     </div>
   );
 
@@ -76,6 +78,7 @@ const Navbar = () => {
       >
         Logout
       </button>
+      <ThemeToggle />
     </div>
   );
 
