@@ -6,17 +6,16 @@ import { createClient } from "@/lib/supabase/server";
 const getUserSession = async () => {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
-  return data?.user || null; // Return the whole user object
+  return data?.user || null; 
 };
 
 export default async function Home() {
-  const user = await getUserSession(); // Get the whole user object
-
+  const user = await getUserSession(); 
   return (
     <div>
       {user ? (
         <>
-          <p>Hello {user.email}</p> {/* Access the user's email */}
+          <p>Hello {user.email}</p>
           <CharacterList userId={user.id} />
         </>
       ) : (

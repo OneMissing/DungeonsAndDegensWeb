@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@liveblocks/client": "^2.18.1",
     "@liveblocks/react": "^2.18.1",

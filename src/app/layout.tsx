@@ -1,20 +1,24 @@
-import { ReactNode } from 'react';
-import './globals.css';
-import Navbar from '@/components/ui/navbar';
+import { ReactNode } from "react";
+import "./globals.css";
+import Navbar from "@/components/ui/navbar";
+import ThemeProvider from "@/components/themes/themeProvider";
+
 export const metadata = {
-  title: 'DnD',
-  description: 'Playable DnD',
+  title: "DnD",
+  description: "Playable DnD",
 };
 
-  export default async function RootLayout({ children }: { children: ReactNode }) {
-    return (
-      <html lang="cs">
-        <body className="h-screen overflow-hidden">
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="cs" suppressHydrationWarning>
+      <body className="h-screen overflow-hidden">
+        <ThemeProvider>
           <Navbar />
-          <main className="h-[calc(100vh-3.5rem-5px)] mt-14 overflow-auto">
+          <main className="absolute h-main top-[calc(4.5rem)] overflow-auto w-svw bg-background-light dark:bg-background-dark">
             {children}
           </main>
-        </body>
-      </html>
-    );
-  }
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}

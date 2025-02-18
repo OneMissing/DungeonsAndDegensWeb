@@ -31,10 +31,9 @@ const Map = () => {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [activeTab, setActiveTab] = useState<'tiles' | 'characters' | 'structures' | 'settings'>('tiles');
     const [selectionRect, setSelectionRect] = useState<{ x: number; y: number; width: number; height: number; } | null>(null);
-    const [activeTile, setActiveTile] = useState<string | null>(null);
+    const [activeTile, setActiveTile] = useState<string | null>("eraser");
     const [tiles, setTiles] = useState<{ [key: string]: string | null | undefined }>({});
     const [isSelecting, setIsSelecting] = useState(false);
-    const [wasLoaded, setWasloaded] = useState<true| false>(false);
     const tileColors = {
         wall: 'black',
         stonewall: 'darkgray',  
@@ -45,13 +44,13 @@ const Map = () => {
     };
 
     const tileImages = useMemo(() => {
+        if (typeof window === "undefined") return {};
         const images: Record<string, HTMLImageElement | null> = {};
         Object.entries(tileColors).forEach(([tileType, src]) => {
-            if (!src) return; // Skip empty tiles
+            if (!src) return;
             const img = new window.Image();
             img.src = `/tiles/${tileType}.webp`;
             img.onload = () => {
-                console.log(`✅ Loaded image for tile: ${tileType}`);
                 images[tileType] = img;
             };
             images[tileType] = null; 
@@ -59,18 +58,6 @@ const Map = () => {
         return images;
     }, []);
     
-    
-    
-    const isTileOccupiedV1 = (x: number, y: number) => {
-        const tileKey = `${x},${y}`;
-        const occupiedByWall = ["wall", "stonewall", "brickwall"].includes(tiles[tileKey] || "");
-        const occupiedByCharacter = characters.some(
-            (otherChar) => otherChar.x === x && otherChar.y === y
-        );
-
-        return occupiedByCharacter  || occupiedByWall;
-    };
-
     useEffect(() => {
         const newCache: { [key: string]: HTMLImageElement | null } = {};
 
@@ -102,7 +89,6 @@ const Map = () => {
                 });
             }
         };
-
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
@@ -136,16 +122,14 @@ const Map = () => {
                 if (!userData?.user) {
                     console.error("User not authenticated");
                     return;
-                }
-                const { data, error } = await supabase
+                } const { data, error } = await supabase
                     .from("characters")
                     .select("id, name, class")
                     .eq("user_id", userData.user.id);
                 if (error) {
                     console.error("Error fetching champions:", error);
                     return;
-                }
-                setChampions(data.map(char => ({
+                } setChampions(data.map(char => ({
                     id: char.id,
                     name: char.name,
                     class: char.class.toLowerCase(),
@@ -159,9 +143,7 @@ const Map = () => {
                 })));
             } catch (err) {
                 console.error("Unexpected error fetching champions:", err);
-            }
-        };
-
+        }};
         fetchChampions();
     }, []);
 
@@ -173,8 +155,7 @@ const Map = () => {
                 width: window.innerWidth,
                 height: window.innerHeight,
             });
-        };
-        updateSize();
+        }; updateSize();
         window.addEventListener("resize", updateSize);
         return () => window.removeEventListener("resize", updateSize);
     }, []);
@@ -205,29 +186,24 @@ const Map = () => {
         const adjustedPointer = {
             x: (pointer.x - absPos.x) / scale,
             y: (pointer.y - absPos.y) / scale,
-        };
-        const clickedOnStructure = structures.some(structure =>
+        }; const clickedOnStructure = structures.some(structure =>
             adjustedPointer.x >= structure.x &&
             adjustedPointer.x <= structure.x + structure.width &&
             adjustedPointer.y >= structure.y &&
             adjustedPointer.y <= structure.y + structure.height
-        );
-        const clickedOnCharacter = characters.some(char =>
+        ); const clickedOnCharacter = characters.some(char =>
             adjustedPointer.x >= char.x &&
             adjustedPointer.x <= char.x + char.width &&
             adjustedPointer.y >= char.y &&
             adjustedPointer.y <= char.y + char.height
-        );
-        if (!clickedOnCharacter) {
+        ); if (!clickedOnCharacter) {
             setCharacters(prevCharacters => prevCharacters.map(c => ({ ...c, isSelected: false })));
         }
 
         if (!clickedOnStructure) {
             setStructures(prevStructures =>
                 prevStructures.map(s => ({ ...s, isSelected: false }))
-            );
-        }
-        if (button === 0) {
+        )} if (button === 0) {
             if (selectionMode === 'rectangle') {
                 setSelectionRect({
                     x: adjustedPointer.x,
@@ -238,7 +214,6 @@ const Map = () => {
                 setIsSelecting(true);
             } else if (selectionMode === 'single') {
                 setIsSelecting(true);
-            } else if (selectionMode === 'structures') {
             }
         } else if (button === 2) {
             e.evt.preventDefault();
@@ -261,20 +236,15 @@ const Map = () => {
         }
         else {
             if (!isSelecting) return;
-
             const stage = stageRef.current;
             if (!stage) return;
-
             const pointer = stage.getPointerPosition();
             if (!pointer) return;
-
             const absPos = stage.getAbsolutePosition();
             const adjustedPointer = {
                 x: (pointer.x - absPos.x) / scale,
                 y: (pointer.y - absPos.y) / scale,
-            };
-
-            if (selectionMode === 'single') {
+            }; if (selectionMode === 'single') {
                 placeTile(adjustedPointer.x, adjustedPointer.y);
             } else if (selectionMode === 'rectangle' && selectionRect) {
                 setSelectionRect((prevRect) => ({
@@ -291,16 +261,13 @@ const Map = () => {
         setIsPanning(false);
         if (!isSelecting) return;
         if (selectionMode === 'structures') {
-
         } else if (selectionMode === 'rectangle' && selectionRect) {
             const startX = Math.min(selectionRect.x, selectionRect.x + selectionRect.width);
             const endX = Math.max(selectionRect.x, selectionRect.x + selectionRect.width);
             const startY = Math.min(selectionRect.y, selectionRect.y + selectionRect.height);
             const endY = Math.max(selectionRect.y, selectionRect.y + selectionRect.height);
-
             setTiles((prevTiles) => {
                 const updatedTiles = { ...prevTiles };
-
                 for (let x = startX; x < endX; x += GRID_SIZE) {
                     for (let y = startY; y < endY; y += GRID_SIZE) {
                         const gridX = Math.floor(x / GRID_SIZE) * GRID_SIZE;
@@ -342,39 +309,27 @@ const Map = () => {
         const elements: JSX.Element[] = [];
         const stage = stageRef.current;
         if (!stage) return elements;
-    
         const viewWidth = windowSize.width;
         const viewHeight = windowSize.height;
         const extraPadding = (GRID_SIZE * 10) / scale;
         const width = (viewWidth / scale) + extraPadding * 2;
         const height = (viewHeight / scale) + extraPadding * 2;
-    
         const startX = Math.floor((-position.x - extraPadding * 5) / GRID_SIZE) * GRID_SIZE;
         const endX = Math.ceil((-position.x + width + extraPadding) / GRID_SIZE) * GRID_SIZE;
         const startY = Math.floor((-position.y - extraPadding * 5) / GRID_SIZE) * GRID_SIZE;
         const endY = Math.ceil((-position.y + height + extraPadding) / GRID_SIZE) * GRID_SIZE;
-    
-        // Draw grid lines
         for (let x = startX; x <= endX; x += GRID_SIZE) {
             elements.push(<Line key={`v-${x}`} points={[x, startY, x, endY]} stroke="gray" strokeWidth={0.5} />);
-        }
-        for (let y = startY; y <= endY; y += GRID_SIZE) {
+        } for (let y = startY; y <= endY; y += GRID_SIZE) {
             elements.push(<Line key={`h-${y}`} points={[startX, y, endX, y]} stroke="gray" strokeWidth={0.5} />);
         }
-    
-        // Draw tiles using images
         Object.entries(tiles).forEach(([key, tileType]) => {
             const [x, y] = key.split(',').map(Number);
             if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-    
-            // Ensure tileType is a valid string before using it
             if (!tileType || typeof tileType !== 'string') {
                 console.warn(`🚨 Invalid tileType at (${x}, ${y}):`, tileType);
                 return;
-            }
-    
-            const image = tileImages[tileType];
-    
+            } const image = tileImages[tileType];
             if (image) {
                 elements.push(
                     <Image
@@ -383,7 +338,7 @@ const Map = () => {
                         y={y}
                         width={GRID_SIZE}
                         height={GRID_SIZE}
-                        image={image} // Use the preloaded image
+                        image={image}
                     />
                 );
             } else {
@@ -433,18 +388,19 @@ const Map = () => {
         setStructures((prevStructures) => [
             ...prevStructures,
             {
-                id: (prevStructures.length + 1).toString(),
+                id: crypto.randomUUID(),
                 x: snappedPosition.x,
                 y: snappedPosition.y,
                 width: GRID_SIZE * w,
                 height: GRID_SIZE * h,
-                color: 'blue',
+                color: "blue",
                 isSelected: false,
                 itemPath,
                 isDragging: false,
             }
         ]);
     };
+    
 
     const snapToGrid = (x: number, y: number): { x: number; y: number } => {
         return {
@@ -512,35 +468,13 @@ const Map = () => {
     };
 
     return (
-        <div className='relative w-full'>
-
-            {/* Popup Modals */}
-            <PopupLoad buildMap={buildMap} popupLoad={false}  setWasloaded={setWasloaded} />
-
+        <div className="absolute w-screen h-main overflow-hidden">
 
             {/* ModeSelect */}
-            <div className='bg-gray-700 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 top-[calc(100svh-7rem)] z-50 w-96 rounded-lg pb-3 pl-2 pr-2'>
-                <h1 className='text-center w-full p-2'>Mode</h1>
-                <Button
-                    className="w-1/3"
-                    variant={selectionMode === 'rectangle' ? "default" : "outline"}
-                    onClick={() => setSelectionMode('rectangle')}
-                > Rectangle </Button>
-                <Button
-                    className="w-1/3"
-                    variant={selectionMode === 'single' ? "default" : "outline"}
-                    onClick={() => setSelectionMode('single')}
-                > Single </Button>
-                <Button
-                    className="w-1/3"
-                    variant={selectionMode === 'structures' ? "default" : "outline"}
-                    onClick={() => setSelectionMode('structures')}
-                > structures </Button>
-            </div>
-            {/* End of ModeSelect */}
 
 
-            <div style={{ display: 'flex' }}>
+            {/* Sidebar */}
+            <div className="flex overflow-hidden h-main dark:bg-gray-600   ">
                 <Sidebar
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
@@ -558,16 +492,14 @@ const Map = () => {
                     tiles={tiles}
                     setStructures={setStructures}
                     setTiles={setTiles}
-                    wasLoaded={wasLoaded}
-                    setWasLoaded={setWasloaded}
+                    selectionMode={selectionMode}
+                    setSelectionMode={setSelectionMode}
                 />
 
-
-
-
+                {/* Stage initial */}
                 <Stage
-                    width={windowSize.width - 310}
-                    height={windowSize.height - 65}
+                    width={windowSize.width}
+                    height={windowSize.height}
                     draggable={false}
                     onWheel={handleWheel}
                     onMouseDown={handleMouseDown}
@@ -592,7 +524,7 @@ const Map = () => {
                                 y={structure.y}
                                 width={structure.width}
                                 height={structure.height}
-                                image={imageCache[structure.itemPath] || undefined}
+                                image={structure.itemPath ? imageCache[structure.itemPath] || undefined : undefined}
                                 stroke={structure.isDragging || structure.isSelected ? 'red' : 'transparent'}
                                 strokeWidth={structure.isDragging || structure.isSelected ? 3 : 0}
                                 draggable={selectionMode === 'structures'}
@@ -662,76 +594,53 @@ const Map = () => {
                                             s.id === char.id ? { ...s, isSelected: true } : { ...s, isSelected: false }
                                         )
                                     );
-                                }}
-                                onDragStart={() => {
+                                }} onDragStart={() => {
                                     setCharacters((prevCharacters) =>
                                         prevCharacters.map((s) =>
                                             s.id === char.id ? { ...s, isDragging: true, isSelected: true } : { ...s, isDragging: false, isSelected: false }
                                         )
                                     );
-                                }}
-                                onDragMove={(e) => {
+                                }} onDragMove={(e) => {
                                     const stage = e.target.getStage();
                                     if (!stage) return;
                                     const pointerPos = stage.getPointerPosition();
                                     if (!pointerPos) return;
                                     const stageTransform = stage.getAbsoluteTransform().copy().invert();
                                     const adjustedPointer = stageTransform.point(pointerPos);
-                                
                                     let snappedX = Math.round(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
                                     let snappedY = Math.round(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
-                                
                                     if (Math.abs(adjustedPointer.x - snappedX) < SNAP_THRESHOLD) {
                                         snappedX = Math.floor(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
-                                    }
-                                    if (Math.abs(adjustedPointer.y - snappedY) < SNAP_THRESHOLD) {
+                                    } if (Math.abs(adjustedPointer.y - snappedY) < SNAP_THRESHOLD) {
                                         snappedY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
-                                    }
-                                
-                                    const isTileOccupiedV2 = (x: number, y: number) =>
-                                        characters.some(otherChar =>
-                                            otherChar.id !== char.id &&
-                                            otherChar.x === x &&
-                                            otherChar.y === y
+                                    } const isTileOccupied = (x: number, y: number) => {
+                                        const occupiedByCharacter = characters.some(
+                                            (otherChar) => otherChar.x === x && otherChar.y === y && otherChar.id !== char.id 
                                         );
-                                
-                                    if (isTileOccupiedV1(snappedX, snappedY)) {
+                                        return occupiedByCharacter;
+                                    }; if (isTileOccupied(snappedX, snappedY)) {
                                         const offsets = [
                                             { dx: GRID_SIZE, dy: 0 },  
                                             { dx: -GRID_SIZE, dy: 0 }, 
                                             { dx: 0, dy: GRID_SIZE },  
                                             { dx: 0, dy: -GRID_SIZE }  
                                         ];
-                                
                                         for (const { dx, dy } of offsets) {
                                             const newX = snappedX + dx;
                                             const newY = snappedY + dy;
-                                            if (!isTileOccupiedV1(newX, newY) || isTileOccupiedV2(snappedX, snappedY)) {
-                                                snappedX = newX;
-                                                snappedY = newY;
-                                                break;
+                                            if (!isTileOccupied(newX, newY)) {
+                                                snappedX = newX; snappedY = newY; break;
                                             }
                                         }
                                     }
-                                
                                     e.target.x(snappedX);
                                     e.target.y(snappedY);
-                                }}
-                                
-                                onDragEnd={(e) => {
+                                }} onDragEnd={(e) => {
                                     const { x: snappedX, y: snappedY } = snapToGrid(e.target.x(), e.target.y());
-                                    setCharacters((prevCharacters) =>
-                                        prevCharacters.map((s) =>
-                                            s.id === char.id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s
-                                        )
-                                    );
-                                }}
-                                onContextMenu={(e) => e.evt.preventDefault()}
-                            />
-                        ))}
+                                    setCharacters((prevCharacters) => prevCharacters.map((s) => s.id === char.id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s))}
+                                } onContextMenu={(e) => e.evt.preventDefault()}
+                        />))}
                     </Layer>
-
-
 
                     {/* Selection Outline Layer */}
                     <Layer>
