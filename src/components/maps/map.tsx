@@ -731,8 +731,6 @@ const Map = () => {
                         ))}
                     </Layer>
 
-
-
                     {/* Selection Outline Layer */}
                     <Layer>
                         {selectionRect && (
