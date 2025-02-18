@@ -22,6 +22,7 @@ export default async function Home() {
         <p>You must be logged in to view and create characters.</p>
       )}
       <Link href="/home/create">Create character</Link>
+
     </div>
   );
 }
