@@ -31,10 +31,9 @@ const Map = () => {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [activeTab, setActiveTab] = useState<'tiles' | 'characters' | 'structures' | 'settings'>('tiles');
     const [selectionRect, setSelectionRect] = useState<{ x: number; y: number; width: number; height: number; } | null>(null);
-    const [activeTile, setActiveTile] = useState<string | null>(null);
+    const [activeTile, setActiveTile] = useState<string | null>("eraser");
     const [tiles, setTiles] = useState<{ [key: string]: string | null | undefined }>({});
     const [isSelecting, setIsSelecting] = useState(false);
-    const [wasLoaded, setWasloaded] = useState<boolean>(false);
     const tileColors = {
         wall: 'black',
         stonewall: 'darkgray',  
@@ -389,18 +388,19 @@ const Map = () => {
         setStructures((prevStructures) => [
             ...prevStructures,
             {
-                id: (prevStructures.length + 1).toString(),
+                id: crypto.randomUUID(),
                 x: snappedPosition.x,
                 y: snappedPosition.y,
                 width: GRID_SIZE * w,
                 height: GRID_SIZE * h,
-                color: 'blue',
+                color: "blue",
                 isSelected: false,
                 itemPath,
                 isDragging: false,
             }
         ]);
     };
+    
 
     const snapToGrid = (x: number, y: number): { x: number; y: number } => {
         return {
@@ -468,33 +468,13 @@ const Map = () => {
     };
 
     return (
-        <div className='relative w-full'>
-
-            {/* Popup Modals */}
-            <PopupLoad buildMap={buildMap} popupLoad={false}  setWasloaded={setWasloaded} />
+        <div className="absolute w-screen h-main overflow-hidden">
 
             {/* ModeSelect */}
-            <div className='bg-gray-700 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 top-[calc(100svh-7rem)] z-50 w-96 rounded-lg pb-3 pl-2 pr-2'>
-                <h1 className='text-center w-full p-2'>Mode</h1>
-                <Button
-                    className="w-1/3"
-                    variant={selectionMode === 'rectangle' ? "default" : "outline"}
-                    onClick={() => setSelectionMode('rectangle')}
-                > Rectangle </Button>
-                <Button
-                    className="w-1/3"
-                    variant={selectionMode === 'single' ? "default" : "outline"}
-                    onClick={() => setSelectionMode('single')}
-                > Single </Button>
-                <Button
-                    className="w-1/3"
-                    variant={selectionMode === 'structures' ? "default" : "outline"}
-                    onClick={() => setSelectionMode('structures')}
-                > structures </Button>
-            </div>
+
 
             {/* Sidebar */}
-            <div style={{ display: 'flex' }}>
+            <div className="flex overflow-hidden h-main dark:bg-gray-600   ">
                 <Sidebar
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
@@ -512,14 +492,14 @@ const Map = () => {
                     tiles={tiles}
                     setStructures={setStructures}
                     setTiles={setTiles}
-                    wasLoaded={wasLoaded}
-                    setWasLoaded={setWasloaded}
+                    selectionMode={selectionMode}
+                    setSelectionMode={setSelectionMode}
                 />
 
                 {/* Stage initial */}
                 <Stage
-                    width={windowSize.width - 310}
-                    height={windowSize.height - 65}
+                    width={windowSize.width}
+                    height={windowSize.height}
                     draggable={false}
                     onWheel={handleWheel}
                     onMouseDown={handleMouseDown}
@@ -544,7 +524,7 @@ const Map = () => {
                                 y={structure.y}
                                 width={structure.width}
                                 height={structure.height}
-                                image={imageCache[structure.itemPath] || undefined}
+                                image={structure.itemPath ? imageCache[structure.itemPath] || undefined : undefined}
                                 stroke={structure.isDragging || structure.isSelected ? 'red' : 'transparent'}
                                 strokeWidth={structure.isDragging || structure.isSelected ? 3 : 0}
                                 draggable={selectionMode === 'structures'}
