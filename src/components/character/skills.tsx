@@ -5,13 +5,14 @@ import { createClient } from "@/lib/supabase/client";
 
 interface SkillsGridProps {
   characterId: string;
+  className: string;
 }
 
 function formatSkill(skill: string): string {
   return skill.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-const SkillsGrid = ({ characterId }: SkillsGridProps) => {
+const SkillsGrid = ({ characterId, className }: SkillsGridProps) => {
   const supabase = createClient();
   const [skills, setSkills] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(false);
@@ -81,14 +82,13 @@ const SkillsGrid = ({ characterId }: SkillsGridProps) => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
+    <section className={className}>
       <h3 className="text-2xl font-semibold">Skills</h3>
-      <div className="rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)] overflow-y-visible md:overflow-y-auto mt-4">
-        <div className="flex flex-col gap-2">
+        <ul className="shadow-md min-h-0 md:min-h-[calc(100vh-12rem)] md:h-[calc(100vh-12rem)] overflow-y-visible md:overflow-y-auto mt-4 w-full rounded-lg">
           {Object.entries(skills).map(([skill, value]) => (
-            <div
+            <li
               key={skill}
-              className="flex items-center justify-between p-2 bg-gray-100 rounded-lg shadow"
+              className="flex items-center justify-between p-2 border-b bg-white rounded-lg shadow-sm"
             >
               <span className="font-semibold text-lg">
                 {formatSkill(skill)} ({value})
@@ -108,10 +108,9 @@ const SkillsGrid = ({ characterId }: SkillsGridProps) => {
                   +
                 </button>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
-      </div>
+        </ul>
     </section>
   );
 };

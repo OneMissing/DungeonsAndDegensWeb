@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@liveblocks/client": "^2.18.1",
     "@liveblocks/react": "^2.18.1",
+    "@mui/material-nextjs": "^6.4.3",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.1",
     "@tailwindcss/postcss": "^4.0.6",

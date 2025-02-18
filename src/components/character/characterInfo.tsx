@@ -20,9 +20,10 @@ interface Character {
 
 interface CharacterInfoProps {
   characterId: string;
+  className: string;
 }
 
-const CharacterInfo = ({ characterId }: CharacterInfoProps) => {
+const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
   const router = useRouter();
   const supabase = createClient();
   const data = supabase.auth.getUser();
@@ -72,7 +73,7 @@ const CharacterInfo = ({ characterId }: CharacterInfoProps) => {
   if (!character) return <p className="text-center text-gray-500">Character not found.</p>;
 
   return (
-    <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
+    <section className={className}>
       <h2 className="text-4xl font-bold text-center">{character.name}</h2>
       <p className="text-lg text-gray-600 text-center">
         {character.race} - {character.class} (Level {character.level})

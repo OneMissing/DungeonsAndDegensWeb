@@ -26,9 +26,10 @@ interface Item {
 
 interface InventorySectionProps {
   characterId: string;
+  className: string
 }
 
-const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
+const InventorySection: React.FC<InventorySectionProps> = ({ characterId, className }) => {
   const supabase = createClient();
   const [items, setItems] = useState<Item[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -162,7 +163,7 @@ const InventorySection: React.FC<InventorySectionProps> = ({ characterId }) => {
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <section className="bg-gray-100 p-6 rounded-lg shadow-md min-h-0 md:min-h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
+    <section className={className}>
       <div className="grid-cols-2">
         <Button
           className="w-1/2"

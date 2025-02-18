@@ -383,7 +383,7 @@ const Map = () => {
                         y={y}
                         width={GRID_SIZE}
                         height={GRID_SIZE}
-                        image={image} // Use the preloaded image
+                        image={image}
                     />
                 );
             } else {
