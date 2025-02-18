@@ -45,6 +45,7 @@ const Map = () => {
     };
 
     const tileImages = useMemo(() => {
+        if (typeof window === "undefined") return {};
         const images: Record<string, HTMLImageElement | null> = {};
         Object.entries(tileColors).forEach(([tileType, src]) => {
             if (!src) return;
@@ -58,18 +59,6 @@ const Map = () => {
         return images;
     }, []);
     
-    
-    
-    const isTileOccupiedV1 = (x: number, y: number) => {
-        const tileKey = `${x},${y}`;
-        const occupiedByWall = ["wall", "stonewall", "brickwall"].includes(tiles[tileKey] || "");
-        const occupiedByCharacter = characters.some(
-            (otherChar) => otherChar.x === x && otherChar.y === y
-        );
-
-        return occupiedByCharacter  || occupiedByWall;
-    };
-
     useEffect(() => {
         const newCache: { [key: string]: HTMLImageElement | null } = {};
 
@@ -644,13 +633,12 @@ const Map = () => {
                                         snappedX = Math.floor(adjustedPointer.x / GRID_SIZE) * GRID_SIZE;
                                     } if (Math.abs(adjustedPointer.y - snappedY) < SNAP_THRESHOLD) {
                                         snappedY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
-                                    } const isTileOccupiedV2 = (x: number, y: number) =>
-                                        characters.some(otherChar =>
-                                            otherChar.id !== char.id &&
-                                            otherChar.x === x &&
-                                            otherChar.y === y
+                                    } const isTileOccupied = (x: number, y: number) => {
+                                        const occupiedByCharacter = characters.some(
+                                            (otherChar) => otherChar.x === x && otherChar.y === y && otherChar.id !== char.id 
                                         );
-                                    if (isTileOccupiedV1(snappedX, snappedY)) {
+                                        return occupiedByCharacter;
+                                    }; if (isTileOccupied(snappedX, snappedY)) {
                                         const offsets = [
                                             { dx: GRID_SIZE, dy: 0 },  
                                             { dx: -GRID_SIZE, dy: 0 }, 
@@ -660,7 +648,7 @@ const Map = () => {
                                         for (const { dx, dy } of offsets) {
                                             const newX = snappedX + dx;
                                             const newY = snappedY + dy;
-                                            if (!isTileOccupiedV1(newX, newY) || isTileOccupiedV2(snappedX, snappedY)) {
+                                            if (!isTileOccupied(newX, newY)) {
                                                 snappedX = newX; snappedY = newY; break;
                                             }
                                         }
