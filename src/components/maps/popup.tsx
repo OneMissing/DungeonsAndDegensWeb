@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Character, Structure } from "@/lib/types/map";
+import { Character, Structure } from "@/lib/map/types";
 import { Trash } from "lucide-react";
 
 export const PopupLoad = ({
     buildMap,
-    popupLoad,
-    setWasloaded,
+    isOpen,
+    setIsOpen,
 }: {
     buildMap: (mapData: {
         structures: Structure[];
         tiles: { [key: string]: string | null };
         characters: Character[];
     }) => void;
-    popupLoad: boolean;
-    setWasloaded: (loaded : boolean) => void;
+    isOpen: boolean;
+    setIsOpen: (isOpen: boolean) => void;
 }) => {
     const supabase = createClient();
     const [maps, setMaps] = useState<{ id: string; name: string; data: any }[]>([]);
-    const [isOpen, setIsOpen] = useState(false);
+    const [popupLoad, setPopupLoad] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchMaps = async () => {
@@ -43,11 +43,11 @@ export const PopupLoad = ({
                     return;
                 }
                 setMaps(data || []);
-                if(data.length === 0){
-                    if(!popupLoad){return;}
+                if(data.length === 0 && !popupLoad){
+                    return;
                 }
                 setIsOpen(true);
-
+                setPopupLoad(true);
             } catch (err) {
                 console.error("Unexpected error in fetchMaps:", err);
             }
@@ -84,7 +84,6 @@ export const PopupLoad = ({
                                                 characters: Array.isArray(data.characters) ? data.characters : [],
                                             });
                                             setIsOpen(false);
-                                            setWasloaded(true);
                                         }}
                                     >{map.name}
                                     </button>
@@ -104,7 +103,7 @@ export const PopupLoad = ({
     );
 };
 
-export const PopupSave = ({ mapData, onClose }: { mapData: any; onClose: () => void }) => {
+export const PopupSave = ({ mapData, onClose, }: { mapData: any; onClose: () => void }) => {
     const supabase = createClient();
     const [mapName, setMapName] = useState("");
     const [saving, setSaving] = useState(false);
