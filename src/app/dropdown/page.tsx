@@ -1,8 +1,8 @@
-"use client"
-
-import Dropdown from "@/components/settings/dropdown";
+import Dropdown from "@/components/dropdown/dropdown";
 import React from "react";
 
-export default function DemoPage() {
-  return <Dropdown/>
+export default function App(){
+  return(
+    <Dropdown/>
+  )
 }
