@@ -83,7 +83,7 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900">
+    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute z-[10000]">
       <div className="">
       <div className="mx-auto flex justify-between px-6">
         <Link
@@ -104,7 +104,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div>
+        <div className="relative">
           {isLogged ? navButtonsV2("md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900") : navButtonsV1("md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900")}
         </div>
       )}

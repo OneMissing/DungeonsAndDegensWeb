@@ -6,14 +6,15 @@ import { KonvaEventObject } from 'konva/lib/Node';
 import Konva from 'konva';
 import { createClient } from '@/lib/supabase/client';
 import Sidebar from './sidebar';
-import { Character, Structure } from '@/lib/types/map';
-import { loadCanvas } from '@/lib/types/map';
+import { Character, Structure } from '@/lib/map/types';
+import { loadCanvas } from '@/lib/map/types';
 import { PopupLoad } from './popup';
 
 const GRID_SIZE = 50;
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 2;
 const SNAP_THRESHOLD = GRID_SIZE - 20;
+const MAX_HISTORY = 50;
 
 const Map = () => {
     const supabase = createClient();
@@ -34,6 +35,8 @@ const Map = () => {
     const [activeTile, setActiveTile] = useState<string | null>("eraser");
     const [tiles, setTiles] = useState<{ [key: string]: string | null | undefined }>({});
     const [isSelecting, setIsSelecting] = useState(false);
+    const [history, setHistory] = useState<{ tiles: typeof tiles; structures: Structure[]; characters: Character[] }[]>([]);
+    const [redoStack, setRedoStack] = useState<typeof history>([]);
     const tileColors = {
         wall: 'black',
         stonewall: 'darkgray',  
@@ -41,6 +44,43 @@ const Map = () => {
         water: 'lightblue',
         floor: 'lightgray',
         grass: 'green',
+    };
+
+    const saveState = () => {
+        setHistory(prevHistory => {
+            const newHistory = [...prevHistory, { tiles, structures, characters }];
+            return newHistory.length > MAX_HISTORY ? newHistory.slice(1) : newHistory;
+        });
+    
+        setRedoStack([]);
+    };
+    
+    const undo = () => {
+        if (history.length === 0) return;
+    
+        const lastState = history[history.length - 1];
+    
+        setRedoStack(prevRedo => {
+            const newRedo = [...prevRedo, { tiles, structures, characters }];
+            return newRedo.length > MAX_HISTORY ? newRedo.slice(1) : newRedo;
+        });
+        setHistory(prevHistory => prevHistory.slice(0, -1));
+        setTiles(lastState.tiles);
+        setStructures(lastState.structures);
+        setCharacters(lastState.characters);
+    };
+    
+    const redo = () => {
+        if (redoStack.length === 0) return;
+        const nextState = redoStack[redoStack.length - 1];
+        setHistory(prevHistory => {
+            const newHistory = [...prevHistory, { tiles, structures, characters }];
+            return newHistory.length > MAX_HISTORY ? newHistory.slice(1) : newHistory;
+        });
+        setRedoStack(prevRedo => prevRedo.slice(0, -1));
+        setTiles(nextState.tiles);
+        setStructures(nextState.structures);
+        setCharacters(nextState.characters);
     };
 
     const tileImages = useMemo(() => {
@@ -79,7 +119,7 @@ const Map = () => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Delete") {
+            if (e.key === "Delete" || e.key.toLocaleLowerCase() === "d") {
                 setCharacters(prevCharacters => prevCharacters.filter(c => !c.isSelected));
                 setStructures((prevStructures) => {
                     const selectedStructures = prevStructures.filter(s => s.isSelected);
@@ -87,27 +127,27 @@ const Map = () => {
                     const lastSelectedId = selectedStructures[selectedStructures.length - 1].id;
                     return prevStructures.filter(s => s.id !== lastSelectedId);
                 });
+            } else if (e.ctrlKey && e.key === 'z') {
+                undo();
+            } else if (e.ctrlKey && e.key === 'y') {
+                redo();
             }
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, []);
+    }, [history, redoStack]);
 
 
     useEffect(() => {
         const newCache: { [key: string]: HTMLImageElement | null } = {};
-
         structures.forEach((structure) => {
             if (!imageCache[structure.itemPath]) {
                 const img = new window.Image();
                 img.src = structure.itemPath;
-                img.onload = () => {
-                    setImageCache((prevCache) => ({ ...prevCache, [structure.itemPath]: img }));
-                };
+                img.onload = () => setImageCache((prevCache) => ({ ...prevCache, [structure.itemPath]: img }));
                 newCache[structure.itemPath] = null;
             }
         });
-
         setImageCache((prevCache) => ({ ...prevCache, ...newCache }));
     }, [structures]);
 
@@ -161,6 +201,7 @@ const Map = () => {
     }, []);
 
     const placeTile = useCallback((x: number, y: number) => {
+        saveState();
         const gridX = Math.floor(x / GRID_SIZE) * GRID_SIZE;
         const gridY = Math.floor(y / GRID_SIZE) * GRID_SIZE;
         const key = `${gridX},${gridY}`;
@@ -262,6 +303,7 @@ const Map = () => {
         if (!isSelecting) return;
         if (selectionMode === 'structures') {
         } else if (selectionMode === 'rectangle' && selectionRect) {
+            saveState();
             const startX = Math.min(selectionRect.x, selectionRect.x + selectionRect.width);
             const endX = Math.max(selectionRect.x, selectionRect.x + selectionRect.width);
             const startY = Math.min(selectionRect.y, selectionRect.y + selectionRect.height);
@@ -562,8 +604,8 @@ const Map = () => {
                                     e.target.y(snappedY);
                                 }}
                                 onDragEnd={(e) => {
+                                    saveState();
                                     const { x: snappedX, y: snappedY } = snapToGrid(e.target.x(), e.target.y());
-
                                     setStructures((prevStructures) =>
                                         prevStructures.map((s) =>
                                             s.id === structure.id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s
@@ -636,6 +678,7 @@ const Map = () => {
                                     e.target.x(snappedX);
                                     e.target.y(snappedY);
                                 }} onDragEnd={(e) => {
+                                    saveState();
                                     const { x: snappedX, y: snappedY } = snapToGrid(e.target.x(), e.target.y());
                                     setCharacters((prevCharacters) => prevCharacters.map((s) => s.id === char.id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s))}
                                 } onContextMenu={(e) => e.evt.preventDefault()}

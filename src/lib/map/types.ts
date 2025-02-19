@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from "@/lib/supabase/client";
 
 export interface Structure {
     id: string;
@@ -11,7 +11,6 @@ export interface Structure {
     itemPath: string;
     isDragging: boolean;
 }
-
 
 export interface Character {
     class: any;
@@ -26,11 +25,63 @@ export interface Character {
     isDragging: boolean;
 }
 
+export interface SidebarProps {
+    activeTab: "tiles" | "characters" | "structures" | "settings";
+    setActiveTab: (
+        tab: "tiles" | "characters" | "structures" | "settings"
+    ) => void;
+    tileColors: { [key: string]: string };
+    activeTile: string | null;
+    setActiveTile: (tile: string | null) => void;
+    champions: Character[];
+    addCharacter: (char: Character) => void;
+    addItem: (itemPath: string, w: number, h: number) => void;
+    saveCanvas: (
+        structures: any[],
+        tiles: any,
+        characters: Character[]
+    ) => void;
+    loadCanvas: (
+        setStructures: (structures: any[]) => void,
+        setTiles: (tiles: any) => void,
+        setCharacters: (characters: Character[]) => void
+    ) => void;
+    characters: Character[];
+    setCharacters: (characters: Character[]) => void;
+    structures: any[];
+    tiles: any;
+    setStructures: (structures: any[]) => void;
+    setTiles: (tiles: any) => void;
+    selectionMode: string;
+    setSelectionMode: (
+        SelectionMode: "single" | "rectangle" | "structures"
+    ) => void;
+}
+
+export const tileCategories = {
+    walls: {
+        
+        wall: "/tiles/wall.webp",
+        stonewall: "/tiles/stonewall.webp",
+    },
+    other: {
+        grass: "/tiles/grass.webp",
+        water: "/tiles/water.webp",
+        sand: "/tiles/sand.webp",
+        floor: "/tiles/floor.webp",
+    },
+    tools: {
+        eraser: "",
+    },
+};
+
 const supabase = createClient();
 
 export const loadCanvas = async (
     setStructures: React.Dispatch<React.SetStateAction<Structure[]>>,
-    setTiles: React.Dispatch<React.SetStateAction<{ [key: string]: string | null | undefined }>>,
+    setTiles: React.Dispatch<
+        React.SetStateAction<{ [key: string]: string | null | undefined }>
+    >,
     setCharacters: React.Dispatch<React.SetStateAction<Character[]>>
 ) => {
     try {
@@ -63,20 +114,30 @@ export const loadCanvas = async (
             return;
         }
 
-        const structures: Structure[] = Array.isArray(mapData.structures) ? mapData.structures : [];
+        const structures: Structure[] = Array.isArray(mapData.structures)
+            ? mapData.structures
+            : [];
         const tiles: { [key: string]: string | null } =
-            typeof mapData.tiles === "object" && mapData.tiles !== null ? mapData.tiles : {};
-        const characters: Character[] = Array.isArray(mapData.characters) ? mapData.characters : [];
+            typeof mapData.tiles === "object" && mapData.tiles !== null
+                ? mapData.tiles
+                : {};
+        const characters: Character[] = Array.isArray(mapData.characters)
+            ? mapData.characters
+            : [];
 
         setStructures(structures);
         setTiles(tiles);
-        setCharacters(characters.map((char: Character) => ({
-            ...char,
-            class: char.class ? char.class.toLowerCase() : "warrior",
-            imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/warrior.webp",
-            isDragging: false,
-            isSelected: false,
-        })));
+        setCharacters(
+            characters.map((char: Character) => ({
+                ...char,
+                class: char.class ? char.class.toLowerCase() : "warrior",
+                imagePath: char.class
+                    ? `/characters/${char.class.toLowerCase()}.webp`
+                    : "/characters/warrior.webp",
+                isDragging: false,
+                isSelected: false,
+            }))
+        );
     } catch (err) {
         console.error("Unexpected error in loadCanvasFromSupabase:", err);
     }
@@ -106,12 +167,9 @@ export const loadEveryCanvas = async () => {
             return [];
         }
 
-        return data.map(item => item.data);
+        return data.map((item) => item.data);
     } catch (err) {
         console.error("Unexpected error in loadCanvas:", err);
         return [];
     }
 };
-
-
-
