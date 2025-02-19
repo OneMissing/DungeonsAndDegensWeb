@@ -65,8 +65,9 @@ export default function ItemEffectsTooltip({ itemId, children }: Props) {
         .select("*")
         .eq("item_id", itemId)
         .single();
-
-        setEffects(data);
+      if(error && !data)
+        setEffects(null);
+      setEffects(data);
     }
     fetchEffects();
   }, [itemId, userId]);
@@ -110,7 +111,7 @@ export default function ItemEffectsTooltip({ itemId, children }: Props) {
     >
       {children}
       {isHovered && (
-        <div className="absolute left-1/2 top-full mt-2 w-72 p-3 bg-gray-800 text-white text-sm rounded-lg shadow-xl z-10 border border-gray-700 transform -translate-x-1/2 animate-fadeIn">
+        <div className="absolute left-1/2 mt-2 w-72 p-3 bg-gray-800 text-white text-sm rounded-lg shadow-xl z-[100] border border-gray-700 transform -translate-x-1/2 animate-fadeIn">
           {damageTypes.map((type) => {
             const diceCountKey = `${type}_dice_count` as keyof ItemEffect;
             const diceSidesKey = `${type}_dice_sides` as keyof ItemEffect;

@@ -90,7 +90,7 @@ const Navbar = () => {
           href="/"
           className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300 overflow-hidden"
         >
-          Dungeons & Degens
+          Dungeons
         </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
