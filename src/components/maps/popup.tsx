@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Character, Structure } from "@/lib/map/types";
 import { Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export const PopupLoad = ({
     buildMap,
@@ -155,6 +156,8 @@ export const PopupSave = ({ mapData, onClose, }: { mapData: any; onClose: () => 
         } else {
             onClose();
         }
+          const router = useRouter();
+          router.refresh();
         setSaving(false);
     };
 

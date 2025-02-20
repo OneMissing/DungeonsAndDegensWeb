@@ -18,6 +18,7 @@ import {
     Square,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { structureData } from "@/lib/structureData";
 
 const Sidebar: React.FC<SidebarProps> = ({
     activeTab,
@@ -49,41 +50,20 @@ const Sidebar: React.FC<SidebarProps> = ({
         { name: string; url: string; width: number; height: number }[]
     >([]);
     const supabase = createClient();
+    
+useEffect(() => {
+    setStructureImages(
+        structureData.map((structure) => ({
+            name: structure.name,
+            url: structure.image_path || "",
+            width: structure.width ?? 50,
+            height: structure.height ?? 50,
+            isSelected: false,
+            isDragging: false,
+        }))
+    );
+}, []);
 
-    useEffect(() => {
-        const fetchStructures = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from("structures")
-                    .select("id, name, width, height, image_path");
-
-                if (error) {
-                    console.error("Error fetching structures:", error);
-                    return;
-                }
-
-                if (!data || !Array.isArray(data)) {
-                    console.warn("No structures found or invalid response");
-                    return;
-                }
-
-                setStructureImages(
-                    data.map((structure) => ({
-                        name: structure.name,
-                        url: structure.image_path || "",
-                        width: structure.width ?? 50,
-                        height: structure.height ?? 50,
-                        isSelected: false,
-                        isDragging: false,
-                    }))
-                );
-            } catch (err) {
-                console.error("Unexpected error fetching structures:", err);
-            }
-        };
-
-        fetchStructures();
-    }, []);
 
     const buildMap = (mapData: {
         structures: Structure[];

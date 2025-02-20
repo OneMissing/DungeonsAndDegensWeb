@@ -57,10 +57,10 @@ const Navbar = () => {
         </div>
         <div className="hidden md:flex space-x-6 items-center">{navButtons("flex space-x-6")}</div>
         <button onClick={() => setIsOpen(!isOpen)} className="md:hidden focus:outline-none">
+
           {isOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
       </div>
-
       {isOpen && (
         <div className="md:hidden flex flex-col items-end bg-brown-700 p-4 rounded-lg border border-brown-900 transition-all duration-300 ease-in-out origin-top">
           {navButtons("flex flex-col space-y-4")}

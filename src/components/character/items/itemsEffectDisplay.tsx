@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import {createClient} from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
 type DamageType = "acid" | "bludgeoning" | "cold" | "fire" | "force" | "lightning" | "necrotic" | "piercing" | "poison" | "psychic" | "radiant" | "slashing" | "thunder";
 
@@ -14,40 +14,50 @@ type ItemEffect = {
 
 function ItemEffectsDisplay({ itemId }: { itemId: string }) {
   const [effects, setEffects] = useState<ItemEffect | null>(null);
+  const [loading, setLoading] = useState(true);
   const supabase = createClient();
+
   useEffect(() => {
     async function fetchEffects() {
-      const { data, error } = await supabase
-        .from("item_effects")
-        .select("*")
-        .eq("item_id", itemId)
-        .single();
+      if (!itemId) return;
+      setLoading(true);
+      try {
+        const storedEffects = localStorage.getItem(`item_effects_${itemId}`);
+        if (storedEffects) {
+          setEffects(JSON.parse(storedEffects));
+          setLoading(false);
+          return;
+        }
+        
+        const { data, error } = await supabase
+          .from("item_effects")
+          .select("*")
+          .eq("item_id", itemId)
+          .maybeSingle();
 
-      if (error) {
-        console.error("Error fetching item effects:", error);
-      } else {
-        setEffects(data);
+        if (error) {
+          console.error("Error fetching item effects:", error);
+        } else {
+          setEffects(data || null);
+          if (data) {
+            localStorage.setItem(`item_effects_${itemId}`, JSON.stringify(data));
+          }
+        }
+      } catch (err) {
+        console.error("Unexpected error fetching item effects:", err);
+      } finally {
+        setLoading(false);
       }
     }
+
     fetchEffects();
   }, [itemId]);
 
+  if (loading) return <p>Loading effects...</p>;
   if (!effects) return <p>None</p>;
 
   const damageTypes: DamageType[] = [
-    "acid",
-    "bludgeoning",
-    "cold",
-    "fire",
-    "force",
-    "lightning",
-    "necrotic",
-    "piercing",
-    "poison",
-    "psychic",
-    "radiant",
-    "slashing",
-    "thunder",
+    "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"
   ];
 
   const hasValidEffects =
@@ -75,18 +85,18 @@ function ItemEffectsDisplay({ itemId }: { itemId: string }) {
           </p>
         ) : null;
       })}
-      {effects.healing_dice_count! > 0 && effects.healing_dice_sides! > 0 && (
-            <p className="text-green-400">
-              <span className="font-semibold">Heal:</span>{" "}
-              {effects.healing_dice_count}d{effects.healing_dice_sides}
-            </p>
-          )}
-      {effects.armor_class! > 0 && (
-            <p className="text-blue-400">
-              <span className="font-semibold">Armor Class:</span>{" "}
-              {effects.armor_class}
-            </p>
-          )}
+      {effects?.healing_dice_count! > 0 && effects?.healing_dice_sides! > 0 && (
+        <p className="text-green-400">
+          <span className="font-semibold">Heal:</span>{" "}
+          {effects.healing_dice_count}d{effects.healing_dice_sides}
+        </p>
+      )}
+      {effects?.armor_class! > 0 && (
+        <p className="text-blue-400">
+          <span className="font-semibold">Armor Class:</span>{" "}
+          {effects.armor_class}
+        </p>
+      )}
     </div>
   );
 }
