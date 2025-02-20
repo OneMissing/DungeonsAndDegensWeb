@@ -39,43 +39,16 @@ const CreateCharacter = ({ userId }: { userId: string | null }) => {
     }
 
     try {
-      // Insert character into the "characters" table
       const { data: character, error: insertError } = await supabase
         .from("characters")
         .insert([
-          { name, race, class: characterClass, level, user_id: userId },
+          { name, race, class: characterClass, level, player_id: userId, strength, dexterity, constitution, intelligence, wisdom, charisma },
         ])
         .select("id")
         .single();
 
       if (insertError) throw insertError;
-
-      const characterId = character.id;
-
-      // Insert character attributes into the "character_stats" table
-      const { error: statsError } = await supabase.from("character_stats").insert([
-        { 
-          character_id: characterId,
-          strength,
-          dexterity,
-          constitution,
-          intelligence,
-          wisdom,
-          charisma
-        },
-      ]);
-
-      if (statsError) throw statsError;
-
-            const { error: skillsError } = await supabase.from("character_skills").insert([
-        { 
-          character_id: characterId
-        },
-      ]);
-
-      if (skillsError) throw skillsError;
       
-      // Reset form & navigate to home
       setName("");
       setRace("");
       setCharacterClass("");

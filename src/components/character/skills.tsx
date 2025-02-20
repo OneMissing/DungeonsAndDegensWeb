@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Skills } from "@/lib/character/types";
 
 interface SkillsGridProps {
   characterId: string;
@@ -27,34 +28,30 @@ const SkillsGrid = ({ characterId, className }: SkillsGridProps) => {
     const fetchSkills = async () => {
       setLoading(true);
       setError(null);
-
+  
       try {
-        const {
-          data: userData,
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError || !userData?.user?.id) {
-          throw new Error("Failed to retrieve user.");
-        }
-
-        const { data, error } = await supabase
-          .from("character_skills")
-          .select("*")
-          .eq("character_id", characterId)
-          .single();
-
-        if (error) throw new Error(error.message);
-
-        const { character_id, ...skillsData } = data;
-        setSkills(skillsData);
+          const { data: userData, error: userError } = await supabase.auth.getUser();
+          if (userError || !userData?.user?.id) {
+              throw new Error("Failed to retrieve user.");
+          }
+  
+          const { data, error } = await supabase
+              .from("characters")
+              .select(
+                  "id, acrobatics, animal_handling, arcana, athletics, deception, history, insight, intimidation, investigation, medicine, nature, perception, performance, persuasion, religion, sleight_of_hand, stealth, survival"
+              )
+              .eq("id", characterId)
+              .single();
+          if (error) throw new Error(error.message);
+          const { id, ...skillsData } = data;
+          setSkills(skillsData as { [key: string]: number });
       } catch (err) {
-        setError((err as Error).message || "Failed to fetch skills.");
+          setError((err as Error).message || "Failed to fetch skills.");
       } finally {
-        setLoading(false);
+          setLoading(false);
       }
-    };
-
+  };
+  
     fetchSkills();
   }, [characterId]);
 
@@ -64,9 +61,9 @@ const SkillsGrid = ({ characterId, className }: SkillsGridProps) => {
 
     try {
       const { error } = await supabase
-        .from("character_skills")
+        .from("characters")
         .update({ [skill]: newValue })
-        .eq("character_id", characterId);
+        .eq("id", characterId);
 
       if (error) {
         throw new Error(error.message);
