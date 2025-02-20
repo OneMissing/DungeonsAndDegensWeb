@@ -6,6 +6,7 @@ import { logout } from "@/lib/action";
 import { Menu, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import ThemeToggle from "../themes/themeToggle";
+import Dropdown from "../dropdown/dropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -79,6 +80,7 @@ const Navbar = () => {
         Logout
       </button>
       <ThemeToggle />
+      <Dropdown/>
     </div>
   );
 
