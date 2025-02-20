@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import CopyToClipboard from "@/components/ui/clipboard";
-import LinkCharacter from "./linkCharacter";
+import Remove from "../ui/remove";
 
 interface Character {
     id: string;
@@ -87,7 +87,6 @@ const FetchCharacters = ({
     if (dm)
         return (
             <div className='p-4 w-1/2'>
-                <div className='absolute left-0'></div>
                 <div className=''>
                     <h2 className='text-2xl font-bold mb-4 text-center'>
                         DM Characters
@@ -105,6 +104,12 @@ const FetchCharacters = ({
                             <h3 className='text-lg font-semibold'>
                                 {char.name}
                             </h3>
+                            <div className='right-0 top-0 -mt-6'>
+                                <Remove text={char.id} />
+                            </div>
+                            <div className='ml-14 top-0 -mt-10'>
+                                <CopyToClipboard text={char.id} />
+                            </div>
                             <p className='text-gray-600'>
                                 {char.race} - {char.class} (Level {char.level})
                             </p>

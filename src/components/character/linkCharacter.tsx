@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, CheckCircle } from "lucide-react";
-import { redirect } from "next/navigation";
 
 const LinkCharacter = () => {
     const supabase = createClient();
@@ -40,8 +39,9 @@ const LinkCharacter = () => {
             setCharId("");
             setTimeout(() => {
                 setSuccess(false);
-                redirect("/home");
             }, 3000);
+            window.location.reload();
+
         } catch (err) {
             setError((err as Error).message);
         } finally {
