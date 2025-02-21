@@ -17,14 +17,14 @@ const Sidebar: React.FC = () => {
     }, [isOpen]);
 
     return (
-        <div className="flex">
+        <div className="absolute z-[200]">
             {/* Sidebar */}
             <div
                 className={`sidebar flex-none transition-all duration-300 ease-in-out bg-gray-800 text-white`}
-                style={{ width: isOpen ? '16rem' : '5rem' }}
+                style={{ width: isOpen ? '16rem' : '0rem' }}
             >
                 {/* Sidebar content */}
-                <ul className="space-y-4 mt-4">
+                <ul className="space-y-4 mt-20">
                 <li><LinkCharacter /></li>
                 <li><Link href='/home/create'>Create character</Link></li>
                 </ul>
@@ -33,7 +33,7 @@ const Sidebar: React.FC = () => {
             {/* Main content */}
                 {/* Button to toggle sidebar */}
                 <button
-                    className="absolute top-4 left-4 bg-gray-700 text-white rounded-full p-2"
+                    className="absolute top-4 left-4 bg-gray-700 text-white rounded-full p-2 transition-all duration-300 ease-in-out"
                     onClick={() => setIsOpen(!isOpen)}
                     style={{
                         left: isOpen ? `calc(${sidebarWidth}px + 20px)` : '20px'

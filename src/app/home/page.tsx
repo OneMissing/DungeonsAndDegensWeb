@@ -20,12 +20,10 @@ export default async function Home() {
     return (
         <div>
             {user ? (
-                <div>
+                <div className="h-main flex">
                         <Sidebar />
-                    <div className='flex'>
                         <CharacterList userId={user.id} dm={true} />
                         <CharacterList userId={user.id} dm={false} />
-                    </div>
                 </div>
             ) : (
                 <p>You must be logged in to view and create characters.</p>
