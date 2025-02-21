@@ -15,13 +15,22 @@ const Navbar = () => {
   useEffect(() => {
     const fetchUser = async () => {
       if (typeof window === 'undefined') return;
-      const { data, error } = await supabase.auth.getUser();
+      const { data } = await supabase.auth.getUser();
       setIsLogged(!!data.user); 
     };
-
     fetchUser();
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        setIsLogged(true);
+      } else if (event === "SIGNED_OUT") {
+        setIsLogged(false);
+      }
+    });
+    return () => {
+      authListener?.unsubscribe();
+    };
   }, [supabase]);
-
+  
   const navButtonsV1 = (className: string) => (
     <div className={className}>
       <Link
