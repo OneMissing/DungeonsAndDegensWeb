@@ -12,31 +12,14 @@ const Navbar = () => {
   const [isLogged, setIsLogged] = useState<boolean>(false);
   const supabase = createClient();
 
-  // Check the authentication status when the component mounts
+  let [supabase] = useState(() => createBrowserSupabaseClient())
+
   useEffect(() => {
-    const fetchUser = async () => {
-      if (typeof window === 'undefined') return;
-      const { data } = await supabase.auth.getUser();
-      setIsLogged(!!data.user); 
-    };
-
-    // Check user status on load
-    fetchUser();
-
-    // Listen to auth state changes (user logs in or logs out)
-    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
-        setIsLogged(true);
-      } else if (event === "SIGNED_OUT") {
-        setIsLogged(false);
-      }
-    });
-
-    // Clean up the listener when the component unmounts
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [supabase]);
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') console.log('signed in')
+      if (event === 'SIGNED_OUT') console.log('signed out')
+    })
+  }, [supabase])
 
   // Navigation buttons for logged out users
   const navButtonsV1 = (className: string) => (
