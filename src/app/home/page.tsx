@@ -4,10 +4,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/character/sidebar/sidebar"
 /*
-import LinkCharacter from "@/components/character/linkCharacter";
-<div className='h-main bg-red-800'>
-<LinkCharacter />
-<Link href='/home/create'>Create character</Link>
+
 </div>
 */
 const getUserSession = async () => {

@@ -18,21 +18,19 @@ const Sidebar: React.FC = () => {
         <div className="flex">
             <div
             id="sidebar"
-                className={`sidebar flex-none transition-all duration-300 ease-in-out 
-                    ${isOpen ? 'w-64' : 'w-20'} 
-                    bg-gray-800 text-white`}
-                style={{ width: isOpen ? '16rem' : '5rem' }}
+                className={`sidebar flex-none transition-all duration-300 ease-in-out bg-gray-800 text-white ${isOpen ? 'w-64' : 'w-20'} `}
+                style={{ width: isOpen ? '16rem' : '0rem' }}
             >
                 <ul className="space-y-4 mt-4">
-                    <li><a href="#" className="block px-4 py-2 hover:bg-gray-700">Home</a></li>
-                    <li><a href="#" className="block px-4 py-2 hover:bg-gray-700">About</a></li>
+                <li><LinkCharacter /></li>
+                <li><Link href='/home/create'>Create character</Link></li>
                 </ul>
             </div>
 
             {/* Main content */}
             <div
                 className={`flex-1 p-4 transition-all duration-300 ease-in-out 
-                  ${isOpen ? 'ml-64' : 'ml-20'} 
+                  ${isOpen ? 'ml-[16rem]' : 'ml-[8]'} 
                   bg-gray-100`}
             >
                 {/* Button to toggle sidebar */}
