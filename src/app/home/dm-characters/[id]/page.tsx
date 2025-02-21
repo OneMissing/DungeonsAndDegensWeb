@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import SkillsTable from "@/components/character/skills";
+import SkillsTable from "@/components/character/dm/skills";
 import InventorySection from "@/components/character/items/inventoryDisplay";
-import CharacterInfo from "@/components/character/characterInfo";
+import CharacterInfo from "@/components/character/dm/characterInfo";
 
 const CharacterDetails = () => {
   const { id } = useParams();

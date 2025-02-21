@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import CopyToClipboard from "@/components/ui/clipboard";
-import Remove from "../ui/remove";
+import CopyToClipboard from "@/components/character/changes/clipboard";
+import Remove from "./changes/remove";
+import Delete from "./changes/delete"
+import Link from "next/link";
 
 interface Character {
     id: string;
@@ -123,40 +125,42 @@ const FetchCharacters = ({
                     ))}
                 </ul>
             </div>
-
         );
     else
         return (
             <div className='p-4 w-1/2'>
-                <h2 className='text-2xl font-bold mb-4'>Player Characters</h2>
+                <div className=''>
+                    <h2 className='text-2xl font-bold mb-4 text-center'>
+                        Player Characters
+                    </h2>
+                </div>
                 <ul className='space-y-3'>
-                    {characters.map((char) => (
+                    {characters.length != 0 ? characters.map((char) => (
                         <li
                             key={char.id}
                             className='border p-3 rounded-lg shadow-md bg-white cursor-pointer hover:bg-gray-100 transition'
                             onClick={() =>
-                                router.push(
-                                    `/home/player-characters/${char.id}`
-                                )
+                                router.push(`/home/player-characters/${char.id}`)
                             }
                         >
-                            <div className='grid grid-cols-3'>
+                            <div className='grid grid-cols-3' onClick={(e) => e.preventDefault()}>
                                 <div className='flex space-x-2'>
                                     <CopyToClipboard text={char.id} />
+                                    <Delete charId={char.id} />
                                 </div>
                                 <div className="col-span-2">
                                     <div className='text-right md:text-center w-full md:w-1/2  mt-1'>
                                         <span>{char.name}</span>
                                     </div>
                                 </div>
-
-                                <div></div>
                             </div>
+
+
                             <p className='text-gray-600'>
                                 {char.race} - {char.class} (Level {char.level})
                             </p>
                         </li>
-                    ))}
+                    )): <Link href={`/home/create`}>Create new character</Link>}
                 </ul>
             </div>
         );
