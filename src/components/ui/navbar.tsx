@@ -14,23 +14,32 @@ const Navbar = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (typeof window === "undefined") return;
-      const { data } = await supabase.auth.getUser();
-      setIsLogged(!!data.user);
+      if (typeof window === 'undefined') return;
+      const { data, error } = await supabase.auth.getUser();
+      setIsLogged(!!data.user); 
     };
 
     fetchUser();
   }, [supabase]);
 
-  const navButtons = (className: string) => (
+  const navButtonsV1 = (className: string) => (
     <div className={className}>
-      <Link href="/home" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
+      <Link
+        href="/home"
+        className="text-xl hover:text-yellow-400 transition duration-300"
+      >
         Home
       </Link>
-      <Link href="/wiki" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
+      <Link
+        href="/wiki"
+        className="text-xl hover:text-yellow-400 transition duration-300"
+      >
         Adventure
       </Link>
-      <Link href="/about" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
+      <Link
+        href="/about"
+        className="text-xl hover:text-yellow-400 transition duration-300"
+      >
         About
       </Link>
       <ThemeToggle className="text-xl hover:text-yellow-400 transition duration-300" />
@@ -75,7 +84,8 @@ const Navbar = () => {
 
   return (
     <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute z-[10000]">
-      <div className="w-screen flex justify-between px-6">
+      <div className="justify-between w-screen">
+      <div className="mx-auto flex justify-between px-6">
         <Link
           href="/"
           className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300 overflow-hidden"
@@ -93,14 +103,15 @@ const Navbar = () => {
         </button>
         </div>
       </div>
+
       {isOpen && (
-        <div className="md:hidden flex flex-col items-end bg-brown-700 p-4 rounded-lg border border-brown-900 transition-all duration-300 ease-in-out origin-top">
-          {navButtons("flex flex-col space-y-4")}
+        <div className="relative">
+          {isLogged ? navButtonsV2("md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900") : navButtonsV1("md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900")}
         </div>
       )}
+      </div>
     </nav>
   );
 };
-
 
 export default Navbar;
