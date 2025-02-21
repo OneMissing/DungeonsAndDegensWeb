@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { redirect, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getLevelUpPoints, Classes, Character, updateCharacter } from "@/lib/character/types";
 import { createClient } from "@/lib/supabase/client";
 
@@ -13,22 +13,21 @@ const LevelUpPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [allocatedPoints, setAllocatedPoints] = useState(() => ({
-        strength: character?.strength ?? 0,
-        dexterity: character?.dexterity ?? 0,
-        constitution: character?.constitution ?? 0,
-        intelligence: character?.intelligence ?? 0,
-        wisdom: character?.wisdom ?? 0,
-        charisma: character?.charisma ?? 0,
-    }));
+    const [allocatedPoints, setAllocatedPoints] = useState({
+        strength: 0,
+        dexterity: 0,
+        constitution: 0,
+        intelligence: 0,
+        wisdom: 0,
+        charisma: 0,
+    });
     const [availablePoints, setAvailablePoints] = useState(2);
 
     useEffect(() => {
         const fetchCharacter = async () => {
             setLoading(true);
             setError(null);
-    
+
             try {
                 const { data, error } = await supabase
                     .from("characters")
@@ -36,15 +35,15 @@ const LevelUpPage = () => {
                     .eq("id", id)
                     .single();
                 if (error) throw new Error(error.message);
-    
+
                 setCharacter(data);
 
                 const characterClass = data.class as Classes;
                 const characterLevel = data.level ?? 1;
                 const pointsPerLevel = getLevelUpPoints(characterClass, characterLevel);
-                
+
                 setAvailablePoints(pointsPerLevel);
-    
+
                 setAllocatedPoints({
                     strength: data.strength,
                     dexterity: data.dexterity,
@@ -60,7 +59,7 @@ const LevelUpPage = () => {
             }
         };
         if (id) fetchCharacter();
-    }, [id]);
+    }, [id, supabase]);
 
     const handleAllocatePoint = (stat: keyof typeof allocatedPoints) => {
         if (availablePoints > 0) {
@@ -84,13 +83,13 @@ const LevelUpPage = () => {
 
     const handleConfirmLevelUp = async () => {
         if (!character) return;
-        
+
         const updatedCharacter = {
             ...character,
             level: character.level + 1,
             ...allocatedPoints,
         };
-        
+
         try {
             await updateCharacter(character.id, updatedCharacter, supabase);
             setCharacter(updatedCharacter);
@@ -124,7 +123,9 @@ const LevelUpPage = () => {
                                 >
                                     -
                                 </button>
-                                <span className="px-4 py-1 bg-gray-700">{character ? character[statKey] + value : 0}</span>
+                                <span className="px-4 py-1 bg-gray-700">
+                                    {character ? character[statKey] + value : 0}
+                                </span>
                                 <button
                                     onClick={() => handleAllocatePoint(statKey)}
                                     className="px-2 py-1 bg-green-500 text-white rounded-r"
@@ -144,7 +145,10 @@ const LevelUpPage = () => {
             >
                 Confirm Level Up
             </button>
-            <button className="w-1/2 mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700" onClick={() => router.replace(`/home/player-characters/${id}`)}>
+            <button
+                className="w-1/2 mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
+                onClick={() => router.replace(`/home/player-characters/${id}`)}
+            >
                 Cancel
             </button>
         </div>
