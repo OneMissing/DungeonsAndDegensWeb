@@ -101,10 +101,14 @@ const FetchCharacters = ({
                                 router.push(`/home/dm-characters/${char.id}`)
                             }
                         >
-                            <div className=''>
-                            <CopyToClipboard text={char.id} />
-                            <Remove text={char.id} />
-                            {char.name}
+                            <div className='flex justify-between items-center'>
+                                <div className='flex space-x-2'>
+                                    <CopyToClipboard text={char.id} />
+                                    <Remove text={char.id} />
+                                </div>
+                                <div className='flex justify-center w-full'>
+                                    <span className='text-center w-full'>{char.name}</span>
+                                </div>
                             </div>
                             <p className='text-gray-600'>
                                 {char.race} - {char.class} (Level {char.level})
@@ -113,6 +117,7 @@ const FetchCharacters = ({
                     ))}
                 </ul>
             </div>
+
         );
     else
         return (
@@ -134,8 +139,8 @@ const FetchCharacters = ({
                             <div className='left-0 top-0 -mt-6'>
                                 <CopyToClipboard text={char.id} />
                                 <h3 className='top=0 text-lg font-semibold'>
-                                {char.name}
-                            </h3>
+                                    {char.name}
+                                </h3>
                             </div>
                             <p className='text-gray-600'>
                                 {char.race} - {char.class} (Level {char.level})
