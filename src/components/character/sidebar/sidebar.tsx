@@ -20,8 +20,7 @@ const Sidebar: React.FC = () => {
         <div className="absolute z-[200] h-main">
             <div
                 id="sidebar"
-                className={`transition-all duration-300 ease-in-out bg-gray-800 text-white top-0 h-main p-4 ${isOpen? 'flex-none':'hidden'}`}
-                style={{ width: isOpen ? '16rem' : '0rem' }}
+                className={`transition-all duration-300 ease-in-out bg-gray-800 text-white top-0 h-main p-4 w-3xs ${isOpen? 'flex-none':'hidden'}`}
             >
                 <ul className="space-y-4 mt-20">
                 <li><LinkCharacter /></li>
@@ -30,9 +29,8 @@ const Sidebar: React.FC = () => {
             </div>
 
                 <button
-                    className="absolute top-4 left-4 bg-gray-700 text-white rounded-full p-2 transition-all duration-300 ease-in-out"
+                    className={`absolute top-4 bg-gray-700 text-white rounded-full p-2 transition-all duration-300 ease-in-out ${isOpen ? `left-[${sidebarWidth}px / 2 - 16px]` : `left-4`}`}
                     onClick={() => setIsOpen(!isOpen)}
-                    style={{ left: isOpen ? `calc(${sidebarWidth}px / 2)` : '20px' }}
                 >
                     {isOpen ? (
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
