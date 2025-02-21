@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { Menu } from 'lucide-react';
+import LinkCharacter from "@/components/character/linkCharacter";
 
 const Sidebar: React.FC = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -18,8 +19,7 @@ const Sidebar: React.FC = () => {
         <div className="flex">
             <div
             id="sidebar"
-                className={`sidebar flex-none transition-all duration-300 ease-in-out bg-gray-800 text-white ${isOpen ? 'w-64' : 'w-20'} `}
-                style={{ width: isOpen ? '16rem' : '0rem' }}
+                className={`sidebar flex-none transition-all duration-300 ease-in-out bg-gray-800 text-white ${isOpen ? 'w-64' : 'w-0'} `}
             >
                 <ul className="space-y-4 mt-4">
                 <li><LinkCharacter /></li>
@@ -29,9 +29,7 @@ const Sidebar: React.FC = () => {
 
             {/* Main content */}
             <div
-                className={`flex-1 p-4 transition-all duration-300 ease-in-out 
-                  ${isOpen ? 'ml-[16rem]' : 'ml-[8]'} 
-                  bg-gray-100`}
+                className={`flex-1 p-4 transition-all duration-300 ease-in-out ${isOpen ? 'ml-[16rem]' : 'ml-[8]'}`}
             >
                 {/* Button to toggle sidebar */}
                 <button
