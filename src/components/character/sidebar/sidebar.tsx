@@ -20,8 +20,8 @@ const Sidebar: React.FC = () => {
         <div className="absolute z-[200] h-main">
             <div
                 id="sidebar"
-                className={`transition-all duration-300 ease-in-out bg-gray-800 text-white top-0 h-main p-4`}
-                style={{ width: isOpen ? '16rem' : '0rem' },{display: isOpen? 'flex-none':'none'}}
+                className={`transition-all duration-300 ease-in-out bg-gray-800 text-white top-0 h-main p-4 ${isOpen? 'flex-none':'hidden'}`}
+                style={{ width: isOpen ? '16rem' : '0rem' }}
             >
                 <ul className="space-y-4 mt-20">
                 <li><LinkCharacter /></li>
