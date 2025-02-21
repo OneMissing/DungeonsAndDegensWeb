@@ -78,7 +78,7 @@ const Navbar = () => {
       >
         Logout
       </button>
-      <ThemeToggle />
+      <ThemeToggle className="text-xl hover:text-yellow-400 transition duration-300" />
     </div>
   );
 
