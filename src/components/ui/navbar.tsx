@@ -92,14 +92,15 @@ const Navbar = () => {
         >
           Dungeons
         </Link>
-        <button
+
+        <div>
+          {isLogged ? navButtonsV2("hidden md:flex space-x-3") : navButtonsV1("hidden md:flex space-x-6")}
+          <button
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden focus:outline-none"
         >
           {isOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
-        <div>
-          {isLogged ? navButtonsV2("hidden md:flex space-x-3") : navButtonsV1("hidden md:flex space-x-6")}
         </div>
       </div>
 
