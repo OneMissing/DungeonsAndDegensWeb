@@ -17,7 +17,7 @@ const Sidebar: React.FC = () => {
     }, [isOpen]);
 
     return (
-        <div className="absolute z-[200] h-main">
+        <div className="absolute md:relative z-[200] h-main">
             <div
                 id="sidebar"
                 className={`transition-all duration-300 ease-in-out bg-gray-800 text-white top-0 h-main p-4 w-3xs ${isOpen? 'flex-none':'hidden'}`}
@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
             </div>
 
                 <button
-                    className={`absolute top-4 bg-gray-700 text-white rounded-full p-2 transition-all duration-300 ease-in-out ${isOpen ? `left-[${sidebarWidth}px / 2 - 16px]` : `left-4`}`}
+                    className={`absolute top-4 bg-gray-700 text-white rounded-full p-2 transition-all duration-300 ease-in-out ${isOpen ? `left-[( ${sidebarWidth}px / 2 ) - 4rem]` : `left-4`}`}
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     {isOpen ? (
