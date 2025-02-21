@@ -75,8 +75,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute z-[10000]">
-      <div className="justify-between w-screen">
-      <div className="mx-auto flex justify-between px-6">
+      <div className="w-screen flex justify-between px-6">
         <Link
           href="/"
           className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300 overflow-hidden"
@@ -102,5 +101,6 @@ const Navbar = () => {
     </nav>
   );
 };
+
 
 export default Navbar;
