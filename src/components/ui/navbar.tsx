@@ -33,33 +33,66 @@ const Navbar = () => {
       <Link href="/about" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
         About
       </Link>
-      {isLogged && (
-        <Link href="/home/maps" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
-          Map
-        </Link>
-      )}
-      {isLogged && (
-        <button onClick={logout} className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
-          Logout
-        </button>
-      )}
-      <ThemeToggle className="text-black dark:text-white" />
+      <ThemeToggle className="text-xl hover:text-yellow-400 transition duration-300" />
+    </div>
+  );
+
+  const navButtonsV2 = (className: string) => (
+    <div className={className}>
+      <Link
+        href="/home"
+        className="text-xl hover:text-yellow-400 transition duration-300"
+      >
+        Home
+      </Link>
+      <Link
+        href="/home/maps"
+        className="text-xl hover:text-yellow-400 transition duration-300"
+      >
+        Map
+      </Link>
+      <Link
+        href="/wiki"
+        className="text-xl hover:text-yellow-400 transition duration-300"
+      >
+        Adventure
+      </Link>
+      <Link
+        href="/about"
+        className="text-xl hover:text-yellow-400 transition duration-300"
+      >
+        About
+      </Link>
+      <button
+        onClick={logout}
+        className="text-xl hover:text-yellow-400 transition duration-300"
+      >
+        Logout
+      </button>
+      <ThemeToggle className="text-xl hover:text-yellow-400 transition duration-300" />
     </div>
   );
 
   return (
-    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute w-full z-[10000]">
-      <div className="mx-auto flex items-center justify-between px-6 max-w-7xl">
-        <div className="flex-1">
-          <Link href="/" className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300 dark:text-black">
-            Dungeons & Degens
-          </Link>
-        </div>
-        <div className="hidden md:flex space-x-6 items-center">{navButtons("flex space-x-6")}</div>
-        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden focus:outline-none">
+    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute z-[10000]">
+      <div className="justify-between w-screen">
+      <div className="mx-auto flex justify-between px-6">
+        <Link
+          href="/"
+          className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300 overflow-hidden"
+        >
+          Dungeons
+        </Link>
 
+        <div>
+          {isLogged ? navButtonsV2("hidden md:flex space-x-3") : navButtonsV1("hidden md:flex space-x-6")}
+          <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden focus:outline-none"
+        >
           {isOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
+        </div>
       </div>
       {isOpen && (
         <div className="md:hidden flex flex-col items-end bg-brown-700 p-4 rounded-lg border border-brown-900 transition-all duration-300 ease-in-out origin-top">

@@ -3,7 +3,7 @@
 import { useTheme } from "@/components/themes/themeProvider";
 
 interface ThemeToggleProps {
-  className?: string | null;
+  className?: string | undefined;
 }
 
 export default function ThemeToggle({ className }: ThemeToggleProps) {
@@ -12,9 +12,9 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
   return (
     <button
       onClick={toggleTheme}
-      className={`p-2 rounded-md bg-gray-200 dark:bg-gray-800 ${className}`}
+      className={className}
     >
-      {theme === "dark" ? "🌞 Light Mode" : "🌙 Dark Mode"}
+      {theme === "dark" ? "🌞" : "🌙"}
     </button>
   );
 }
