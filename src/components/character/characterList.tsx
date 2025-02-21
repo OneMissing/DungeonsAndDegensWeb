@@ -107,7 +107,7 @@ const FetchCharacters = ({
                                     <Remove text={char.id} />
                                 </div>
                                 <div className="col-span-2">
-                                <div className='text-right md:text-center w-full md:w-1/2  mt-1'>
+                                    <div className='text-right md:text-center w-full md:w-1/2  mt-1'>
                                         <span>{char.name}</span>
                                     </div>
                                 </div>
@@ -145,7 +145,7 @@ const FetchCharacters = ({
                                     <CopyToClipboard text={char.id} />
                                 </div>
                                 <div className="col-span-2">
-                                    <div className='text-center md:text-right w-full md:w-1/2  mt-1'>
+                                    <div className='text-right md:text-center w-full md:w-1/2  mt-1'>
                                         <span>{char.name}</span>
                                     </div>
                                 </div>
