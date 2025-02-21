@@ -27,10 +27,10 @@ const Navbar = () => {
       }
     });
     return () => {
-      authListener?.unsubscribe();
+      authListener.subscription.unsubscribe();
     };
   }, [supabase]);
-  
+
   const navButtonsV1 = (className: string) => (
     <div className={className}>
       <Link
