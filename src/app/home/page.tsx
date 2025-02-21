@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import CharacterList from "@/components/character/characterList";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import Sidebar from "@/components/character/sidebar"
+import Sidebar from "@/components/character/sidebar/sidebar"
 /*
 import LinkCharacter from "@/components/character/linkCharacter";
 <div className='h-main bg-red-800'>
