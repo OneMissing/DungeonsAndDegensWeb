@@ -32,7 +32,7 @@ const Sidebar: React.FC = () => {
                 <button
                     className="absolute top-4 left-4 bg-gray-700 text-white rounded-full p-2 transition-all duration-300 ease-in-out"
                     onClick={() => setIsOpen(!isOpen)}
-                    style={{ left: isOpen ? `calc(${sidebarWidth}px + 20px)` : '20px' }}
+                    style={{ left: isOpen ? `calc(${sidebarWidth}px / 2)` : '20px' }}
                 >
                     {isOpen ? (
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
