@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import "./globals.css";
 import Navbar from "@/components/ui/navbar";
 import ThemeProvider from "@/components/themes/themeProvider";
-import { AuthProvider } from "@/lib/AuthProvider"
+import { AuthProvider } from "@/lib/authProvider"
 
 export const metadata = {
   title: "DnD",

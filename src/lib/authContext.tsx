@@ -28,11 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data } = await supabase.auth.getUser();
       setIsLogged(!!data.user);
     };
-
-    // Fetch the current user on load
     fetchUser();
-
-    // Listen for auth state changes (e.g., user logs in/out)
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") {
         setIsLogged(true);
@@ -40,8 +36,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLogged(false);
       }
     });
-
-    // Cleanup listener on component unmount
     return () => {
       authListener.subscription.unsubscribe();
     };
