@@ -107,7 +107,7 @@ const FetchCharacters = ({
                                     <Remove text={char.id} />
                                 </div>
                                 <div className="col-span-2">
-                                    <div className='text-center w-1/2'>
+                                    <div className='text-center w-full md:w-1/2  mt-1'>
                                         <span>{char.name}</span>
                                     </div>
                                 </div>
@@ -140,13 +140,17 @@ const FetchCharacters = ({
                                 )
                             }
                         >
+                            <div className='grid grid-cols-3'>
+                                <div className='flex space-x-2'>
+                                    <CopyToClipboard text={char.id} />
+                                </div>
+                                <div className="col-span-2">
+                                    <div className='text-center w-full md:w-1/2  mt-1'>
+                                        <span>{char.name}</span>
+                                    </div>
+                                </div>
 
-
-                            <div className='left-0 top-0 -mt-6'>
-                                <CopyToClipboard text={char.id} />
-                                <h3 className='top=0 text-lg font-semibold'>
-                                    {char.name}
-                                </h3>
+                                <div></div>
                             </div>
                             <p className='text-gray-600'>
                                 {char.race} - {char.class} (Level {char.level})
