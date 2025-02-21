@@ -3,7 +3,7 @@
 import { useTheme } from "@/components/themes/themeProvider";
 
 interface ThemeToggleProps {
-  className?: string | null;
+  className?: string | null | undefined;
 }
 
 export default function ThemeToggle({ className }: ThemeToggleProps) {
