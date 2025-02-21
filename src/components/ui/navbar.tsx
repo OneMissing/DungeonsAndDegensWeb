@@ -14,101 +14,58 @@ const Navbar = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (typeof window === 'undefined') return;
-      const { data, error } = await supabase.auth.getUser();
-      setIsLogged(!!data.user); 
+      if (typeof window === "undefined") return;
+      const { data } = await supabase.auth.getUser();
+      setIsLogged(!!data.user);
     };
 
     fetchUser();
   }, [supabase]);
 
-  const navButtonsV1 = (className: string) => (
+  const navButtons = (className: string) => (
     <div className={className}>
-      <Link
-        href="/home"
-        className="text-xl hover:text-yellow-400 transition duration-300"
-      >
+      <Link href="/home" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
         Home
       </Link>
-      <Link
-        href="/wiki"
-        className="text-xl hover:text-yellow-400 transition duration-300"
-      >
+      <Link href="/wiki" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
         Adventure
       </Link>
-      <Link
-        href="/about"
-        className="text-xl hover:text-yellow-400 transition duration-300"
-      >
+      <Link href="/about" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
         About
       </Link>
-      <ThemeToggle />
-    </div>
-  );
-
-  const navButtonsV2 = (className: string) => (
-    <div className={className}>
-      <Link
-        href="/home"
-        className="text-xl hover:text-yellow-400 transition duration-300"
-      >
-        Home
-      </Link>
-      <Link
-        href="/home/maps"
-        className="text-xl hover:text-yellow-400 transition duration-300"
-      >
-        Map
-      </Link>
-      <Link
-        href="/wiki"
-        className="text-xl hover:text-yellow-400 transition duration-300"
-      >
-        Adventure
-      </Link>
-      <Link
-        href="/about"
-        className="text-xl hover:text-yellow-400 transition duration-300"
-      >
-        About
-      </Link>
-      <button
-        onClick={logout}
-        className="text-xl hover:text-yellow-400 transition duration-300"
-      >
-        Logout
-      </button>
-      <ThemeToggle />
+      {isLogged && (
+        <Link href="/home/maps" className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
+          Map
+        </Link>
+      )}
+      {isLogged && (
+        <button onClick={logout} className="text-xl hover:text-yellow-400 transition duration-300 dark:text-black">
+          Logout
+        </button>
+      )}
+      <ThemeToggle className="text-black dark:text-white" />
     </div>
   );
 
   return (
-    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute z-[10000]">
-      <div className="">
-      <div className="mx-auto flex justify-between px-6">
-        <Link
-          href="/"
-          className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300 overflow-hidden"
-        >
-          Dungeons
-        </Link>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden focus:outline-none"
-        >
+    <nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute w-full z-[10000]">
+      <div className="mx-auto flex items-center justify-between px-6 max-w-7xl">
+        <div className="flex-1">
+          <Link href="/" className="text-4xl font-serif font-bold hover:text-yellow-400 transition duration-300 dark:text-black">
+            Dungeons & Degens
+          </Link>
+        </div>
+        <div className="hidden md:flex space-x-6 items-center">{navButtons("flex space-x-6")}</div>
+        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden focus:outline-none">
+
           {isOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
-        <div>
-          {isLogged ? navButtonsV2("hidden md:flex space-x-3") : navButtonsV1("hidden md:flex space-x-6")}
-        </div>
       </div>
-
       {isOpen && (
-        <div className="relative">
-          {isLogged ? navButtonsV2("md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900") : navButtonsV1("md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900")}
+        <div className="md:hidden flex flex-col items-end bg-brown-700 p-4 rounded-lg border border-brown-900 transition-all duration-300 ease-in-out origin-top">
+          {navButtons("flex flex-col space-y-4")}
         </div>
       )}
-      </div>
     </nav>
   );
 };
