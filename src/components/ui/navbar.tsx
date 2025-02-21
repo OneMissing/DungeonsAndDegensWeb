@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { logout } from "@/lib/action";
 import { Menu, X } from "lucide-react";
-import { useAuth } from "@/lib/authContext";
+import { useAuth } from "@/components/authContext";
 import ThemeToggle from "../themes/themeToggle";
 
 const Navbar = () => {
