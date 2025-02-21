@@ -101,15 +101,21 @@ const FetchCharacters = ({
                                 router.push(`/home/dm-characters/${char.id}`)
                             }
                         >
-                            <h3 className='text-lg font-semibold'>
-                                {char.name}
-                            </h3>
-                            <div className='right-0 top-0 -mt-6'>
-                                <Remove text={char.id} />
+                            <div className='grid grid-cols-3'>
+                                <div className='flex space-x-2'>
+                                    <CopyToClipboard text={char.id} />
+                                    <Remove text={char.id} />
+                                </div>
+                                <div className="col-span-2">
+                                    <div className='text-right md:text-center w-full md:w-1/2  mt-1'>
+                                        <span>{char.name}</span>
+                                    </div>
+                                </div>
+
+                                <div></div>
                             </div>
-                            <div className='ml-14 top-0 -mt-10'>
-                                <CopyToClipboard text={char.id} />
-                            </div>
+
+
                             <p className='text-gray-600'>
                                 {char.race} - {char.class} (Level {char.level})
                             </p>
@@ -117,6 +123,7 @@ const FetchCharacters = ({
                     ))}
                 </ul>
             </div>
+
         );
     else
         return (
@@ -133,12 +140,17 @@ const FetchCharacters = ({
                                 )
                             }
                         >
+                            <div className='grid grid-cols-3'>
+                                <div className='flex space-x-2'>
+                                    <CopyToClipboard text={char.id} />
+                                </div>
+                                <div className="col-span-2">
+                                    <div className='text-right md:text-center w-full md:w-1/2  mt-1'>
+                                        <span>{char.name}</span>
+                                    </div>
+                                </div>
 
-                            <h3 className='top=0 text-lg font-semibold'>
-                                {char.name}
-                            </h3>
-                            <div className='left-0 top-0 -mt-6'>
-                                <CopyToClipboard text={char.id} />
+                                <div></div>
                             </div>
                             <p className='text-gray-600'>
                                 {char.race} - {char.class} (Level {char.level})
