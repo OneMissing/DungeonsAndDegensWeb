@@ -4,22 +4,12 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { logout } from "@/lib/action";
 import { Menu, X } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/contexts/AuthContext"; // Import the context
 import ThemeToggle from "../themes/themeToggle";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLogged, setIsLogged] = useState<boolean>(false);
-  const supabase = createClient();
-
-  let [supabase] = useState(() => createBrowserSupabaseClient())
-
-  useEffect(() => {
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') console.log('signed in')
-      if (event === 'SIGNED_OUT') console.log('signed out')
-    })
-  }, [supabase])
+  const { isLogged } = useAuth(); // Use context to get the logged-in state
 
   // Navigation buttons for logged out users
   const navButtonsV1 = (className: string) => (
