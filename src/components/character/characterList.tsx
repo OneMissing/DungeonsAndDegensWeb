@@ -106,8 +106,9 @@ const FetchCharacters = ({
                                     <CopyToClipboard text={char.id} />
                                     <Remove text={char.id} />
                                 </div>
-                                <div className='flex justify-center w-full'>
-                                    <span className='text-center w-full'>{char.name}</span>
+
+                                <div className='flex-1 text-center'>
+                                    <span>{char.name}</span>
                                 </div>
                             </div>
                             <p className='text-gray-600'>
