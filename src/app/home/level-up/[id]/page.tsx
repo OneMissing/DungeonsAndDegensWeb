@@ -13,6 +13,14 @@ const LevelUpPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const [baseStats, setBaseStats] = useState({
+        strength: 0,
+        dexterity: 0,
+        constitution: 0,
+        intelligence: 0,
+        wisdom: 0,
+        charisma: 0,
+    });
     const [allocatedPoints, setAllocatedPoints] = useState({
         strength: 0,
         dexterity: 0,
@@ -44,7 +52,7 @@ const LevelUpPage = () => {
 
                 setAvailablePoints(pointsPerLevel);
 
-                setAllocatedPoints({
+                setBaseStats({
                     strength: data.strength,
                     dexterity: data.dexterity,
                     constitution: data.constitution,
@@ -87,7 +95,12 @@ const LevelUpPage = () => {
         const updatedCharacter = {
             ...character,
             level: character.level + 1,
-            ...allocatedPoints,
+            strength: baseStats.strength + allocatedPoints.strength,
+            dexterity: baseStats.dexterity + allocatedPoints.dexterity,
+            constitution: baseStats.constitution + allocatedPoints.constitution,
+            intelligence: baseStats.intelligence + allocatedPoints.intelligence,
+            wisdom: baseStats.wisdom + allocatedPoints.wisdom,
+            charisma: baseStats.charisma + allocatedPoints.charisma,
         };
 
         try {
@@ -112,6 +125,7 @@ const LevelUpPage = () => {
             <div className="grid grid-cols-2 gap-4">
                 {Object.entries(allocatedPoints).map(([stat, value]) => {
                     const statKey = stat as keyof typeof allocatedPoints;
+                    const totalValue = baseStats[statKey] + value;
                     return (
                         <div key={stat} className="flex justify-between items-center">
                             <span className="capitalize">{stat}</span>
@@ -124,7 +138,7 @@ const LevelUpPage = () => {
                                     -
                                 </button>
                                 <span className="px-4 py-1 bg-gray-700">
-                                    {character ? character[statKey] + value : 0}
+                                    {totalValue}
                                 </span>
                                 <button
                                     onClick={() => handleAllocatePoint(statKey)}
