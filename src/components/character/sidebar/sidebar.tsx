@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import LinkCharacter from "@/components/character/linkCharacter";
+import Link from "next/link";
 
 const Sidebar: React.FC = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false);

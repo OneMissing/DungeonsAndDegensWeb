@@ -3,7 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/ui/navbar";
 import ThemeProvider from "@/components/themes/themeProvider";
 import { AuthProvider } from "@/components/authContext";
-import Link from "next/link";
+
 
 export const metadata = {
   title: "DnD",
