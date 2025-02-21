@@ -21,8 +21,8 @@ export default async function Home() {
         <div>
             {user ? (
                 <div>
-                    <div className='flex'>
                         <Sidebar />
+                    <div className='flex'>
                         <CharacterList userId={user.id} dm={true} />
                         <CharacterList userId={user.id} dm={false} />
                     </div>
