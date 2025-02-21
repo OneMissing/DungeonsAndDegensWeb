@@ -17,7 +17,7 @@ const Sidebar: React.FC = () => {
     }, [isOpen]);
 
     return (
-        <div className="absolute md:relative z-[200] h-main">
+        <div className="absolute lg:relative z-[200] h-main transition-all duration-300 ease-in-out">
             <div
                 id="sidebar"
                 className={`transition-all duration-300 ease-in-out bg-gray-800 text-white top-0 h-main p-4 w-3xs ${isOpen? 'flex-none':'hidden'}`}
@@ -29,8 +29,9 @@ const Sidebar: React.FC = () => {
             </div>
 
                 <button
-                    className={`absolute top-4 bg-gray-700 text-white rounded-full p-2 transition-all duration-300 ease-in-out ${isOpen ? `left-[( ${sidebarWidth}px / 2 ) - 4rem]` : `left-4`}`}
+                    className={`absolute top-4 bg-gray-700 text-white rounded-full p-2 transition-all duration-300 ease-in-out`}
                     onClick={() => setIsOpen(!isOpen)}
+                    style={{ left: isOpen ? `calc(${sidebarWidth}px / 2 - 16px)` : '2rem' }}
                 >
                     {isOpen ? (
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
