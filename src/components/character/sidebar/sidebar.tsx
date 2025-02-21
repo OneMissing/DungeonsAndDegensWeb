@@ -17,10 +17,10 @@ const Sidebar: React.FC = () => {
     }, [isOpen]);
 
     return (
-        <div className="z-[200] h-main">
+        <div className="absolute z-[200] h-main">
             {/* Sidebar */}
             <div
-                className={`sidebar flex-none transition-all duration-300 ease-in-out bg-gray-800 text-white top-0 h-main`}
+                className={`sidebar flex-none transition-all duration-300 ease-in-out bg-gray-800 text-white top-0 h-main p-4`}
                 style={{ width: isOpen ? '16rem' : '0rem' }}
             >
                 {/* Sidebar content */}
