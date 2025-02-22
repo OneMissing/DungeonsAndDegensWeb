@@ -1,14 +1,13 @@
 "use client";
 import React, { useRef, useState, useCallback, useMemo, JSX, useEffect } from 'react';
 import { Stage, Layer, Line, Rect, Image } from 'react-konva';
-import { Button } from '../ui/cards/button';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Konva from 'konva';
-import { createClient } from '@/lib/supabase/client';
-import Sidebar from './sidebar';
+import MapSidebar from './sidebar';
 import { Character, Structure } from '@/lib/map/types';
 import { loadCanvas } from '@/lib/map/types';
-import { PopupLoad } from './popup';
+import {fetchDmCharacters, user, supabase} from "@/lib/tools/fetchTables"
+
 
 const GRID_SIZE = 50;
 const MIN_SCALE = 0.5;
@@ -17,7 +16,6 @@ const SNAP_THRESHOLD = GRID_SIZE - 20;
 const MAX_HISTORY = 50;
 
 const Map = () => {
-    const supabase = createClient();
     const [renderTrigger, setRenderTrigger] = useState(0);
     const [imageCache, setImageCache] = useState<{ [key: string]: HTMLImageElement | null }>({});
     const stageRef = useRef<Konva.Stage | null>(null);
@@ -131,6 +129,12 @@ const Map = () => {
                 undo();
             } else if (e.ctrlKey && e.key === 'y') {
                 redo();
+            } else if(e.key.toLowerCase() === 'r') {
+                setSelectionMode("rectangle");
+            } else if(e.key.toLowerCase() === 's') {
+                setSelectionMode("single");
+            } else if(e.key.toLowerCase() === 'm') {
+                setSelectionMode("structures");
             }
         };
         window.addEventListener("keydown", handleKeyDown);
@@ -154,18 +158,18 @@ const Map = () => {
     useEffect(() => {
         setRenderTrigger((prev) => prev + 1);
     }, [characters]);
-
+    
     useEffect(() => {
         const fetchChampions = async () => {
             try {
-                const { data: userData } = await supabase.auth.getUser();
-                if (!userData?.user) {
+                const currentUser = await user();
+                if (!currentUser) {
                     console.error("User not authenticated");
                     return;
                 } const { data, error } = await supabase
                     .from("characters")
                     .select("id, name, class")
-                    .eq("user_id", userData.user.id);
+                    .eq("user_id", currentUser.id);
                 if (error) {
                     console.error("Error fetching champions:", error);
                     return;
@@ -186,8 +190,6 @@ const Map = () => {
         }};
         fetchChampions();
     }, []);
-
-
 
     useEffect(() => {
         const updateSize = () => {
@@ -462,8 +464,8 @@ const Map = () => {
             Object.entries(tiles).map(([key, value]) => [key, value ?? null])
         );
 
-        const user = await supabase.auth.getUser();
-        if (!user.data?.user) {
+        const currentUser = await user();
+        if (!currentUser) {
             console.error("User not authenticated");
             return;
         }
@@ -483,9 +485,7 @@ const Map = () => {
             })),
         };
 
-        const { data, error } = await supabase
-            .from("maps")
-            .insert([{ user_id: user.data.user.id, data: canvasData }]);
+        const { data, error } = await supabase.from("maps").insert([{ user_id: currentUser.id, data: canvasData }]);
 
         if (error) {
             console.error("Error saving canvas:", error);
@@ -517,7 +517,7 @@ const Map = () => {
 
             {/* Sidebar */}
             <div className="flex overflow-hidden h-main dark:bg-gray-600   ">
-                <Sidebar
+                <MapSidebar
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
                     tileColors={tileColors}

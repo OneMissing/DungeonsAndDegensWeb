@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import {heroui} from "@heroui/react";
 
 const nav = "4.5rem"
 const config: Config = {
@@ -42,6 +43,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [heroui()]
 };
 export default config;

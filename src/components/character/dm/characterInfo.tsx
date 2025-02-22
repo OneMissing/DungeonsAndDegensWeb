@@ -5,10 +5,13 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import {
     Character,
+    CharacterStat,
     Classes,
     Races,
-    updateCharacter,
-} from "@/lib/character/types";
+    CharacterAttribute,
+} from "@/lib/tools/types";
+import { updateCharacter } from "@/lib/tools/updateCharacter"
+
 
 interface CharacterInfoProps {
     characterId: string;
@@ -18,11 +21,11 @@ interface CharacterInfoProps {
 const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
     const router = useRouter();
     const supabase = createClient();
-    const data = supabase.auth.getUser();
-    if (!data) {
-        router.push("/login");
-    }
     const [character, setCharacter] = useState<Character | null>(null);
+    const [attributes, setAttributes] = useState<CharacterAttribute | null>(
+        null
+    );
+    const [stats, setStats] = useState<CharacterStat | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [editingField, setEditingField] = useState<string | null>(null);
@@ -30,66 +33,52 @@ const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
     const [isInvalid, setIsInvalid] = useState(false);
 
     useEffect(() => {
-        if (!characterId) return;
-
-        const fetchCharacter = async () => {
+        const fetchData = async () => {
+            setLoading(true);
             try {
-                setLoading(true);
-
-                const { data: characterData, error: characterError } =
-                    await supabase
-                        .from("characters")
-                        .select("*")
-                        .eq("id", characterId)
-                        .single();
-
-                if (characterError) throw new Error("Character not found.");
-
-                setCharacter({ ...characterData });
+                const [{ data: charData, error: charError }, { data: attrData, error: attrError }, { data: statsData, error: statsError }] = await Promise.all([
+                    supabase.from("characters").select("*").eq("id", characterId).single(),
+                    supabase.from("character_attrib").select("*").eq("character_id", characterId).single(),
+                    supabase.from("character_stats").select("*").eq("character_id", characterId).single(),
+                ]);
+    
+                if (charError || attrError || statsError) {
+                    setError("Error loading character data.");
+                    console.error("Errors:", charError, attrError, statsError);
+                    return;
+                }
+    
+                setCharacter(charData);
+                setAttributes(attrData);
+                setStats(statsData);
             } catch (err) {
-                setError(
-                    err instanceof Error ? err.message : "An error occurred."
-                );
+                setError("Unexpected error fetching data.");
+                console.error(err);
             } finally {
                 setLoading(false);
             }
         };
-
-        fetchCharacter();
+    
+        fetchData();
     }, [characterId]);
+    
 
-    useEffect(() => {
-        if (!characterId) return;
+    if (!character || !attributes || !stats) return <p>Loading...</p>;
 
-        const fetchCharacter = async () => {
-            try {
-                setLoading(true);
-
-                const { data: characterData, error: characterError } =
-                    await supabase
-                        .from("characters")
-                        .select("*")
-                        .eq("id", characterId)
-                        .single();
-
-                if (characterError) throw new Error("Character not found.");
-
-                setCharacter({ ...characterData });
-            } catch (err) {
-                setError(
-                    err instanceof Error ? err.message : "An error occurred."
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCharacter();
-    }, [characterId]);
-
-    const handleDoubleClick = (field: keyof Character) => {
+    const handleDoubleClick = (
+        field: keyof Character | keyof CharacterAttribute | keyof CharacterStat
+    ) => {
+        if (!character || !attributes) return;
+        if (field in character) {
+            setFieldValue(
+                character[field as keyof Character]?.toString() ?? ""
+            );
+        } else if (field in attributes) {
+            setFieldValue(
+                attributes[field as keyof CharacterAttribute]?.toString() ?? ""
+            );
+        }
         setEditingField(field);
-        setFieldValue(character ? character[field].toString() : "");
         setIsInvalid(false);
     };
 
@@ -98,32 +87,41 @@ const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
     };
 
     const handleBlur = async () => {
-      if (character && editingField) {
-          let updatedValue: any = fieldValue;
-          
-          if (editingField === "class" && !(Object.values(Classes).includes(fieldValue as Classes))) {
-              setIsInvalid(true);
-              return;
-          }
-          
-          if (editingField === "race" && !(Object.values(Races).includes(fieldValue as Races))) {
-              setIsInvalid(true);
-              return;
-          }
-
-          if (!isNaN(Number(fieldValue))) {
-              updatedValue = Number(fieldValue);
-          }
-
-          const updatedData = {
-              [editingField]: updatedValue,
-          };
-
-          setCharacter((prev) => (prev ? { ...prev, ...updatedData } : prev));
-          setEditingField(null);
-          await updateCharacter(character.id, updatedData, supabase);
-      }
-  };
+        if (!editingField) return;
+    
+        let updatedValue: any = fieldValue;
+        if (!isNaN(Number(fieldValue))) {
+            updatedValue = Number(fieldValue);
+        }
+    
+        if (editingField in character!) {
+            setCharacter((prev) =>
+                prev ? { ...prev, [editingField]: updatedValue } : prev
+            );
+            await updateCharacter(character!.id, {
+                [editingField]: updatedValue,
+            });
+        } else if (editingField in attributes!) {
+            setAttributes((prev) =>
+                prev ? { ...prev, [editingField]: updatedValue } : prev
+            );
+            await supabase
+                .from("character_attrib")
+                .update({ [editingField]: updatedValue })
+                .eq("character_id", characterId);
+        } else if (editingField in stats!) {
+            setStats((prev) =>
+                prev ? { ...prev, [editingField]: updatedValue } : prev
+            );
+            await supabase
+                .from("character_stats")
+                .update({ [editingField]: updatedValue })
+                .eq("character_id", characterId);
+        }
+    
+        setEditingField(null);
+    };
+    
 
     if (loading)
         return (
@@ -197,14 +195,12 @@ const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
                                 autoFocus
                             />
                             <datalist id='race-options'>
-                                {Object.values(Races).map(
-                                    (raceOption) => (
-                                        <option
-                                            key={raceOption}
-                                            value={raceOption}
-                                        />
-                                    )
-                                )}
+                                {Object.values(Races).map((raceOption) => (
+                                    <option
+                                        key={raceOption}
+                                        value={raceOption}
+                                    />
+                                ))}
                             </datalist>
                         </div>
                     ) : (
@@ -243,7 +239,7 @@ const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
                     )}
                 </span>
                 {" (Level "}
-                {character.level}
+                {stats.level}
                 {")"}
             </div>
             <div className='text-center'>
@@ -265,7 +261,7 @@ const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
                                 autoFocus
                             />
                         ) : (
-                            character.hpnow
+                            stats.hpnow
                         )}
                     </span>{" "}
                     /
@@ -285,7 +281,7 @@ const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
                                 autoFocus
                             />
                         ) : (
-                            character.hpmax
+                            stats.hpmax
                         )}
                     </span>{" "}
                     +
@@ -305,7 +301,7 @@ const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
                                 autoFocus
                             />
                         ) : (
-                            character.hptmp
+                            stats.hptmp
                         )}
                     </span>
                 </p>
@@ -327,44 +323,45 @@ const CharacterInfo = ({ characterId, className }: CharacterInfoProps) => {
                                 autoFocus
                             />
                         ) : (
-                            character.ac
+                            stats.ac
                         )}
                     </span>
                 </p>
             </div>
             <h3 className='text-2xl font-semibold'>Attributes</h3>
             <ul className='grid grid-cols-2 gap-4 text-gray-700'>
-                {(
-                    [
-                        "strength",
-                        "dexterity",
-                        "constitution",
-                        "intelligence",
-                        "wisdom",
-                        "charisma",
-                    ] as (keyof Character)[]
-                ).map((attr) => (
-                    <li
-                        key={attr}
-                        onDoubleClick={() => handleDoubleClick(attr)}
-                    >
-                        <strong>{attr.toUpperCase().slice(0, 3)}:</strong>{" "}
-                        {editingField === attr ? (
-                            <input
-                                type='text'
-                                pattern='[0-9]*'
-                                value={fieldValue}
-                                onChange={handleChange}
-                                onKeyDown={handleNumberKeyDown}
-                                onBlur={handleBlur}
-                                className='w-8 appearance-none'
-                                autoFocus
-                            />
-                        ) : (
-                            character[attr]
-                        )}
-                    </li>
-                ))}
+                {attributes &&
+                    (
+                        [
+                            "strength",
+                            "dexterity",
+                            "constitution",
+                            "intelligence",
+                            "wisdom",
+                            "charisma",
+                        ] as (keyof CharacterAttribute)[]
+                    ).map((attr) => (
+                        <li
+                            key={attr}
+                            onDoubleClick={() => handleDoubleClick(attr)}
+                        >
+                            <strong>{attr.toUpperCase().slice(0, 3)}:</strong>{" "}
+                            {editingField === attr ? (
+                                <input
+                                    type='text'
+                                    pattern='[0-9]*'
+                                    value={fieldValue}
+                                    onChange={handleChange}
+                                    onKeyDown={handleNumberKeyDown}
+                                    onBlur={handleBlur}
+                                    className='w-8 appearance-none'
+                                    autoFocus
+                                />
+                            ) : (
+                                attributes[attr] ?? "N/A"
+                            )}
+                        </li>
+                    ))}
             </ul>
         </section>
     );

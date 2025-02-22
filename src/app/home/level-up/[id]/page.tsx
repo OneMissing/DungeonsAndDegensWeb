@@ -1,8 +1,15 @@
-"use client";
+export default function Page() {
+    return (
+        <div></div>
+    );
+}
+
+
+/*"use client";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getLevelUpPoints, Classes, Character, updateCharacter } from "@/lib/character/types";
+import { Classes, Character, CharacterStat } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
 
 const LevelUpPage = () => {
@@ -48,7 +55,7 @@ const LevelUpPage = () => {
 
                 const characterClass = data.class as Classes;
                 const characterLevel = data.level ?? 1;
-                const pointsPerLevel = getLevelUpPoints(characterClass, characterLevel);
+                const pointsPerLevel = 2;
 
                 setAvailablePoints(pointsPerLevel);
 
@@ -169,4 +176,4 @@ const LevelUpPage = () => {
     );
 };
 
-export default LevelUpPage;
+export default LevelUpPage;*/

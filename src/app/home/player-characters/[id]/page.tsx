@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import SkillsTable from "@/components/character/skills";
-import InventorySection from "@/components/character/items/inventoryDisplay";
-import CharacterInfo from "@/components/character/characterInfo";
+import Inventory from "@/components/character/player/inventory";
+import CharacterInfo from "@/components/character/dm/characterInfo";
 import Link from "next/link";
 import DeleteCharacter from "@/components/character/deleteCharacter";
 
@@ -32,6 +31,9 @@ const CharacterDetails = () => {
       <section className={className}>
         <Link href={`/home/level-up/${id}`}>level Up</Link>
         <DeleteCharacter charId={id as string} />
+      </section>
+      <section className={`${className} col-span-2`}>
+      <Inventory character_id={id as string} />
       </section>
     </div>
   );
