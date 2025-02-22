@@ -14,11 +14,15 @@ export async function logoutGlobal() {
 
 export async function changePassword(newPassword: string) {
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password: newPassword });
 
-  if (error) {
-    console.error("Error changing password:", error.message);
-    throw new Error("Failed to change password");
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if(!user){
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      console.error("Error changing password:", error.message);
+      throw new Error("Failed to change password");
+    }
   }
 
   return { success: true };
@@ -26,11 +30,14 @@ export async function changePassword(newPassword: string) {
 
 export async function changeEmail(newEmail: string) {
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ email: newEmail });
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  if (error) {
-    console.error("Error changing email:", error.message);
-    throw new Error("Failed to change email");
+  if(!user){
+    const { data, error } = await supabase.auth.updateUser({ email: newEmail });
+    if (error) {
+      console.error("Error changing password:", error.message);
+      throw new Error("Failed to change password");
+    }
   }
 
   return { success: true };

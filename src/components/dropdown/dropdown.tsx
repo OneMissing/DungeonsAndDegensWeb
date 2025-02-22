@@ -1,6 +1,8 @@
-"use client"
+"use client";
 import { changeEmail, changePassword, logoutGlobal } from "@/lib/dropdown";
+import { ArrowDownNarrowWide } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
+import styles from "./Dropdown.module.css";
 
 type DropdownChildProps = {
   content: string | React.ReactNode;
@@ -9,10 +11,7 @@ type DropdownChildProps = {
 
 const DropdownChild: React.FC<DropdownChildProps> = ({ content, onClick }) => {
   return (
-    <button
-      onClick={onClick}
-      className="block px-4 py-2 w-full text-left hover:bg-gray-100 transition-colors duration-200 text-gray-700"
-    >
+    <button onClick={onClick} className={styles.dropDownChild}>
       {typeof content === "string" ? content : <span className="flex items-center">{content}</span>}
     </button>
   );
@@ -24,14 +23,32 @@ type PopupProps = {
 };
 
 const Popup: React.FC<PopupProps> = ({ type, onClose }) => {
-  const [newPassword, setNewPassword] = useState('');
-  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [isEmailValid, setIsEmailValid] = useState(false);
+
+  // Regex for email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Handle email input change
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setNewEmail(email);
+    setIsEmailValid(emailRegex.test(email)); // Validate email
+  };
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+    <div className={styles.popupOverlay}>
+      <div className={styles.popupContent}>
         {type === "logout" && (
           <div>
-            <button className="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-200" onClick={()=>{logoutGlobal(); onClose();}}>
+            <button
+              className={styles.dropDownConfirmationButton}
+              onClick={() => {
+                logoutGlobal();
+                onClose();
+              }}
+            >
               Logout globally
             </button>
           </div>
@@ -40,12 +57,20 @@ const Popup: React.FC<PopupProps> = ({ type, onClose }) => {
           <div>
             <input
               type="password"
+              required
               placeholder="Enter new password"
-              className="w-full px-4 py-2 mb-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={newPassword} // Bind input value to state
-              onChange={(e) => setNewPassword(e.target.value)} // Update state on input change
+              className={styles.dropDownTextInput}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
             />
-            <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200" onClick={()=>{changePassword(newPassword); onClose();}}>
+            <button
+              className={styles.dropDownConfirmationButton}
+              onClick={() => {
+                changePassword(newPassword);
+                onClose();
+              }}
+              disabled={newPassword.length < 6}
+            >
               Change Password
             </button>
           </div>
@@ -53,21 +78,25 @@ const Popup: React.FC<PopupProps> = ({ type, onClose }) => {
         {type === "email" && (
           <div>
             <input
-              type="text"
+              type="email"
               placeholder="Enter new email"
-              className="w-full px-4 py-2 mb-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={newEmail} // Bind input value to state
-              onChange={(e) => setNewEmail(e.target.value)} // Update state on input change
+              className={styles.dropDownTextInput}
+              value={newEmail}
+              onChange={handleEmailChange} // Use the correct handler
             />
-            <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200" onClick={()=>{changeEmail(newEmail); onClose();}}>
+            <button
+              className={styles.dropDownConfirmationButton}
+              onClick={() => {
+                changeEmail(newEmail);
+                onClose();
+              }}
+              disabled={!isEmailValid} // Disable if email is invalid
+            >
               Change email
             </button>
           </div>
         )}
-        <button
-          onClick={onClose}
-          className="w-full mt-4 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200"
-        >
+        <button onClick={onClose} className={styles.dropDownDeclineButton}>
           Close
         </button>
       </div>
@@ -85,7 +114,6 @@ const Dropdown: React.FC = () => {
     setIsOpen(false);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -99,16 +127,13 @@ const Dropdown: React.FC = () => {
     };
   }, []);
 
-  return (  
+  return (
     <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="h-full p-2 hover:bg-gray-100 transition-colors duration-200"
-      >
-        Dropdown
+      <button onClick={() => setIsOpen(!isOpen)} className={styles.iconButton}>
+        <ArrowDownNarrowWide className={styles.icon} />
       </button>
       {isOpen && (
-        <div className="absolute right-0 bg-white border rounded-md shadow-md mt-2 z-10 w-48 transform transition-all duration-200 ease-in-out">
+        <div className={styles.dropdownMenu}>
           <DropdownChild content="Global logout" onClick={() => handleItemClick("logout")} />
           <DropdownChild content="Change password" onClick={() => handleItemClick("password")} />
           <DropdownChild content="Change email" onClick={() => handleItemClick("email")} />
