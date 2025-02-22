@@ -1,185 +1,348 @@
-"use client"
-import React, { useState } from "react";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
 import { default as NextImage } from "next/image";
-import { Character, Structure } from "@/lib/types/map";
-import { PopupSave, PopupLoad } from "./popup";
+import {
+    Character,
+    Structure,
+    tileCategories,
+    SidebarProps,
+} from "@/lib/map/types";
+import { PopupSave, PopupLoad } from "./mapPopups";
+import {
+    Boxes,
+    House,
+    MousePointerClick,
+    Move,
+    Settings,
+    Square,
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { structureData } from "@/lib/structureData";
+import Sidebar from "../ui/sidebar";
+import { Divider } from "@heroui/react";
 
-
-interface SidebarProps {
-  activeTab: "tiles" | "characters" | "structures" | "settings";
-  setActiveTab: (tab: "tiles" | "characters" | "structures" | "settings") => void;
-  tileColors: { [key: string]: string };
-  activeTile: string | null;
-  setActiveTile: (tile: string | null) => void;
-  champions: Character[];
-  addCharacter: (char: Character) => void;
-  addItem: (itemPath: string, w: number, h: number) => void;
-  saveCanvas: (structures: any[], tiles: any, characters: Character[]) => void;
-  loadCanvas: (
-    setStructures: (structures: any[]) => void,
-    setTiles: (tiles: any) => void,
-    setCharacters: (characters: Character[]) => void
-  ) => void;
-  characters: Character[];
-  setCharacters: (characters: Character[]) => void;
-  structures: any[];
-  tiles: any;
-  setStructures: (structures: any[]) => void;
-  setTiles: (tiles: any) => void;
-  wasLoaded: boolean;
-  setWasLoaded: (loaded: boolean) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({
-  activeTab,
-  setActiveTab,
-  tileColors,
-  activeTile,
-  setActiveTile,
-  champions,
-  addCharacter,
-  addItem,
-  saveCanvas,
-  loadCanvas,
-  characters,
-  setCharacters,
-  structures,
-  setStructures,
-  tiles,
-  setTiles,
-  wasLoaded,
-  setWasLoaded,
+const MapSidebar: React.FC<SidebarProps> = ({
+    activeTab,
+    setActiveTab,
+    tileColors,
+    activeTile,
+    setActiveTile,
+    champions,
+    addCharacter,
+    addItem,
+    saveCanvas,
+    loadCanvas,
+    characters,
+    setCharacters,
+    structures,
+    setStructures,
+    tiles,
+    setTiles,
+    selectionMode,
+    setSelectionMode,
 }) => {
-  const tileCategories = {
-    walls: {
-        wall: "/tiles/wall.webp",
-        stonewall: "/tiles/stonewall.webp",
-    },
-    other: {
-        grass: "/tiles/grass.webp",
-        water: "/tiles/water.webp",
-        sand: "/tiles/sand.webp",
-        floor: "/tiles/floor.webp"
-    },
-    tools: {
-        eraser: "", 
-    }
+    const isResizingRef = useRef(false);
+    const [sidebarWidth, setSidebarWidth] = useState(300);
+    const [isSavePopupOpen, setIsSavePopupOpen] = useState(false);
+    const [isLoadPopupOpen, setIsLoadPopupOpen] = useState(false);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    const imageSize = sidebarWidth <= 250 ? 50 : sidebarWidth >= 400 ? 100 : 75;
+    const columns = sidebarWidth >= 400 ? 3 : 2;
+    const [structureImages, setStructureImages] = useState<
+        { name: string; url: string; width: number; height: number }[]
+    >([]);
+    const supabase = createClient();
+
+    useEffect(() => {
+        setStructureImages(
+            structureData.map((structure) => ({
+                name: structure.name,
+                url: structure.image_path || "",
+                width: structure.width ?? 50,
+                height: structure.height ?? 50,
+            }))
+        );
+    }, []);
+
+    useEffect(() => {
+        const savedWidth = localStorage.getItem("sidebarWidth");
+        if (savedWidth) {
+            setSidebarWidth(parseInt(savedWidth, 10));
+        }
+    }, []);
+
+    const startResizing = (e: React.MouseEvent) => {
+        e.preventDefault();
+        isResizingRef.current = true;
+        setIsTransitioning(false);
+
+        const startX = e.clientX;
+        const startWidth = sidebarWidth;
+
+        const handleMouseMove = (moveEvent: MouseEvent) => {
+            if (!isResizingRef.current) return;
+            const newWidth = Math.min(
+                430,
+                Math.max(225, startWidth + moveEvent.clientX - startX)
+            );
+            setSidebarWidth(newWidth);
+            localStorage.setItem("sidebarWidth", newWidth.toString());
+        };
+
+        const handleMouseUp = () => {
+            isResizingRef.current = false;
+            setIsTransitioning(true); // Enable transition for smooth ease-out effect
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseup", handleMouseUp);
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseup", handleMouseUp);
+    };
+
+    return (
+        <Sidebar
+            width={`${sidebarWidth}px`}
+            className={`relative bg-background-light dark:bg-background-dark border-r border-border-light dark:border-border-dark transition-[width] ${
+                isTransitioning ? "ease-out duration-300" : "duration-0"
+            }`}
+        >
+            {isSavePopupOpen && (
+                <PopupSave
+                    mapData={{ structures, tiles, characters }}
+                    onClose={() => setIsSavePopupOpen(false)}
+                />
+            )}
+            <PopupLoad
+                buildMap={(mapData) => {
+                    setStructures(mapData.structures);
+                    setTiles(mapData.tiles);
+                    setCharacters(
+                        mapData.characters.map((char: Character) => ({
+                            ...char,
+                            class: char.class
+                                ? char.class.toLowerCase()
+                                : "warrior",
+                            imagePath: char.class
+                                ? `/characters/${char.class.toLowerCase()}.webp`
+                                : "/characters/warrior.webp",
+                        }))
+                    );
+                }}
+                isOpen={isLoadPopupOpen}
+                setIsOpen={setIsLoadPopupOpen}
+            />
+
+            <div
+                className='absolute -top-4 right-0 w-2 h-full bg-gray-300 dark:bg-gray-700 z-[1000] flex items-center justify-center cursor-ew-resize'
+                onMouseDown={startResizing}
+            >
+                <div className='h-10 w-full bg-gray-500 dark:bg-gray-400 rounded-full'></div>
+            </div>
+
+            <div>
+                <div className='flex space-x-2 mb-4 mr-2'>
+                    {[
+                        { tab: "tiles", icon: Square, label: "Tiles" },
+                        { tab: "characters", icon: House, label: "Characters" },
+                        { tab: "structures", icon: Boxes, label: "Structures" },
+                        { tab: "settings", icon: Settings, label: "Settings" },
+                    ].map(({ tab, icon: Icon, label }) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab as any)}
+                            className={`flex items-center p-2 rounded-md text-sm transition-all ease-out duration-300 ${
+                                sidebarWidth > 244 ? "w-full" : "w-auto"
+                            } ${
+                                activeTab === tab
+                                    ? "bg-primary-light dark:bg-primary-dark text-white"
+                                    : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
+                            }`}
+                        >
+                            <Icon className='w-5 h-5 flex-shrink-0 transition-all ease-out duration-300' />
+                            <span
+                                className={`ml-2 transition-opacity ease-out duration-300 absolute ${
+                                    sidebarWidth > 270 &&
+                                    (activeTab === tab || sidebarWidth > 420)
+                                        ? "opacity-100 relative"
+                                        : "opacity-0"
+                                }`}
+                            >
+                                {label}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+
+                <div className='relative flex flex-col h-[100%-10rem] overflow-y-auto'>
+                    {activeTab === "tiles" && (
+                        <div className='space-y-4'>
+                            {Object.entries(tileCategories).map(
+                                ([category, tiles]) => (
+                                    <div key={category} className=''>
+                                        <h3 className='text-center text-lg capitalize pb-2'>
+                                            {category}
+                                        </h3>
+                                        <div className='flex flex-wrap gap-2'>
+                                            {Object.entries(tiles).map(
+                                                ([tile, src]) => (
+                                                    <button
+                                                        key={tile}
+                                                        className={`w-12 h-12 border rounded-md ${
+                                                            activeTile === tile
+                                                                ? "border-yellow-500"
+                                                                : "border-gray-600"
+                                                        }`}
+                                                        onClick={() =>
+                                                            setActiveTile(tile)
+                                                        }
+                                                    >
+                                                        {src ? (
+                                                            <img
+                                                                src={src}
+                                                                alt={tile}
+                                                                className='w-full h-full'
+                                                            />
+                                                        ) : (
+                                                            "🧽"
+                                                        )}
+                                                    </button>
+                                                )
+                                            )}
+                                        </div>
+                                        <Divider className='my-4 w-[calc(100%-0.5rem)]' />
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    )}
+                    {activeTab === "characters" && (
+                        <div
+                            className='grid gap-2'
+                            style={{
+                                gridTemplateColumns: `repeat(${columns}, 1fr)`,
+                            }}
+                        >
+                            {champions.map((char) => (
+                                <button
+                                    key={char.id}
+                                    onClick={() => addCharacter(char)}
+                                    className='p-2 border border-border-light dark:border-border-dark rounded-md'
+                                >
+                                    <NextImage
+                                        alt={char.name}
+                                        src={`/characters/${char.class.toLowerCase()}.webp`}
+                                        className='w-full'
+                                        width={imageSize}
+                                        height={imageSize}
+                                        draggable='false'
+                                    />
+                                    <p className='text-center text-sm text-foreground-light dark:text-foreground-dark'>
+                                        {char.name}
+                                    </p>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    {activeTab === "structures" && (
+                        <div
+                            className='grid gap-2'
+                            style={{
+                                gridTemplateColumns: `repeat(${columns}, 1fr)`,
+                            }}
+                        >
+                            {structureImages.map((structure) => (
+                                <button
+                                    key={structure.name}
+                                    onClick={() =>
+                                        addItem(
+                                            structure.url,
+                                            structure.width,
+                                            structure.height
+                                        )
+                                    }
+                                    className='p-2 border border-border-light dark:border-border-dark rounded-md'
+                                >
+                                    <NextImage
+                                        src={structure.url}
+                                        alt={structure.name}
+                                        width={imageSize}
+                                        height={imageSize}
+                                        className='w-auto h-auto'
+                                        draggable='false'
+                                    />
+                                    <p className='text-center text-sm text-foreground-light dark:text-foreground-dark'>
+                                        {structure.name.replace(/_/g, " ")}
+                                    </p>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    {activeTab === "settings" && (
+                        <div className='space-y-2'>
+                            <button
+                                onClick={() => setIsSavePopupOpen(true)}
+                                className='w-full p-2 bg-primary-light dark:bg-primary-dark text-white rounded-md'
+                            >
+                                Save Map
+                            </button>
+                            <button
+                                onClick={() => setIsLoadPopupOpen(true)}
+                                className='w-full p-2 bg-secondary-light dark:bg-secondary-dark text-white rounded-md'
+                            >
+                                Load Map
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {sidebarWidth > 50 && (
+                <div className='absolute left-0 bottom-0 w-full bg-gray-300 dark:bg-gray-700 border-t border-gray-700 overflow-hidden'>
+                    <div className='p-4'>
+                        <h1 className='text-center text-gray-300 text-sm font-semibold mb-2'>
+                            Mode
+                        </h1>
+                        <div className='grid grid-cols-3 gap-2'>
+                            {[
+                                {
+                                    mode: "rectangle" as const,
+                                    icon: Square,
+                                    label: "Rectangle",
+                                },
+                                {
+                                    mode: "single" as const,
+                                    icon: MousePointerClick,
+                                    label: "Single",
+                                },
+                                {
+                                    mode: "structures" as const,
+                                    icon: Move,
+                                    label: "Structures",
+                                },
+                            ].map(({ mode, icon: Icon, label }) => (
+                                <button
+                                    key={mode}
+                                    onClick={() => setSelectionMode(mode)}
+                                    className={`flex flex-col items-center justify-center p-2 rounded-md transition-all ease-out duration-300
+                        ${
+                            selectionMode === mode
+                                ? "bg-blue-500 text-white shadow-md shadow-blue-500/50"
+                                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                        }`}
+                                >
+                                    <Icon className='w-5 h-5 mb-1' />
+                                    <span className='text-xs'>{label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </Sidebar>
+    );
 };
 
-  const [isSavePopupOpen, setIsSavePopupOpen] = useState(false);
-  const [isLoadPopupOpen, setIsLoadPopupOpen] = useState(false);
-      const buildMap = (mapData: { structures: Structure[]; tiles: { [key: string]: string | null }; characters: Character[] }) => {
-          setStructures(mapData.structures);
-          setTiles(mapData.tiles);
-          setCharacters(
-              mapData.characters.map((char: Character) => ({
-                  ...char,
-                  class: char.class ? char.class.toLowerCase() : "warrior",
-                  imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/warrior.webp",
-                  isDragging: false,
-                  isSelected: false,
-              }))
-          );
-      };
-  return (
-
-    <div style={{ width: "300px", padding: "10px", background: "#f0f0f0" }}>
-      {isSavePopupOpen && (
-        <PopupSave
-          mapData={{ structures, tiles, characters }}
-          onClose={() => setIsSavePopupOpen(false)}
-        />
-      )}
-      {isLoadPopupOpen && (
-        <PopupLoad buildMap={buildMap} popupLoad={true} setWasloaded={setWasLoaded} />
-      )}
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-        <button onClick={() => setActiveTab("tiles")} style={{ flex: 1, padding: "8px", background: activeTab === "tiles" ? "#ddd" : "#fff" }}>Tiles</button>
-        <button onClick={() => setActiveTab("characters")} style={{ flex: 1, padding: "8px", background: activeTab === "characters" ? "#ddd" : "#fff" }}>Characters</button>
-        <button onClick={() => setActiveTab("structures")} style={{ flex: 1, padding: "8px", background: activeTab === "structures" ? "#ddd" : "#fff" }}>Items</button>
-        <button onClick={() => setActiveTab("settings")} style={{ flex: 1, padding: "8px", background: activeTab === "settings" ? "#ddd" : "#fff" }}>Settings</button>
-      </div>
-      {activeTab === "tiles" && (
-         <div className="w-48 bg-gray-800 text-white flex flex-col p-2 space-y-4">
-         {/* Walls Section */}
-         <div className="border-b border-gray-600 pb-2">
-             <h3 className="text-center text-lg">Walls</h3>
-             <div className="grid grid-cols-3 gap-1">
-                 {Object.entries(tileCategories.walls).map(([tile, src]) => (
-                     <button
-                         key={tile}
-                         className={`w-12 h-12 border ${activeTile === tile ? "border-yellow-500" : "border-gray-600"}`}
-                         onClick={() => setActiveTile(tile)}
-                     >
-                         <img src={src} alt={tile} className="w-full h-full object-cover" />
-                     </button>
-                 ))}
-             </div>
-         </div>
-
-         {/* Other Tiles Section */}
-         <div className="border-b border-gray-600 pb-2">
-             <h3 className="text-center text-lg">Other</h3>
-             <div className="grid grid-cols-3 gap-1">
-                 {Object.entries(tileCategories.other).map(([tile, src]) => (
-                     <button
-                         key={tile}
-                         className={`w-12 h-12 border ${activeTile === tile ? "border-yellow-500" : "border-gray-600"}`}
-                         onClick={() => setActiveTile(tile)}
-                     >
-                         <img src={src} alt={tile} className="w-full h-full object-cover" />
-                     </button>
-                 ))}
-             </div>
-         </div>
-
-         {/* Eraser Section */}
-         <div>
-             <h3 className="text-center text-lg">Tools</h3>
-             <div className="flex justify-center">
-                 <button
-                     className={`w-12 h-12 border ${activeTile === "eraser" ? "border-yellow-500" : "border-gray-600"}`}
-                     onClick={() => setActiveTile("eraser")}
-                 >
-                     🧽
-                 </button>
-             </div>
-         </div>
-     </div>
-      )}
-      {activeTab === "characters" && (
-        <div className="flex">
-          {champions.map((char) => (
-            <button key={char.id} onClick={() => addCharacter(char)} style={{ display: "block", width: "50%", padding: "10px", marginTop: "10px", cursor: "pointer" }}>
-              <NextImage alt={char.name} src={`/characters/${char.class.toLowerCase()}.webp`} style={{ objectFit: "cover" }} width={100} height={100} />
-              {char.name}
-            </button>
-          ))}
-        </div>
-      )}
-      {activeTab === "structures" && (
-        <div className="flex">
-          <button onClick={() => addItem("/structures/item_001.webp", 1, 1)} style={{ display: "block", width: "50%", padding: "10px", marginTop: "10px", cursor: "pointer" }}>
-            <NextImage src="/structures/item_001.webp" alt="Item Image" width={100} height={100} />Chest
-          </button>
-          <button onClick={() => addItem("/structures/item_002.webp", 2, 2)} style={{ display: "block", width: "50%", padding: "10px", marginTop: "10px", cursor: "pointer" }}>
-            <NextImage src="/structures/item_002.webp" alt="Item Image" width={100} height={100} />Sword
-          </button>
-        </div>
-      )}
-      {activeTab === "settings" && (
-        <div>
-          <button
-            onClick={() => setIsSavePopupOpen(true)}
-          >
-            Save Map
-          </button>
-          <button onClick={() => setIsLoadPopupOpen(true)}>Load Map</button>
-
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default Sidebar;
+export default MapSidebar;

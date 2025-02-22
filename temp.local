@@ -1,0 +1,168 @@
+"use client";
+
+import { useState } from "react";
+import { Character, Races, Classes, CharacterAttribute, CharacterSkill } from "@/lib/tools/types";
+import Sidebar from "@/components/ui/sidebar";
+import { createClient } from "@/lib/supabase/client";
+
+const CharacterCreator = () => {
+    const supabase = createClient();
+
+    const [activeTab, setActiveTab] = useState(0);
+    const [error, setError] = useState<string | null>(null);
+    const [character, setCharacter] = 
+
+
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setCharacter((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleAttributeChange = (attr: CharacterAttribute, value: number) => {
+        setCharacter((prev) => ({
+            ...prev,
+            attributes: { ...prev.attributes, [attr]: value },
+        }));
+    };
+
+    const handleSkillChange = (skill: CharacterSkill, value: number) => {
+        setCharacter((prev) => ({
+            ...prev,
+            skills: { ...prev.skills, [skill]: value },
+        }));
+    };
+
+    const createCharacter = async () => {
+        if (!character.name || !character.race || !character.class) {
+            setError("Please fill in all required fields.");
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase.from("characters").insert([
+                { name: character.name, race: character.race, class: character.class }
+            ]).select();
+            if (error) throw error;
+            
+            const characterId = data[0].id;
+            
+            const attributes = Object.entries(character.attributes).map(([key, value]) => ({
+                character_id: characterId,
+                [key]: value
+            }));
+            
+            const skills = Object.entries(character.skills).map(([key, value]) => ({
+                character_id: characterId,
+                [key]: value
+            }));
+            
+            await supabase.from("character_attributes").insert(attributes);
+            await supabase.from("character_skills").insert(skills);
+            
+            console.log("Character created with attributes and skills:", data);
+            setError(null);
+        } catch (err) {
+            setError("Failed to create character. Try again.");
+            console.error(err);
+        }
+    };
+
+    const tabs = [
+        {
+            id: "basic-info",
+            label: "Basic Info",
+            content: (
+                <div className="space-y-4">
+                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        value={character.name}
+                        onChange={handleChange}
+                        className="bg-gray-700 text-white p-2 w-full rounded"
+                    />
+                </div>
+            ),
+        },
+        {
+            id: "race-selection",
+            label: "Race Selection",
+            content: (
+                <div className="p-4 bg-gray-900 rounded-lg">
+                    <h2 className="text-xl font-bold mb-2">Race</h2>
+                    <div className="grid grid-cols-3 gap-4">
+                        {Object.values(Races).map((race) => (
+                            <button
+                                key={race}
+                                onClick={() => setCharacter((prev) => ({ ...prev, race }))}
+                                className={`p-4 rounded-lg border ${character.race === race ? "border-yellow-500" : "border-gray-500"} hover:border-yellow-400 transition`}
+                            >
+                                {race}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            id: "attributes",
+            label: "Attributes",
+            content: (
+                <div className="p-4 bg-gray-900 rounded-lg">
+                    <h2 className="text-xl font-bold mb-2">Attributes</h2>
+                    {Object.values(Attributes).map((attr) => (
+                        <div key={attr} className="flex justify-between items-center py-2">
+                            <span>{attr}</span>
+                            <input
+                                type="number"
+                                value={character.attributes?.[attr] || 10}
+                                onChange={(e) => handleAttributeChange(attr, Number(e.target.value))}
+                                className="bg-gray-700 text-white p-2 w-16 rounded"
+                            />
+                        </div>
+                    ))}
+                </div>
+            ),
+        },
+        {
+            id: "skills",
+            label: "Skills",
+            content: (
+                <div className="p-4 bg-gray-900 rounded-lg">
+                    <h2 className="text-xl font-bold mb-2">Skills</h2>
+                    {Object.values(Skills).map((skill) => (
+                        <div key={skill} className="flex justify-between items-center py-2">
+                            <span>{skill}</span>
+                            <input
+                                type="number"
+                                value={character.skills?.[skill] || 0}
+                                onChange={(e) => handleSkillChange(skill, Number(e.target.value))}
+                                className="bg-gray-700 text-white p-2 w-16 rounded"
+                            />
+                        </div>
+                    ))}
+                </div>
+            ),
+        },
+    ];
+
+    return (
+        <div className="h-full w-full text-white flex">
+            <Sidebar width="300px" open={true}>
+                {tabs.map((tab, index) => (
+                    <button
+                        key={index}
+                        onClick={() => setActiveTab(index)}
+                        className={`px-4 py-2 text-lg font-semibold ${activeTab === index ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}
+                    >
+                        {tab.label}
+                    </button>
+                ))} 
+            </Sidebar>
+            <div className="w-full h-full p-4">{tabs[activeTab].content}</div>
+        </div>
+    );
+};
+
+export default CharacterCreator;

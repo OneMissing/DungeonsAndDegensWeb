@@ -2,12 +2,19 @@
 
 import { useTheme } from "@/components/themes/themeProvider";
 
-export default function ThemeToggle() {
+interface ThemeToggleProps {
+  className?: string | undefined;
+}
+
+export default function ThemeToggle({ className }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <button onClick={toggleTheme} className="p-2 rounded-md bg-gray-200 dark:bg-gray-800">
-      {theme === "dark" ? "🌞 Light Mode" : "🌙 Dark Mode"}
+    <button
+      onClick={toggleTheme}
+      className={className}
+    >
+      {theme === "dark" ? "🌞" : "🌙"}
     </button>
   );
 }
