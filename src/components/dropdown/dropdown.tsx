@@ -82,7 +82,7 @@ const Popup: React.FC<PopupProps> = ({ type, onClose }) => {
               placeholder="Enter new email"
               className={styles.dropDownTextInput}
               value={newEmail}
-              onChange={handleEmailChange} // Use the correct handler
+              onChange={handleEmailChange}
             />
             <button
               className={styles.dropDownConfirmationButton}
@@ -90,7 +90,7 @@ const Popup: React.FC<PopupProps> = ({ type, onClose }) => {
                 changeEmail(newEmail);
                 onClose();
               }}
-              disabled={!isEmailValid} // Disable if email is invalid
+              disabled={!isEmailValid}
             >
               Change email
             </button>
@@ -128,7 +128,7 @@ const Dropdown: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="inline-flex relative" ref={dropdownRef}>
       <button onClick={() => setIsOpen(!isOpen)} className={styles.iconButton}>
         <ArrowDownNarrowWide className={styles.icon} />
       </button>
