@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getLevelUpPoints, Classes, Character, updateCharacter } from "@/lib/character/types";
+import { getLevelUpPoints, Classes, Character, updateCharacter } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
 
 const LevelUpPage = () => {

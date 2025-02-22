@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/client";
+import { use } from "react";
+import { supabase, user } from "../tools/types";
 
 export interface Structure {
     id: string;
@@ -13,7 +14,7 @@ export interface Structure {
 }
 
 export interface Character {
-    class: any;
+    class: string;
     id: string;
     name: string;
     x: number;
@@ -27,40 +28,31 @@ export interface Character {
 
 export interface SidebarProps {
     activeTab: "tiles" | "characters" | "structures" | "settings";
-    setActiveTab: (
-        tab: "tiles" | "characters" | "structures" | "settings"
-    ) => void;
+    setActiveTab: (tab: SidebarProps["activeTab"]) => void;
     tileColors: { [key: string]: string };
     activeTile: string | null;
     setActiveTile: (tile: string | null) => void;
     champions: Character[];
     addCharacter: (char: Character) => void;
     addItem: (itemPath: string, w: number, h: number) => void;
-    saveCanvas: (
-        structures: any[],
-        tiles: any,
-        characters: Character[]
-    ) => void;
+    saveCanvas: (structures: Structure[], tiles: any, characters: Character[]) => void;
     loadCanvas: (
-        setStructures: (structures: any[]) => void,
+        setStructures: (structures: Structure[]) => void,
         setTiles: (tiles: any) => void,
         setCharacters: (characters: Character[]) => void
     ) => void;
     characters: Character[];
     setCharacters: (characters: Character[]) => void;
-    structures: any[];
+    structures: Structure[];
     tiles: any;
-    setStructures: (structures: any[]) => void;
+    setStructures: (structures: Structure[]) => void;
     setTiles: (tiles: any) => void;
-    selectionMode: string;
-    setSelectionMode: (
-        SelectionMode: "single" | "rectangle" | "structures"
-    ) => void;
+    selectionMode: "single" | "rectangle" | "structures";
+    setSelectionMode: (selectionMode: SidebarProps["selectionMode"]) => void;
 }
 
 export const tileCategories = {
     walls: {
-        
         wall: "/tiles/wall.webp",
         stonewall: "/tiles/stonewall.webp",
     },
@@ -75,18 +67,14 @@ export const tileCategories = {
     },
 };
 
-const supabase = createClient();
-
 export const loadCanvas = async (
     setStructures: React.Dispatch<React.SetStateAction<Structure[]>>,
-    setTiles: React.Dispatch<
-        React.SetStateAction<{ [key: string]: string | null | undefined }>
-    >,
+    setTiles: React.Dispatch<React.SetStateAction<{ [key: string]: string | null | undefined }>>,
     setCharacters: React.Dispatch<React.SetStateAction<Character[]>>
 ) => {
     try {
-        const user = await supabase.auth.getUser();
-        if (!user.data?.user) {
+        const currentUser = await user();
+        if (!currentUser) {
             console.error("User not authenticated");
             return;
         }
@@ -94,7 +82,7 @@ export const loadCanvas = async (
         const { data, error } = await supabase
             .from("maps")
             .select("data")
-            .eq("user_id", user.data.user.id)
+            .eq("user_id", currentUser?.id)
             .order("created_at", { ascending: false })
             .limit(1);
 
@@ -114,39 +102,26 @@ export const loadCanvas = async (
             return;
         }
 
-        const structures: Structure[] = Array.isArray(mapData.structures)
-            ? mapData.structures
-            : [];
-        const tiles: { [key: string]: string | null } =
-            typeof mapData.tiles === "object" && mapData.tiles !== null
-                ? mapData.tiles
-                : {};
-        const characters: Character[] = Array.isArray(mapData.characters)
-            ? mapData.characters
-            : [];
-
-        setStructures(structures);
-        setTiles(tiles);
+        setStructures(Array.isArray(mapData.structures) ? mapData.structures : []);
+        setTiles(typeof mapData.tiles === "object" && mapData.tiles !== null ? mapData.tiles : {});
         setCharacters(
-            characters.map((char: Character) => ({
+            (Array.isArray(mapData.characters) ? mapData.characters : []).map((char: Character) => ({
                 ...char,
                 class: char.class ? char.class.toLowerCase() : "warrior",
-                imagePath: char.class
-                    ? `/characters/${char.class.toLowerCase()}.webp`
-                    : "/characters/warrior.webp",
+                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/warrior.webp",
                 isDragging: false,
                 isSelected: false,
             }))
         );
     } catch (err) {
-        console.error("Unexpected error in loadCanvasFromSupabase:", err);
+        console.error("Unexpected error in loadCanvas:", err);
     }
 };
 
 export const loadEveryCanvas = async () => {
     try {
-        const user = await supabase.auth.getUser();
-        if (!user.data?.user) {
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData?.user) {
             console.error("User not authenticated");
             return [];
         }
@@ -154,7 +129,7 @@ export const loadEveryCanvas = async () => {
         const { data, error } = await supabase
             .from("maps")
             .select("data")
-            .eq("user_id", user.data.user.id)
+            .eq("user_id", userData.user.id)
             .order("created_at", { ascending: false });
 
         if (error) {
@@ -169,7 +144,7 @@ export const loadEveryCanvas = async () => {
 
         return data.map((item) => item.data);
     } catch (err) {
-        console.error("Unexpected error in loadCanvas:", err);
+        console.error("Unexpected error in loadEveryCanvas:", err);
         return [];
     }
 };

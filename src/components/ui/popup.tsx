@@ -26,7 +26,7 @@ export default function usePopup() {
 
   function Popup({ title, children, buttons }: PopupProps) {
     return (
-      <div className={`fixed inset-0 flex items-center justify-center ${isOpen ? "block" : "hidden"}`}>
+      <div className={`fixed inset-0 flex items-center justify-center z-[100000000] ${isOpen ? "block" : "hidden"}`}>
         <div className="bg-white p-6 rounded shadow-lg w-96 z-50">
           {title && <h2 className="text-lg font-bold mb-4">{title}</h2>}
           <div>{children}</div>

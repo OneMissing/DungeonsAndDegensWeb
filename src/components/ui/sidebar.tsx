@@ -5,10 +5,11 @@ interface SidebarProps {
     children: ReactNode;
     width: string;
     className?: string;
+    open?: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ children, width, className }) => {
-    const [isOpen, setIsOpen] = useState<boolean>(false);
+const Sidebar: React.FC<SidebarProps> = ({ children, width, className, open = false }) => {
+    const [isOpen, setIsOpen] = useState<boolean>(open);
 
     return (
         <div className="absolute lg:relative z-[200] h-main transition-all duration-300 ease-out">
@@ -19,7 +20,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children, width, className }) => {
                     width: isOpen ?  `calc(${width})` : "0",
                 }}
             >
-                <div className="space-y-4 mt-12 p-4" style={{ width }}>
+                <div className={`space-y-4 mt-12 p-4`} style={{ width }}>
                     {children}
                 </div>
             </div>
