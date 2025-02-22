@@ -1,5 +1,5 @@
 import { use } from "react";
-import { supabase, user } from "../tools/types";
+import { supabase, user } from "../tools/fetchTables";
 
 export interface Structure {
     id: string;

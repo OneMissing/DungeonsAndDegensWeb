@@ -2,9 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect, RedirectType } from 'next/navigation'
-
 import { createClient } from '@/lib/supabase/server'
-import { Replace } from 'lucide-react'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -20,8 +18,8 @@ export async function login(formData: FormData) {
     redirect('/error')
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/home')
+  revalidatePath('/', 'layout');
+  redirect('/home', RedirectType.replace);
 }
 
 export async function signup(formData: FormData) {
@@ -43,11 +41,10 @@ export async function signup(formData: FormData) {
   redirect('/')
 }
 
-export async function logout(){
+export async function logout(setIsLogged: (isLogged: boolean) => void){
   const supabase = await createClient();
-
+  setIsLogged(false);
   const { error } = await supabase.auth.signOut({scope: 'local'});
   revalidatePath('/', 'layout')
   redirect('/', RedirectType.replace);
-
 }

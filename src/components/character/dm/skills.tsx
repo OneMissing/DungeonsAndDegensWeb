@@ -83,7 +83,7 @@ const SkillsGrid = ({ characterId, className }: SkillsGridProps) => {
   return (
     <section className={className}>
       <h3 className="text-2xl font-semibold">Skills</h3>
-      <ul className="shadow-md min-h-0 md:min-h-[calc(100vh-12rem)] md:h-[calc(100vh-12rem)] overflow-y-visible md:overflow-y-auto mt-4 w-full rounded-lg">
+      <ul className="shadow-md min-h-0 lg:min-h-[calc(100vh-12rem)] lg:h-[calc(100vh-12rem)] overflow-y-visible lg:overflow-y-auto mt-4 w-full rounded-lg">
         {Object.entries(skills).map(([skill, value]) => (
           <li
             key={skill}

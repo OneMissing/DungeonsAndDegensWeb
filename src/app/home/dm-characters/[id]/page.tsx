@@ -10,14 +10,13 @@ const CharacterDetails = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const className = "bg-gray-100 mt-4 p-4 rounded-lg shadow-md min-h-0 max-h-none md:min-h-[calc(100vh-6.5rem)] md:max-h-[calc(100vh-6.5rem)] dark:bg-gray-600 select-none";
-
-  const fetchData = async () => {
-    if (!id) return <p className="text-center text-red-500">Wrong character Link</p>;
-    setLoading(false);
-  };
+  const className = "bg-gray-100 mt-4 p-4 rounded-lg shadow-md min-h-0 max-h-none lg:min-h-[calc(100vh-6.5rem)] lg:max-h-[calc(100vh-6.5rem)] dark:bg-gray-600 select-none";
 
   useEffect(() => {
+    const fetchData = async () => {
+      if (!id) return <p className="text-center text-red-500">Wrong character Link</p>;
+      setLoading(false);
+    };
     fetchData();
   }, [id]);
 
