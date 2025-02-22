@@ -129,6 +129,12 @@ const Map = () => {
                 undo();
             } else if (e.ctrlKey && e.key === 'y') {
                 redo();
+            } else if(e.key.toLowerCase() === 'r') {
+                setSelectionMode("rectangle");
+            } else if(e.key.toLowerCase() === 's') {
+                setSelectionMode("single");
+            } else if(e.key.toLowerCase() === 'm') {
+                setSelectionMode("structures");
             }
         };
         window.addEventListener("keydown", handleKeyDown);
@@ -184,8 +190,6 @@ const Map = () => {
         }};
         fetchChampions();
     }, []);
-
-
 
     useEffect(() => {
         const updateSize = () => {
