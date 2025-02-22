@@ -1,36 +1,46 @@
 /* Dropdown.module.css */
+
+/* Dropdown child item styling */
 .dropDownChild {
   @apply w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 text-black dark:text-white;
 }
 
+/* Confirmation button styling */
 .dropDownConfirmationButton {
   @apply w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-600;
 }
 
+/* Decline button styling */
 .dropDownDeclineButton {
   @apply w-full bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 mt-2;
 }
 
+/* Text input styling */
 .dropDownTextInput {
   @apply w-full px-4 py-2 mb-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-400;
 }
 
+/* Icon button styling */
 .iconButton {
-  @apply h-full p-2 hover:stroke-yellow-400 dark:hover:stroke-yellow-300 transition duration-300 overflow-hidden;
+  @apply hover:stroke-yellow-400 dark:hover:stroke-yellow-300 transition duration-300 overflow-hidden;
 }
 
+/* Icon styling */
 .icon {
-  @apply stroke-current hover:stroke-yellow-400 dark:hover:stroke-yellow-300 transition duration-300 overflow-hidden;
+  @apply stroke-current hover:stroke-yellow-400 dark:hover:stroke-yellow-300 transition duration-300 overflow-hidden w-6 h-6; /* Fixed size for the icon */
 }
 
+/* Popup overlay styling */
 .popupOverlay {
   @apply fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 dark:bg-opacity-70 z-50;
 }
 
+/* Popup content styling */
 .popupContent {
-  @apply bg-white p-6 rounded-lg shadow-lg w-80 dark:bg-gray-800 dark:text-white;
+  @apply bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4 sm:mx-auto dark:bg-gray-800 dark:text-white; /* Responsive margins */
 }
 
+/* Dropdown menu styling */
 .dropdownMenu {
-  @apply absolute right-0 bg-white border rounded-md shadow-md mt-2 z-10 w-48 transform transition-all duration-200 ease-in-out dark:bg-gray-800 dark:border-gray-700 dark:text-white;
+  @apply absolute right-0 bg-white border border-gray-200 rounded-md shadow-md mt-2 z-10 w-48 transform transition-all duration-200 ease-in-out dark:bg-gray-800 dark:border-gray-700 dark:text-white;
 }
