@@ -1,3 +1,10 @@
+export default function Page() {
+    return (
+        <div></div>
+    );
+}
+
+
 /*"use client";
 
 import { useEffect, useState } from "react";
