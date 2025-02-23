@@ -26,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children, width, className, open = fa
             </div>
 
             <button
-                className="absolute top-4 bg-1      -dark text-white rounded-full p-2 transition-all duration-300 ease-out"
+                className="absolute top-4 bg-1-dark text-white rounded-full p-2 transition-all duration-300 ease-out border-small outline-border-dark dark:border-none"
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
                     left: isOpen ? `calc(${width} / 2 - 1rem)` : "1rem",
