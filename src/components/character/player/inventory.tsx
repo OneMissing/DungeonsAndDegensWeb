@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { createClient } from "@/lib/supabase/client";
-import { Tooltip } from "@heroui/react";
+import { Divider, Tooltip } from "@heroui/react";
 import {
     Amphora,
     ArrowUp,
@@ -17,6 +17,7 @@ import {
     Map,
     Scroll,
     Shield,
+    Shirt,
     Sword,
     Trash,
     Utensils,
@@ -24,8 +25,22 @@ import {
     Wrench,
     Zap,
 } from "lucide-react";
+import { ItemEffect } from "@/lib/tools/types";
 
 const supabase = createClient();
+const fetchItemEffects = async (itemId: string): Promise<ItemEffect[]> => {
+    const { data, error } = await supabase
+        .from("item_effects")
+        .select("*")
+        .eq("item_id", itemId);
+
+    if (error) {
+        console.error("Error fetching item effects:", error);
+        return [];
+    }
+
+    return data as ItemEffect[];
+};
 
 type Item = {
     id: string;
@@ -86,6 +101,139 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
         }),
     });
 
+    const [itemEffects, setItemEffects] = useState<ItemEffect[]>([]);
+
+    useEffect(() => {
+        const fetchEffects = async () => {
+            const effects = await fetchItemEffects(item.id);
+            setItemEffects(effects);
+        };
+
+        fetchEffects();
+    }, [item.id]);
+
+    const getEffectColor = (effectType: string) => {
+        const colorMap: { [key: string]: string } = {
+            acid: "text-green-500",
+            bludgeoning: "text-gray-700",
+            cold: "text-blue-400",
+            fire: "text-orange-500",
+            force: "text-black-500",
+            lightning: "text-yellow-300",
+            necrotic: "text-black-900",
+            piercing: "text-gray-700",
+            poison: "text-lime-500",
+            psychic: "text-pink-500",
+            radiant: "text-yellow-200",
+            slashing: "text-gray-700",
+            thunder: "text-purple-600",
+            healing: "text-green-300",
+            armor_class: "text-gray-500",
+        };
+
+        return colorMap[effectType] || "text-white";
+    };
+
+    const renderEffect = (effect: ItemEffect) => {
+        const effects = [];
+        if (effect.acid_dice_count && effect.acid_dice_sides) {
+            effects.push({
+                type: "acid",
+                text: `Acid Damage: ${effect.acid_dice_count}d${effect.acid_dice_sides}`,
+            });
+        }
+        if (effect.bludgeoning_dice_count && effect.bludgeoning_dice_sides) {
+            effects.push({
+                type: "bludgeoning",
+                text: `Bludgeoning Damage: ${effect.bludgeoning_dice_count}d${effect.bludgeoning_dice_sides}`,
+            });
+        }
+        if (effect.cold_dice_count && effect.cold_dice_sides) {
+            effects.push({
+                type: "cold",
+                text: `Cold Damage: ${effect.cold_dice_count}d${effect.cold_dice_sides}`,
+            });
+        }
+        if (effect.fire_dice_count && effect.fire_dice_sides) {
+            effects.push({
+                type: "fire",
+                text: `Fire Damage: ${effect.fire_dice_count}d${effect.fire_dice_sides}`,
+            });
+        }
+        if (effect.force_dice_count && effect.force_dice_sides) {
+            effects.push({
+                type: "force",
+                text: `Force Damage: ${effect.force_dice_count}d${effect.force_dice_sides}`,
+            });
+        }
+        if (effect.lightning_dice_count && effect.lightning_dice_sides) {
+            effects.push({
+                type: "lightning",
+                text: `Lightning Damage: ${effect.lightning_dice_count}d${effect.lightning_dice_sides}`,
+            });
+        }
+        if (effect.necrotic_dice_count && effect.necrotic_dice_sides) {
+            effects.push({
+                type: "necrotic",
+                text: `Necrotic Damage: ${effect.necrotic_dice_count}d${effect.necrotic_dice_sides}`,
+            });
+        }
+        if (effect.piercing_dice_count && effect.piercing_dice_sides) {
+            effects.push({
+                type: "piercing",
+                text: `Piercing Damage: ${effect.piercing_dice_count}d${effect.piercing_dice_sides}`,
+            });
+        }
+        if (effect.poison_dice_count && effect.poison_dice_sides) {
+            effects.push({
+                type: "poison",
+                text: `Poison Damage: ${effect.poison_dice_count}d${effect.poison_dice_sides}`,
+            });
+        }
+        if (effect.psychic_dice_count && effect.psychic_dice_sides) {
+            effects.push({
+                type: "psychic",
+                text: `Psychic Damage: ${effect.psychic_dice_count}d${effect.psychic_dice_sides}`,
+            });
+        }
+        if (effect.radiant_dice_count && effect.radiant_dice_sides) {
+            effects.push({
+                type: "radiant",
+                text: `Radiant Damage: ${effect.radiant_dice_count}d${effect.radiant_dice_sides}`,
+            });
+        }
+        if (effect.slashing_dice_count && effect.slashing_dice_sides) {
+            effects.push({
+                type: "slashing",
+                text: `Slashing Damage: ${effect.slashing_dice_count}d${effect.slashing_dice_sides}`,
+            });
+        }
+        if (effect.thunder_dice_count && effect.thunder_dice_sides) {
+            effects.push({
+                type: "thunder",
+                text: `Thunder Damage: ${effect.thunder_dice_count}d${effect.thunder_dice_sides}`,
+            });
+        }
+        if (effect.healing_dice_count && effect.healing_dice_sides) {
+            effects.push({
+                type: "healing",
+                text: `Healing: ${effect.healing_dice_count}d${effect.healing_dice_sides}`,
+            });
+        }
+        if (effect.armor_class) {
+            effects.push({
+                type: "armor_class",
+                text: `Armor Class: ${effect.armor_class}`,
+            });
+        }
+
+        return effects.map((effect, index) => (
+            <p key={index} className={getEffectColor(effect.type)}>
+                {effect.text}
+            </p>
+        ));
+    };
+
     return (
         <Tooltip
             offset={15}
@@ -94,26 +242,61 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
             placement='bottom'
             content={
                 <div
-                    className={`px-1 py-2 bg-white rounded-lg transition-opacity duration-300 ${
-                        isDragging
-                            ? "hidden pointer-events-none"
-                            : "visible"
+                    className={`px-1 py-2 bg-white rounded-lg transition-opacity duration-300 w-full h-full select-none ${
+                        isDragging ? "hidden pointer-events-none" : "visible"
                     }`}
                 >
-                    <div className='text-small font-bold'>{item.name}</div>
-                    <div className='text-tiny grid grid-cols-1 p-2'>
-                        <p>Type: {item.type}</p>
-                        <p>Description: {item.description}</p>
-                        <p>
-                            Value: {item.value} - Weight: {item.weight}
-                        </p>
+                    <div className='text-medium font-bold'>{item.name}</div>
+                    <div className='text-small grid grid-cols-1 p-2'>
+                        <div className='flex justify-center gap-2'>
+                            <p className='font-semibold'>Type: </p> {item.type}
+                        </div>
+                        <div className='flex justify-center gap-2'>
+                            <p className='font-semibold'>Value: </p>{" "}
+                            {item.value}
+                            <Divider orientation='vertical' />
+                            <p className='font-semibold'>Weight: </p>{" "}
+                            {item.weight}
+                        </div>
+                        <div className='h-5 overflow-hidden transition-all duration-100 ease-in-out hover:h-full'>
+                            <div className='group font-semibold flex items-center justify-center overflow-hidden whitespace-nowrap'>
+                                <p className='text-center'>Description:</p>
+                                <div className='flex space-x-1 group-hover:animate-none'>
+                                    {[...Array(5)].map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className='animate-fade-in-out font-bold group-hover:animate-none'
+                                            style={{
+                                                animationDelay: `${i * 0.5}s`,
+                                            }}
+                                        >
+                                            .
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <p className='transition-opacity duration-300 max-w-[30rem]'>
+                                {item.description}
+                            </p>
+                        </div>
+
+                        {itemEffects.length > 0 && (
+                            <div className='mt-1'>
+                                <p className='font-bold'>Effects:</p>
+                                {itemEffects.map((effect, index) => (
+                                    <div key={index}>
+                                        {renderEffect(effect)}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             }
         >
             <div
                 ref={drag as unknown as React.Ref<HTMLDivElement>}
-                className={`relative p-1 bg-gray-700 border border-gray-500 rounded cursor-move ${
+                className={`relative p-1 bg-gray-700 border border-gray-500 rounded cursor-move w-full h-full  ${
                     isDragging ? "opacity-50" : "opacity-100"
                 }`}
             >
@@ -142,7 +325,7 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
                 ) : item.type === "gem" ? (
                     <Gem className='w-full h-full' />
                 ) : item.type === "armor" ? (
-                    <Shield className='w-full h-full' />
+                    <Shirt className='w-full h-full' />
                 ) : item.type === "cloak" ? (
                     <Feather className='w-full h-full' />
                 ) : item.type === "tool" ? (
@@ -158,9 +341,11 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
                 ) : (
                     <img alt={item.name} className='w-full h-full' />
                 )}
-                <span className='absolute bottom-0 right-0 text-xs bg-black bg-opacity-70 text-white px-1 rounded'>
-                    x{item.quantity}
-                </span>
+                {item.type != "weapon" && item.type != "armor" && (
+                    <span className='absolute bottom-0 right-0 text-xs bg-black bg-opacity-70 text-white px-1 rounded'>
+                        x{item.quantity}
+                    </span>
+                )}
             </div>
         </Tooltip>
     );
@@ -193,12 +378,12 @@ const DroppableTile: React.FC<{
             ref={drop as unknown as React.Ref<HTMLDivElement>}
             className={`aspect-square ${
                 tile.isTrash
-                    ? "border-0 bg-red-300 bg-opacity-50 hover:border hover:bg-red-700 rounded-xl text-yellow-300"
+                    ? "bg-red-300 bg-opacity-50 hover:border hover:bg-red-700 rounded-xl text-yellow-300 p-4"
                     : "bg-gray-800"
             } border border-gray-600 flex items-center justify-center`}
         >
             {tile.isTrash ? (
-                <Trash className='w-1/2 h-1/2' />
+                <Trash className='w-full h-full' />
             ) : (
                 tile.item && <DraggableItem item={tile.item} />
             )}
@@ -214,7 +399,7 @@ const isValidItemTypeForSlot = (
 
     const validItemTypes: { [key: string]: string[] } = {
         helmet: ["helmet"],
-        chestplate: ["chestplate"],
+        chestplate: ["chestplate", "armor"],
         gauntlets: ["gauntlets"],
         boots: ["boots"],
         weapon: [
@@ -463,38 +648,43 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div className='flex flex-col items-center p-4 bg-gray-900 border border-gray-700 rounded-lg shadow-lg w-full'>
+            <div className=' items-center p-4 bg-gray-900 border border-gray-700 rounded-lg shadow-lg w-full'>
                 {loading && <p>Loading...</p>}
                 {error && <p className='text-red-500'>{error}</p>}
-                <div className='flex gap-4 w-full h-full'>
-                    <div className='grid grid-cols-8 gap-1 border border-gray-600 p-2 bg-gray-700 rounded flex-grow'>
-                        {grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
-                            <DroppableTile
-                                key={tile.id}
-                                tile={tile}
-                                moveItem={moveItem}
-                                grid={grid}
-                            />
-                        ))}
+                <div className=' grid grid-cols-8 gap-4 w-full h-full'>
+                    <div className='col-span-6'>
+                        <div className='grid grid-cols-8 gap-1 border border-gray-600 p-2 bg-gray-700 rounded flex-grow'>
+                            {grid
+                                .slice(0, GRID_SIZE * GRID_SIZE)
+                                .map((tile) => (
+                                    <DroppableTile
+                                        key={tile.id}
+                                        tile={tile}
+                                        moveItem={moveItem}
+                                        grid={grid}
+                                    />
+                                ))}
+                        </div>
                     </div>
-
-                    <div className='grid grid-cols-2 gap-1 border border-gray-600 p-2 bg-gray-700 rounded h-full -auto'>
-                        {grid
-                            .slice(GRID_SIZE * GRID_SIZE, TOTAL_SLOTS)
-                            .map((tile) => (
+                    <div className='col-span-2'>
+                        <div className=' grid grid-cols-2 gap-1 border border-gray-600 p-2 bg-gray-700 rounded flex-grow'>
+                            {grid
+                                .slice(GRID_SIZE * GRID_SIZE, TOTAL_SLOTS)
+                                .map((tile) => (
+                                    <DroppableTile
+                                        key={tile.id}
+                                        tile={tile}
+                                        moveItem={moveItem}
+                                        grid={grid}
+                                    />
+                                ))}
+                            <div className='m-auto col-span-2'>
                                 <DroppableTile
-                                    key={tile.id}
-                                    tile={tile}
+                                    tile={grid.find((tile) => tile.isTrash)!}
                                     moveItem={moveItem}
                                     grid={grid}
                                 />
-                            ))}
-                        <div className='mt-20 m-auto col-span-2'>
-                            <DroppableTile
-                                tile={grid.find((tile) => tile.isTrash)!}
-                                moveItem={moveItem}
-                                grid={grid}
-                            />
+                            </div>
                         </div>
                     </div>
                 </div>

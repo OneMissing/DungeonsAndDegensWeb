@@ -150,7 +150,6 @@ export interface ItemEffect {
     healing_dice_count?: number;
     healing_dice_sides?: number;
     armor_class?: number;
-    created_at?: string;
 }
 
 export interface Spell {
