@@ -11,8 +11,7 @@ const CharacterDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const className =
-    "bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md h-full lg:min-h-[calc(100vh-6.5rem)] lg:max-h-[calc(100vh-6.5rem)] select-none";
+  const className = "bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md h-full lg:min-h-[calc(100vh-6.5rem)] lg:max-h-[calc(100vh-6.5rem)] select-none";
 
   const fetchData = async () => {
     if (!id) {

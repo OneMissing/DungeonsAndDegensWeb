@@ -82,22 +82,19 @@ const SkillsGrid = ({ characterId, className }: SkillsGridProps) => {
 	if (error) return <p className="text-red-500">{error}</p>;
 
 	return (
-		<section className={className}>
-			<h3 className="text-2xl font-semibold">Skills</h3>
-			<ul className="min-h-0 lg:min-h-[calc(100vh-12rem)] lg:h-[calc(100vh-12rem)] overflow-y-visible lg:overflow-y-auto mt-4 w-full rounded-lg">
-				{Object.entries(skills).map(([skill, value]) => (
-					<li key={skill} className="flex items-center justify-between mb-0.5 bg-1-light dark:bg-1-dark rounded-lg p-1">
-						<span className="font-semibold text-lg ml-2">
-							{formatSkill(skill)} ({value})
-						</span>
-						<div className="flex items-center gap-2">
-							<CircleMinus onClick={() => updateSkill(skill, value + 1)} color="red" />
-							<CirclePlus onClick={() => updateSkill(skill, value + 1)} color="green" />
-						</div>
-					</li>
-				))}
-			</ul>
-		</section>
+		<ul className={className}>
+			{Object.entries(skills).map(([skill, value]) => (
+				<li key={skill} className="flex items-center justify-between mb-0.5 bg-1-light dark:bg-1-dark rounded-lg p-1">
+					<span className="font-semibold text-lg ml-2">
+						{formatSkill(skill)} ({value})
+					</span>
+					<div className="flex items-center gap-2">
+						<CircleMinus onClick={() => updateSkill(skill, value + 1)} color="red" />
+						<CirclePlus onClick={() => updateSkill(skill, value + 1)} color="green" />
+					</div>
+				</li>
+			))}
+		</ul>
 	);
 };
 
