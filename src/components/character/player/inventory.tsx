@@ -114,21 +114,21 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
 
     const getEffectColor = (effectType: string) => {
         const colorMap: { [key: string]: string } = {
-            acid: "text-green-500",
-            bludgeoning: "text-gray-700",
+            acid: "text-green-500 ",
+            bludgeoning: "text-gray-700 dark:text-white",
             cold: "text-blue-400",
             fire: "text-orange-500",
             force: "text-black-500",
             lightning: "text-yellow-300",
             necrotic: "text-black-900",
-            piercing: "text-gray-700",
+            piercing: "text-gray-700 dark:text-white",
             poison: "text-lime-500",
             psychic: "text-pink-500",
             radiant: "text-yellow-200",
-            slashing: "text-gray-700",
+            slashing: "text-gray-700 dark:text-white",
             thunder: "text-purple-600",
             healing: "text-green-300",
-            armor_class: "text-gray-500",
+            armor_class: "text-gray-500 dark:text-gray-300",
         };
 
         return colorMap[effectType] || "text-white";
@@ -242,7 +242,7 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
             placement='bottom'
             content={
                 <div
-                    className={`px-1 py-2 bg-white rounded-lg transition-opacity duration-300 w-full h-full select-none ${
+                    className={`transition-all duration-300 backdrop-blur-sm ease-in-out bg-opacity-90 dark:bg-opacity-90 px-1 py-2 bg-2-light dark:bg-slate-700 border border-bg1-dark dark:border-bg1-light rounded-lg w-full h-full select-none ${
                         isDragging ? "hidden pointer-events-none" : "visible"
                     }`}
                 >
@@ -308,7 +308,7 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
         >
             <div
                 ref={drag as unknown as React.Ref<HTMLDivElement>}
-                className={`relative p-1 bg-gray-700 border border-gray-500 rounded cursor-move w-full h-full  ${
+                className={`relative p-1 bg-3-light dark:bg-3-dark border border-gray-500 rounded cursor-move w-full h-full  ${
                     isDragging ? "opacity-50" : "opacity-100"
                 }`}
             >
@@ -390,9 +390,9 @@ const DroppableTile: React.FC<{
             ref={drop as unknown as React.Ref<HTMLDivElement>}
             className={`aspect-square ${
                 tile.isTrash
-                    ? "bg-red-300 bg-opacity-50 hover:border hover:bg-red-700 rounded-xl text-yellow-300 p-4"
-                    : "bg-gray-800"
-            } border border-gray-600 flex items-center justify-center`}
+                    ? "bg-red-400 bg-opacity-80 dark:bg-opacity-80 hover:border rounded-xl text-yellow-300 p-4"
+                    : "bg-2-light dark:bg-2-dark shadow-xs shadow-3-dark dark:shadow-3-light"
+            } border border-gray-600 flex items-center justify-center rounded-lg `}
         >
             {tile.isTrash ? (
                 <Trash className='w-full h-full' />
@@ -647,11 +647,11 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div className=' items-center p-4 bg-gray-900 border border-gray-700 rounded-lg shadow-lg w-full'>
+            <div className=' items-center rounded-lg w-full'>
                 {error && <p className='text-red-500'>{error}</p>}
                 <div className=' grid grid-cols-8 gap-4 w-full h-full'>
-                    <div className='col-span-6'>
-                        <div className='grid grid-cols-8 gap-1 border border-gray-600 p-2 bg-gray-700 rounded flex-grow'>
+                    <div className='col-span-6 h-full'>
+                        <div className='grid grid-cols-8 gap-1 border border-gray-600 p-2 bg-3-light dark:bg-3-dark rounded flex-grow h-full'>
                             {grid
                                 .slice(0, GRID_SIZE * GRID_SIZE)
                                 .map((tile) => (
@@ -665,7 +665,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
                         </div>
                     </div>
                     <div className='col-span-2'>
-                        <div className=' grid grid-cols-2 gap-1 border border-gray-600 p-2 bg-gray-700 rounded flex-grow'>
+                        <div className='rounded grid grid-cols-2 gap-1 border border-gray-600 p-2 bg-3-light dark:bg-3-dark flex-grow'>
                             {grid
                                 .slice(GRID_SIZE * GRID_SIZE, TOTAL_SLOTS)
                                 .map((tile) => (

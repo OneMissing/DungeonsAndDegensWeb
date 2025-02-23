@@ -26,13 +26,29 @@ const config: Config = {
                 main: `calc(100vh - ${nav})`,
             },
             colors: {
-                background: {
-                    light: "#f8fafc",
+                1: {
+                    light: "#ffffff",
                     dark: "#0f172a",
                 },
-                foreground: {
-                    light: "#1e293b",
-                    dark: "#f1f5f9",
+                2: {
+                    light: "#e2e8f0",
+                    dark: "#1e293b",
+                },
+                3: {
+                    light: "#d1d5db",
+                    dark: "#334155",
+                },
+                text1: {
+                    light: "#111827",
+                    dark: "#f8fafc",
+                },
+                text2: {
+                    light: "#1f2937",
+                    dark: "#e2e8f0",
+                },
+                text3: {
+                    light: "#374151",
+                    dark: "#cbd5e1",
                 },
                 primary: {
                     light: "#2563eb",
@@ -47,7 +63,7 @@ const config: Config = {
                     dark: "#34d399",
                 },
                 border: {
-                    light: "#e2e8f0",
+                    light: "#d1d5db",
                     dark: "#334155",
                 },
             },

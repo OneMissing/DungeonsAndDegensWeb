@@ -107,8 +107,8 @@ export const loadCanvas = async (
         setCharacters(
             (Array.isArray(mapData.characters) ? mapData.characters : []).map((char: Character) => ({
                 ...char,
-                class: char.class ? char.class.toLowerCase() : "warrior",
-                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/warrior.webp",
+                class: char.class ? char.class.toLowerCase() : "fighter",
+                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/fighter.webp",
                 isDragging: false,
                 isSelected: false,
             }))

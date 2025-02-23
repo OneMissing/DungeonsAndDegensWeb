@@ -55,7 +55,7 @@ const CharacterList = ({
                     {characters.map((char) => (
                         <li
                             key={char.id}
-                            className='border p-3 rounded-lg shadow-md bg-white cursor-pointer hover:bg-gray-100 transition'
+                            className='border p-3 rounded-lg shadow-md bg-1-light cursor-pointer hover:bg-2-light dark:bg-2-dark dark:hover:bg-3-dark transition'
                             onClick={() =>
                                 router.push(`/home/dm-characters/${char.id}`)
                             }
@@ -91,7 +91,7 @@ const CharacterList = ({
                         characters.map((char) => (
                             <li
                                 key={char.id}
-                                className='border p-3 rounded-lg shadow-md bg-white cursor-pointer hover:bg-gray-100 transition'
+                                className='border p-3 rounded-lg shadow-md bg-1-light cursor-pointer hover:bg-2-light dark:bg-2-dark dark:hover:bg-3-dark transition'
                                 onClick={() =>
                                     router.push(
                                         `/home/player-characters/${char.id}`

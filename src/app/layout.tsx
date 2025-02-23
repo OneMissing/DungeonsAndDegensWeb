@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <Providers>
                     <ThemeProvider>
                         <Navbar />
-                        <main className='absolute h-main top-[calc(4.5rem)] overflow-auto w-svw bg-background-light dark:bg-background-dark'>
+                        <main className='absolute h-main top-[calc(4.5rem)] overflow-auto w-svw bg-3-light dark:bg-3-dark'>
                             {children}
                         </main>
                     </ThemeProvider>

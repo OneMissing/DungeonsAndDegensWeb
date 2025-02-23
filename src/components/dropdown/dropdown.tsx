@@ -24,9 +24,9 @@ const Popup: React.FC<PopupProps> = ({ type, onClose }) => {
 
 	return (
 		<div className={styles.popupOverlay}>
-			<div className={styles.popupContent}>
+			<div className={`${styles.popupContent}`}>
 				{type === "logout" && (
-					<div>
+					<div className=" w-96 p-6">
 						<button
 							className={styles.dropDownConfirmationButton}
 							onClick={() => {
@@ -96,7 +96,7 @@ const SettingsDropdown: React.FC = () => {
 				<DropdownMenu
 					aria-label="User Settings"
 					onAction={(key) => handleItemClick(key as string)}
-					className="absolute right-0 top-1/2 w-48 bg-slate-700 text-white shadow-lg rounded-lg border border-gray-600 transform origin-top-right">
+					className="absolute right-0 top-1/2 w-48 bg-2-light dark:bg-2-dark text-white shadow-lg rounded-lg border border-gray-600 transform origin-top-right">
 					<DropdownItem key="password" className="flex items-center gap-2 px-4 py-2 hover:bg-slate-600 rounded-t">
 						<div className="flex">
 							<KeyRound className="w-5 h-5 text-gray-300" />

@@ -501,8 +501,8 @@ const Map = () => {
         setCharacters(
             mapData.characters.map((char: Character) => ({
                 ...char,
-                class: char.class ? char.class.toLowerCase() : "warrior",
-                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/warrior.webp",
+                class: char.class ? char.class.toLowerCase() : "fighter",
+                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/fighter.webp",
                 isDragging: false,
                 isSelected: false,
             }))
@@ -516,7 +516,7 @@ const Map = () => {
 
 
             {/* Sidebar */}
-            <div className="flex overflow-hidden h-main dark:bg-gray-600   ">
+            <div className="flex overflow-hidden h-main bg-2-light dark:bg-2-dark">
                 <MapSidebar
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}

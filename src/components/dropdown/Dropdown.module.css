@@ -37,7 +37,7 @@
 
 /* Popup content styling */
 .popupContent {
-  @apply bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4 sm:mx-auto dark:bg-gray-800 dark:text-white; /* Responsive margins */
+  @apply bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4 sm:mx-auto dark:bg-gray-800 dark:text-white; 
 }
 
 /* Dropdown menu styling */

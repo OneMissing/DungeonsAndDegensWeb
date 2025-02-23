@@ -105,7 +105,7 @@ const MapSidebar: React.FC<SidebarProps> = ({
     return (
         <Sidebar
             width={`${sidebarWidth}px`}
-            className={`relative bg-background-light dark:bg-background-dark border-r border-border-light dark:border-border-dark transition-[width] ${
+            className={`relative bg-1-light dark:bg-1-dark border-r border-border-light dark:border-border-dark transition-[width] ${
                 isTransitioning ? "ease-out duration-300" : "duration-0"
             }`}
         >
@@ -124,10 +124,10 @@ const MapSidebar: React.FC<SidebarProps> = ({
                             ...char,
                             class: char.class
                                 ? char.class.toLowerCase()
-                                : "warrior",
+                                : "fighter",
                             imagePath: char.class
                                 ? `/characters/${char.class.toLowerCase()}.webp`
-                                : "/characters/warrior.webp",
+                                : "/characters/fighter.webp",
                         }))
                     );
                 }}
@@ -300,7 +300,7 @@ const MapSidebar: React.FC<SidebarProps> = ({
             </div>
 
             {sidebarWidth > 50 && (
-                <div className='absolute left-0 bottom-0 w-full bg-gray-300 dark:bg-gray-700 border-t border-gray-700 overflow-hidden'>
+                <div className='absolute left-0 bottom-0 w-full bg-gray-300 dark:bg-2-dark overflow-hidden'>
                     <div className='p-4'>
                         <h1 className='text-center text-gray-300 text-sm font-semibold mb-2'>
                             Mode
