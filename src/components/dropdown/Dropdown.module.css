@@ -27,7 +27,7 @@
 
 /* Icon styling */
 .icon {
-  @apply stroke-current hover:stroke-yellow-400 dark:hover:stroke-yellow-300 transition duration-300 overflow-hidden w-6 h-6; /* Fixed size for the icon */
+  @apply stroke-current hover:stroke-yellow-400 dark:hover:stroke-yellow-300 transition duration-300 overflow-hidden; /* Fixed size for the icon */
 }
 
 /* Popup overlay styling */

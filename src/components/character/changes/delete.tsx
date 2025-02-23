@@ -79,7 +79,7 @@ const Delete: React.FC<DeleteProps> = ({ charId }) => {
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                closePopup(false);
+                                closePopup(0);
                             }}
                             className='px-4 py-2 bg-gray-300 rounded'
                         >
@@ -88,7 +88,7 @@ const Delete: React.FC<DeleteProps> = ({ charId }) => {
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                closePopup(true);
+                                closePopup(1);
                             }}
                             className='px-4 py-2 bg-red-500 text-white rounded'
                         >

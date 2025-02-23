@@ -34,7 +34,7 @@ const Popup: React.FC<PopupProps> = ({ type, onClose }) => {
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const email = e.target.value;
     setNewEmail(email);
-    setIsEmailValid(emailRegex.test(email)); // Validate email
+    setIsEmailValid(emailRegex.test(email)); 
   };
 
   return (
@@ -130,7 +130,7 @@ const Dropdown: React.FC = () => {
   return (
     <div className="inline-flex relative" ref={dropdownRef}>
       <button onClick={() => setIsOpen(!isOpen)} className={styles.iconButton}>
-        <ArrowDownNarrowWide className={styles.icon} />
+        <ArrowDownNarrowWide className={styles.icon} >Settings</ArrowDownNarrowWide>
       </button>
       {isOpen && (
         <div className={styles.dropdownMenu}>
