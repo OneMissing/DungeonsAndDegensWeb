@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import ThemeToggle from "../themes/themeToggle";
 import { createClient } from "@/lib/supabase/client";
+import Dropdown from "../dropdown/dropdown";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -72,9 +73,12 @@ const Navbar = () => {
                     Logout
                 </button>
             )}
+            {isLogged && (
+                <Dropdown />
+            )}
+            
         </div>
     );
-
     return (
         <nav className='bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute z-[10000]'>
             <div className='justify-between w-screen'>
@@ -102,6 +106,7 @@ const Navbar = () => {
                         {navButtons( "md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900" )}
                     </div>
                 )}
+                
             </div>
         </nav>
     );
