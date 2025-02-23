@@ -247,39 +247,28 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
                     }`}
                 >
                     <div className='text-medium font-bold'>{item.name}</div>
-                    <div className='text-small grid grid-cols-1 p-2'>
+                    <div className='text-small w-full p-2'>
+                        <div className='flex justify-center gap-2'>
+                            <p className='font-semibold'>Quantity: </p>{" "}
+                            {item.quantity}
+                        </div>
                         <div className='flex justify-center gap-2'>
                             <p className='font-semibold'>Type: </p> {item.type}
                         </div>
-                        <div className='flex justify-center gap-2'>
-                            <p className='font-semibold'>Value: </p>{" "}
-                            {item.value}
-                            <Divider orientation='vertical' />
-                            <p className='font-semibold'>Weight: </p>{" "}
-                            {item.weight}
-                        </div>
-                        <div className='h-5 overflow-hidden transition-all duration-100 ease-in-out hover:h-full'>
-                            <div className='group font-semibold flex items-center justify-center overflow-hidden whitespace-nowrap'>
-                                <p className='text-center'>Description:</p>
-                                <div className='flex space-x-1 group-hover:animate-none'>
-                                    {[...Array(5)].map((_, i) => (
-                                        <div
-                                            key={i}
-                                            className='animate-fade-in-out font-bold group-hover:animate-none'
-                                            style={{
-                                                animationDelay: `${i * 0.5}s`,
-                                            }}
-                                        >
-                                            .
-                                        </div>
-                                    ))}
-                                </div>
+                        <div className='grid grid-cols-3 w-full'>
+                            <div className='flex justify-end gap-4'>
+                                <p className='font-semibold'>Value: </p>{" "}
+                                {item.value}
                             </div>
-                            <p className='transition-opacity duration-300 max-w-[30rem]'>
-                                {item.description}
-                            </p>
+                            <Divider
+                                orientation='vertical'
+                                className='w-[0.08rem] rounded bg-gray-400 mx-auto'
+                            />
+                            <div className='flex justify-start gap-4'>
+                                <p className='font-semibold'>Weight: </p>{" "}
+                                {item.weight}
+                            </div>
                         </div>
-
                         {itemEffects.length > 0 && (
                             <div className='mt-1'>
                                 <p className='font-bold'>Effects:</p>
@@ -290,6 +279,29 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
                                 ))}
                             </div>
                         )}
+                    </div>
+                    <div className='group h-5 overflow-hidden transition-all duration-100 ease-in-out hover:h-full -mt-1'>
+                        <div className=' font-semibold flex items-center justify-center overflow-hidden whitespace-nowrap'>
+                            <p className='text-center font-semibold underline'>
+                                Description:
+                            </p>
+                            <div className='flex space-x-1 group-hover:animate-none'>
+                                {[...Array(5)].map((_, i) => (
+                                    <div
+                                        key={i}
+                                        className='animate-fade-in-out font-bold group-hover:animate-none'
+                                        style={{
+                                            animationDelay: `${i * 0.5}s`,
+                                        }}
+                                    >
+                                        .
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <p className='transition-opacity duration-300 w-96'>
+                            {item.description}
+                        </p>
                     </div>
                 </div>
             }
@@ -330,7 +342,7 @@ const DraggableItem: React.FC<{ item: Item }> = ({ item }) => {
                     <Feather className='w-full h-full' />
                 ) : item.type === "tool" ? (
                     <Wrench className='w-full h-full' />
-                ) : item.type === "coin" ? (
+                ) : item.type === "currency" ? (
                     <Coins className='w-full h-full' />
                 ) : item.type === "map" ? (
                     <Map className='w-full h-full' />
@@ -444,12 +456,6 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
             }
         }
 
-        console.log("Saving item position:", {
-            character_id,
-            item_id: itemId,
-            position: updatedPosition,
-        });
-
         try {
             const { data: existingItem, error: fetchError } = await supabase
                 .from("inventory")
@@ -471,11 +477,8 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
                     .eq("item_id", itemId);
 
                 if (updateError) {
-                    console.error("Error updating item position:", updateError);
                     throw new Error("Failed to update item position.");
                 }
-
-                console.log("Item position updated successfully.");
             } else {
                 const { error: insertError } = await supabase
                     .from("inventory")
@@ -486,16 +489,12 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
                     });
 
                 if (insertError) {
-                    console.error("Error inserting item:", insertError);
                     throw new Error("Failed to insert item.");
                 }
-
-                console.log("Item inserted successfully.");
             }
 
             return updatedPosition;
         } catch (err) {
-            console.error("Error in saveItemPosition:", err);
             throw new Error("Failed to save item position.");
         }
     };
@@ -515,7 +514,6 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
 
             if (inventoryError || itemsError) {
                 setError("Error fetching inventory or items data.");
-                console.error("Errors:", inventoryError, itemsError);
                 return;
             }
 
@@ -614,7 +612,6 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
                 });
 
                 setGrid(updatedGrid);
-                console.log("Item deleted successfully.");
             } catch (err) {
                 setError("Failed to delete item from inventory.");
                 console.error(err);
@@ -644,12 +641,13 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
 
     useEffect(() => {
         loadInventory();
+        const intervalId = setInterval(loadInventory, 15000);
+        return () => clearInterval(intervalId);
     }, [character_id]);
 
     return (
         <DndProvider backend={HTML5Backend}>
             <div className=' items-center p-4 bg-gray-900 border border-gray-700 rounded-lg shadow-lg w-full'>
-                {loading && <p>Loading...</p>}
                 {error && <p className='text-red-500'>{error}</p>}
                 <div className=' grid grid-cols-8 gap-4 w-full h-full'>
                     <div className='col-span-6'>
