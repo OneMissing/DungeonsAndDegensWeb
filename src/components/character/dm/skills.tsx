@@ -89,8 +89,8 @@ const SkillsGrid = ({ characterId, className }: SkillsGridProps) => {
 						{formatSkill(skill)} ({value})
 					</span>
 					<div className="flex items-center gap-2">
-						<CircleMinus onClick={() => updateSkill(skill, value + 1)} color="red" />
-						<CirclePlus onClick={() => updateSkill(skill, value + 1)} color="green" />
+						<CircleMinus onClick={() => updateSkill(skill, value - 1)} color="red"   />
+						<CirclePlus  onClick={() => updateSkill(skill, value + 1)} color="green" />
 					</div>
 				</li>
 			))}
