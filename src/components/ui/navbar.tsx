@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import ThemeToggle from "../themes/themeToggle";
 import { createClient } from "@/lib/supabase/client";
-import Dropdown from "../dropdown/dropdown";
+import SettingsDropdown from "../dropdown/dropdown";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -74,7 +74,7 @@ const Navbar = () => {
                 </button>
             )}
             {isLogged && (
-                <Dropdown />
+                <SettingsDropdown />
             )}
             
         </div>
