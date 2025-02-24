@@ -89,11 +89,11 @@ const ItemTypes = {
 };
 
 const ContextMenu: React.FC<ContextMenuProps> = ({ item, position, onClose, onAction }) => {
-    const menuRef = useRef(null);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleClickOutside = (event: { target: any }) => {
-            if (menuRef.current && !menuRef.current) {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 onClose();
             }
         };
