@@ -30,40 +30,12 @@ import {
 import { ItemEffect } from "@/lib/tools/types";
 
 const supabase = createClient();
-const fetchItemEffects = async (itemId: string): Promise<ItemEffect[]> => {
-    const { data, error } = await supabase.from("item_effects").select("*").eq("item_id", itemId);
-
-    if (error) {
-        console.error("Error fetching item effects:", error);
-        return [];
-    }
-
-    return data as ItemEffect[];
-};
 
 type ContextMenuProps = {
     item: Item;
     position: { x: number; y: number };
     onClose: () => void;
     onAction: (action: string) => void;
-};
-
-type Item = {
-    id: string;
-    name: string;
-    quantity: number;
-    description?: string;
-    type?: string;
-    weight?: number;
-    value?: number;
-};
-
-type Tile = {
-    id: string;
-    item: Item | null;
-    isTrash?: boolean;
-    isSideSlot?: boolean;
-    slotType?: string;
 };
 
 const GRID_SIZE = 8;
@@ -108,17 +80,18 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ item, position, onClose, onAc
         onAction(action);
         onClose();
     };
+
     const [dropSliderValue, setDropSliderValue] = useState<number>(1);
-    const [addSliderValue, setAddSliderValue] = useState<number>(1);
+
     return (
         <div
             ref={menuRef}
             className="absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-[40000] w-40 p-2"
             style={{
-                top: position.y,
-                left: position.x,
+                top: position.y - 50,
+                left: position.x - 50,
             }}>
-            <div className="grid grid-rows-9">
+            <div className="grid grid-rows-6">
                 <button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1" onClick={() => handleAction("use 1")}>
                     Use
                 </button>
@@ -126,11 +99,6 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ item, position, onClose, onAc
                 <Slider min={1} max={item.quantity} value={dropSliderValue} onChange={setDropSliderValue} />
                 <button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 mt-1" onClick={() => handleAction(`drop ${dropSliderValue}`)}>
                     Drop {dropSliderValue}
-                </button>
-                <Divider className="my-2" />
-                <Slider min={1} max={99} value={addSliderValue} onChange={setAddSliderValue} />
-                <button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 mt-1" onClick={() => handleAction(`add ${addSliderValue}`)}>
-                    Add {addSliderValue}
                 </button>
                 <Divider className="my-2" />
                 <button className="text-center text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mt-1" onClick={() => handleAction(`close`)}>
@@ -141,12 +109,13 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ item, position, onClose, onAc
     );
 };
 
-const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved: (itemId: string) => void; onQuantityChanged: (itemId: string, newQuantity: number) => void }> = ({
-    item,
-    character_id,
-    onItemRemoved,
-    onQuantityChanged,
-}) => {
+const DraggableItem: React.FC<{ 
+    item: Item; 
+    character_id: string; 
+    itemEffects: ItemEffect[];
+    onItemRemoved: (itemId: string) => void; 
+    onQuantityChanged: (itemId: string, newQuantity: number) => void 
+}> = ({ item, character_id, itemEffects, onItemRemoved, onQuantityChanged }) => {
     const [{ isDragging }, drag] = useDrag({
         type: ItemTypes.ITEM,
         item: item,
@@ -155,20 +124,10 @@ const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved:
         }),
     });
 
-    const [itemEffects, setItemEffects] = useState<ItemEffect[]>([]);
     const [contextMenu, setContextMenu] = useState<{ show: boolean; position: { x: number; y: number } }>({
         show: false,
         position: { x: 0, y: 0 },
     });
-
-    useEffect(() => {
-        const fetchEffects = async () => {
-            const effects = await fetchItemEffects(item.id);
-            setItemEffects(effects);
-        };
-
-        fetchEffects();
-    }, [item.id]);
 
     const getEffectColor = (effectType: string) => {
         const colorMap: { [key: string]: string } = {
@@ -307,17 +266,13 @@ const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved:
         if (result[0] === "use" || result[0] === "drop") {
             const newQuantity = item.quantity - amount;
             if (newQuantity === 0) {
-                await supabase.from("inventory").delete().eq("character_id", character_id).eq("item_id", item.id);
+                await supabase.from("inventory").delete().eq("character_id", character_id).eq("id", item.id);
                 onItemRemoved(item.id);
             } else {
-                await supabase.from("inventory").update({ quantity: newQuantity }).eq("character_id", character_id).eq("item_id", item.id);
+                await supabase.from("inventory").update({ quantity: newQuantity }).eq("character_id", character_id).eq("id", item.id);
                 onQuantityChanged(item.id, newQuantity);
             }
-        } else if (result[0] === "add") {
-            const newQuantity = item.quantity + amount;
-            await supabase.from("inventory").update({ quantity: newQuantity }).eq("character_id", character_id).eq("item_id", item.id);
-            onQuantityChanged(item.id, newQuantity);
-        }
+        } 
     };
 
     return (
@@ -358,30 +313,18 @@ const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved:
                                 </div>
                             )}
                         </div>
-                        <div className=" h-5 overflow-hidden transition-all duration-100 ease-in-out hover:h-full">
-                            <div className=" font-semibold flex items-center justify-evenly overflow-hidden whitespace-nowrap">
-                            <div className="flex space-x-1 group-hover:animate-none">
-                                    {[...Array(3)].map((_, i) => (
-                                        <div
-                                            key={i}
-                                            className="animate-fade-in-out font-bold group-hover:animate-none"
-                                            style={{
-                                                animationDelay: `${i * 0.5}s`,
-                                            }}>
-                                            ∇
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="ml-3 text-center font-semibold underline">  Description:</p>
+                        <div className="group h-5 overflow-hidden transition-all duration-100 ease-in-out hover:h-full -mt-1">
+                            <div className=" font-semibold flex items-center justify-center overflow-hidden whitespace-nowrap">
+                                <p className="text-center font-semibold underline">Description:</p>
                                 <div className="flex space-x-1 group-hover:animate-none">
-                                    {[...Array(3)].map((_, i) => (
+                                    {[...Array(5)].map((_, i) => (
                                         <div
                                             key={i}
                                             className="animate-fade-in-out font-bold group-hover:animate-none"
                                             style={{
                                                 animationDelay: `${i * 0.5}s`,
                                             }}>
-                                            ∇
+                                            .
                                         </div>
                                     ))}
                                 </div>
@@ -442,7 +385,7 @@ const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved:
                 <ContextMenu
                     item={item}
                     position={contextMenu.position}
-                    onClose={() => setContextMenu({ show: false, position: { x: 0, y: 0 } })}
+                    onClose={() => setContextMenu({ show: false, position: { x: 0, y: 0 }})}
                     onAction={handleContextMenuAction}
                 />
             )}
@@ -480,7 +423,7 @@ const DroppableTile: React.FC<{ tile: Tile; moveItem: (fromTileId: string, toTil
                     ? "bg-red-400 bg-opacity-80 dark:bg-opacity-80 hover:border rounded-xl text-yellow-300 p-4"
                     : "bg-2-light dark:bg-2-dark shadow-xs shadow-3-dark dark:shadow-3-light"
             } border border-gray-600 flex items-center justify-center rounded-lg `}>
-            {tile.isTrash ? <Trash className="w-full h-full" /> : tile.item && <DraggableItem character_id={character_id} item={tile.item} onItemRemoved={onItemRemoved} onQuantityChanged={onQuantityChanged} />}
+            {tile.isTrash ? <Trash className="w-full h-full" /> : tile.item && <DraggableItem character_id={character_id} item={tile.item} onItemRemoved={onItemRemoved} onQuantityChanged={onQuantityChanged} itemEffects={[]}  />}
         </div>
     );
 };
@@ -499,8 +442,11 @@ const isValidItemTypeForSlot = (slotType: string | undefined, itemType: string |
     return validItemTypes[slotType]?.includes(itemType) || false;
 };
 
-const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
-    const [grid, setGrid] = useState<Tile[]>(initialGrid);
+const Inventory: React.FC<{ character_id: string, grid: Tile[], setGrid: (grid: Tile[]) => void, itemEffectsMap: Record<string, ItemEffect[]>, character: any, setCharacter: (character: any) => void }> = ({
+    character_id, grid, setGrid, itemEffectsMap, character, setCharacter
+}) => {
+    
+    const getItemEffects = (itemId: string) => itemEffectsMap[itemId] || [];
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -524,7 +470,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
         }
 
         try {
-            const { data: existingItem, error: fetchError } = await supabase.from("inventory").select("*").eq("character_id", character_id).eq("item_id", itemId).single();
+            const { data: existingItem, error: fetchError } = await supabase.from("inventory").select("*").eq("character_id", character_id).eq("id", itemId).single();
 
             if (fetchError && fetchError.code !== "PGRST116") {
                 console.error("Error fetching inventory item:", fetchError);
@@ -532,7 +478,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
             }
 
             if (existingItem) {
-                const { error: updateError } = await supabase.from("inventory").update({ position: updatedPosition }).eq("character_id", character_id).eq("item_id", itemId);
+                const { error: updateError } = await supabase.from("inventory").update({ position: updatedPosition }).eq("character_id", character_id).eq("id", itemId);
 
                 if (updateError) {
                     throw new Error("Failed to update item position.");
@@ -540,7 +486,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
             } else {
                 const { error: insertError } = await supabase.from("inventory").insert({
                     character_id,
-                    item_id: itemId,
+                    id: itemId,
                     position: updatedPosition,
                 });
 
@@ -577,7 +523,8 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
                         updatedGrid[inventoryEntry.position] = {
                             ...updatedGrid[inventoryEntry.position],
                             item: {
-                                id: itemDetails.id,
+                                id: inventoryEntry.id,
+                                item_id: itemDetails.id,
                                 name: itemDetails.name,
                                 quantity: inventoryEntry.quantity,
                                 description: itemDetails.description,
@@ -600,7 +547,8 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
                                 updatedGrid[i] = {
                                     ...updatedGrid[i],
                                     item: {
-                                        id: itemDetails.id,
+                                        id: inventoryEntry.id,
+                                        item_id: itemDetails.id,
                                         name: itemDetails.name,
                                         quantity: inventoryEntry.quantity,
                                         description: itemDetails.description,
@@ -652,7 +600,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
 
         if (toTile?.isTrash) {
             try {
-                const { error: deleteError } = await supabase.from("inventory").delete().eq("character_id", character_id).eq("item_id", item.id);
+                const { error: deleteError } = await supabase.from("inventory").delete().eq("character_id", character_id).eq("id", item.id);
 
                 if (deleteError) {
                     throw new Error("Failed to delete item from the database.");
@@ -701,18 +649,18 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div className=" items-center rounded-lg w-full">
+            <div className="rounded-lg w-full h-auto">
                 {error && <p className="text-red-500">{error}</p>}
-                <div className=" grid grid-cols-8 gap-4 w-full h-full">
+                <div className=" grid grid-cols-8 gap-4 sm:gap-0 w-full h-full">
                     <div className="col-span-6 h-full">
-                        <div className="grid grid-cols-8 gap-1 border border-gray-600 p-2 bg-3-light dark:bg-3-dark rounded flex-grow h-full">
+                        <div className="grid grid-cols-8 gap-1 md:gap-2 border border-gray-600 p-0 md:p-2 bg-3-light dark:bg-3-dark rounded flex-grow h-full">
                             {grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
                                 <DroppableTile key={tile.id} tile={tile} moveItem={moveItem} grid={grid} character_id={character_id} onItemRemoved={handleItemRemoved} onQuantityChanged={handleQuantityChanged} />
                             ))}
                         </div>
                     </div>
-                    <div className="col-span-2">
-                        <div className="rounded grid grid-cols-2 gap-1 border border-gray-600 p-2 bg-3-light dark:bg-3-dark flex-grow">
+                    <div className="col-span-2 h-full bg-3-light dark:bg-3-dark border border-gray-600 ml-0 sm:ml-3 rounded">
+                        <div className="grid grid-cols-2 gap-1 md:gap-2 p-0 md:p-2  rounded flex-grow ">
                             {grid.slice(GRID_SIZE * GRID_SIZE, TOTAL_SLOTS).map((tile) => (
                                 <DroppableTile key={tile.id} tile={tile} moveItem={moveItem} grid={grid} character_id={character_id} onItemRemoved={handleItemRemoved} onQuantityChanged={handleQuantityChanged} />
                             ))}

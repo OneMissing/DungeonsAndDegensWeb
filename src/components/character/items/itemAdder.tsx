@@ -37,31 +37,43 @@ const BookInventory: React.FC<BookInventoryProps> = ({ character_id }) => {
 
   const addToInventory = async (itemId: number, itemType: string) => {
     try {
-      // Check if the item already exists in the inventory
-      const { data: existingItem, error: fetchError } = await supabase
-        .from('inventory')
-        .select('*')
-        .eq('character_id', character_id)
-        .eq('item_id', itemId)
-        .single();
+      // List of item types that should always create a new instance
+      const uniqueInstanceTypes = ["helmet", "chestplate", "armor", "gauntlets", "boots", "weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield"];
 
-      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
-
-      if (existingItem) {
-        // If item exists, increment the quantity
-        const { error: updateError } = await supabase
-          .from('inventory')
-          .update({ quantity: existingItem.quantity + 1 })
-          .eq('id', existingItem.id);
-
-        if (updateError) throw updateError;
-      } else {
-        // If item does not exist, insert a new record
+      if (uniqueInstanceTypes.includes(itemType)) {
+        // If the item type is in the list, always insert a new record
         const { error: insertError } = await supabase
           .from('inventory')
           .insert([{ character_id, item_id: itemId, quantity: 1 }]);
 
         if (insertError) throw insertError;
+      } else {
+        // For other item types, check if the item already exists in the inventory
+        const { data: existingItem, error: fetchError } = await supabase
+          .from('inventory')
+          .select('*')
+          .eq('character_id', character_id)
+          .eq('item_id', itemId)
+          .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+        if (existingItem) {
+          // If item exists, increment the quantity
+          const { error: updateError } = await supabase
+            .from('inventory')
+            .update({ quantity: existingItem.quantity + 1 })
+            .eq('id', existingItem.id);
+
+          if (updateError) throw updateError;
+        } else {
+          // If item does not exist, insert a new record
+          const { error: insertError } = await supabase
+            .from('inventory')
+            .insert([{ character_id, item_id: itemId, quantity: 1 }]);
+
+          if (insertError) throw insertError;
+        }
       }
     } catch (error) {
       console.error('Error adding to inventory:', error);

@@ -6,13 +6,50 @@ import SkillsTable from "@/components/character/dm/skills";
 import CharacterInfo from "@/components/character/dm/characterInfo";
 import { Divider } from "@heroui/react";
 import Inventory from "@/components/character/items/inventory";
-import { BookOpen } from "lucide-react";
-import BookInventory from "@/components/character/items/itemAdder";
+import { createClient } from "@/lib/supabase/client";
+import { ItemEffect } from "@/lib/tools/types";
+import GridItemEffects from "@/components/character/items/bullshit";
+const supabase = createClient();
+
+const GRID_SIZE = 8;
+const ADDITIONAL_SLOTS = 6;
+const TOTAL_SLOTS = GRID_SIZE * GRID_SIZE + ADDITIONAL_SLOTS;
+
+const getSlotType = (index: number): string => {
+	const slotTypes = ["helmet", "chestplate", "gauntlets", "boots", "weapon", "weapon"];
+	return slotTypes[index] || "weapon";
+};
+
+const initialGrid: Tile[] = Array.from({ length: TOTAL_SLOTS }, (_, index) => ({
+	id: `tile-${index}`,
+	item: null,
+	isSideSlot: index >= GRID_SIZE * GRID_SIZE,
+	slotType: index >= GRID_SIZE * GRID_SIZE ? getSlotType(index - GRID_SIZE * GRID_SIZE) : undefined,
+}));
+
+initialGrid.push({
+	id: "trash-tile", item: null, isTrash: true,
+});
+
+const fetchItemEffects = async (): Promise<Record<string, ItemEffect[]>> => {
+    const { data, error } = await supabase.from("item_effects").select("*");
+    if (error) {
+        console.error("Error fetching item effects:", error);
+        return {};
+    }
+    return data.reduce((acc, effect) => {
+        if (!acc[effect.item_id]) acc[effect.item_id] = [];
+        acc[effect.item_id].push(effect);
+        return acc;
+    }, {} as Record<string, ItemEffect[]>);
+};
 
 const CharacterDetails = () => {
+	const [grid, setGrid] = useState<Tile[]>(initialGrid);
+	const [itemEffectsMap, setItemEffectsMap] = useState<Record<string, ItemEffect[]>>({});
 	const { id } = useParams();
 	const [loading, setLoading] = useState(true);
-	const className = "bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md h-full xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none";
+	const className = "bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none";
 	const [table, setTable] = useState<[boolean, boolean]>([true, true]);
 	useEffect(() => {
 		const fetchData = async () => {
@@ -22,12 +59,33 @@ const CharacterDetails = () => {
 		fetchData();
 	}, [id]);
 
+    useEffect(() => {
+        const storedEffects = localStorage.getItem("itemEffects");
+        if (storedEffects) {
+            setItemEffectsMap(JSON.parse(storedEffects));
+        } else {
+            fetchItemEffects().then((effects) => {
+                setItemEffectsMap(effects);
+                localStorage.setItem("itemEffects", JSON.stringify(effects));
+            });
+        }
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!id) return;
+            setLoading(false);
+        };
+        fetchData();
+    }, [id]);
+
+
 	if (loading) return <p className="text-center text-gray-500">Loading character...</p>;
 
-	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full pl-4 pr-4 select-none h-full">
-			<section className={className}>
-				<div className="grid grid-cols-11">
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full pl-4 pr-4 select-none h-full">
+            <section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md h-full xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
+			<div className="grid grid-cols-11">
 					<button onClick={() => setTable([true, table[1]])} className={`text-center text-2xl col-span-5`}>
 						Charcter
 					</button>
@@ -47,16 +105,18 @@ const CharacterDetails = () => {
 						/>
 					)}
 				</div>
-			</section>
-			<section className={className}>
-				<h3 className="text-2xl font-semibold">Spells</h3>
-				<p>No spells learned</p>
-			</section>
-			<section className={`${className} md:col-span-2`}>
-				<Inventory character_id={id as string} />
-			</section>
-		</div>
-	);
+            </section>
+            <section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md h-full">
+                <h3 className="text-2xl font-semibold">Spells</h3>
+                <GridItemEffects grid={grid} itemEffectsMap={itemEffectsMap} />
+            </section>
+            <section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md h-full md:col-span-2">
+                <Inventory character_id={id as string} grid={grid} setGrid={setGrid} itemEffectsMap={itemEffectsMap} character={undefined} setCharacter={function (character: any): void {
+					throw new Error("Function not implemented.");
+				} } />
+            </section>
+        </div>
+    );
 };
 
 export default CharacterDetails;

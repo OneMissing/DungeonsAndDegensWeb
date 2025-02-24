@@ -30,40 +30,12 @@ import {
 import { ItemEffect } from "@/lib/tools/types";
 
 const supabase = createClient();
-const fetchItemEffects = async (itemId: string): Promise<ItemEffect[]> => {
-    const { data, error } = await supabase.from("item_effects").select("*").eq("item_id", itemId);
-
-    if (error) {
-        console.error("Error fetching item effects:", error);
-        return [];
-    }
-
-    return data as ItemEffect[];
-};
 
 type ContextMenuProps = {
     item: Item;
     position: { x: number; y: number };
     onClose: () => void;
     onAction: (action: string) => void;
-};
-
-type Item = {
-    id: string;
-    name: string;
-    quantity: number;
-    description?: string;
-    type?: string;
-    weight?: number;
-    value?: number;
-};
-
-type Tile = {
-    id: string;
-    item: Item | null;
-    isTrash?: boolean;
-    isSideSlot?: boolean;
-    slotType?: string;
 };
 
 const GRID_SIZE = 8;
@@ -137,12 +109,13 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ item, position, onClose, onAc
     );
 };
 
-const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved: (itemId: string) => void; onQuantityChanged: (itemId: string, newQuantity: number) => void }> = ({
-    item,
-    character_id,
-    onItemRemoved,
-    onQuantityChanged,
-}) => {
+const DraggableItem: React.FC<{ 
+    item: Item; 
+    character_id: string; 
+    itemEffects: ItemEffect[];
+    onItemRemoved: (itemId: string) => void; 
+    onQuantityChanged: (itemId: string, newQuantity: number) => void 
+}> = ({ item, character_id, itemEffects, onItemRemoved, onQuantityChanged }) => {
     const [{ isDragging }, drag] = useDrag({
         type: ItemTypes.ITEM,
         item: item,
@@ -151,20 +124,10 @@ const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved:
         }),
     });
 
-    const [itemEffects, setItemEffects] = useState<ItemEffect[]>([]);
     const [contextMenu, setContextMenu] = useState<{ show: boolean; position: { x: number; y: number } }>({
         show: false,
         position: { x: 0, y: 0 },
     });
-
-    useEffect(() => {
-        const fetchEffects = async () => {
-            const effects = await fetchItemEffects(item.id);
-            setItemEffects(effects);
-        };
-
-        fetchEffects();
-    }, [item.id]);
 
     const getEffectColor = (effectType: string) => {
         const colorMap: { [key: string]: string } = {
@@ -303,10 +266,10 @@ const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved:
         if (result[0] === "use" || result[0] === "drop") {
             const newQuantity = item.quantity - amount;
             if (newQuantity === 0) {
-                await supabase.from("inventory").delete().eq("character_id", character_id).eq("item_id", item.id);
+                await supabase.from("inventory").delete().eq("character_id", character_id).eq("id", item.id);
                 onItemRemoved(item.id);
             } else {
-                await supabase.from("inventory").update({ quantity: newQuantity }).eq("character_id", character_id).eq("item_id", item.id);
+                await supabase.from("inventory").update({ quantity: newQuantity }).eq("character_id", character_id).eq("id", item.id);
                 onQuantityChanged(item.id, newQuantity);
             }
         } 
@@ -422,7 +385,7 @@ const DraggableItem: React.FC<{ item: Item; character_id: string; onItemRemoved:
                 <ContextMenu
                     item={item}
                     position={contextMenu.position}
-                    onClose={() => setContextMenu({ show: false, position: { x: 0, y: 0 } })}
+                    onClose={() => setContextMenu({ show: false, position: { x: 0, y: 0 }})}
                     onAction={handleContextMenuAction}
                 />
             )}
@@ -460,7 +423,7 @@ const DroppableTile: React.FC<{ tile: Tile; moveItem: (fromTileId: string, toTil
                     ? "bg-red-400 bg-opacity-80 dark:bg-opacity-80 hover:border rounded-xl text-yellow-300 p-4"
                     : "bg-2-light dark:bg-2-dark shadow-xs shadow-3-dark dark:shadow-3-light"
             } border border-gray-600 flex items-center justify-center rounded-lg `}>
-            {tile.isTrash ? <Trash className="w-full h-full" /> : tile.item && <DraggableItem character_id={character_id} item={tile.item} onItemRemoved={onItemRemoved} onQuantityChanged={onQuantityChanged} />}
+            {tile.isTrash ? <Trash className="w-full h-full" /> : tile.item && <DraggableItem character_id={character_id} item={tile.item} onItemRemoved={onItemRemoved} onQuantityChanged={onQuantityChanged} itemEffects={[]}  />}
         </div>
     );
 };
@@ -479,8 +442,11 @@ const isValidItemTypeForSlot = (slotType: string | undefined, itemType: string |
     return validItemTypes[slotType]?.includes(itemType) || false;
 };
 
-const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
-    const [grid, setGrid] = useState<Tile[]>(initialGrid);
+const Inventory: React.FC<{ character_id: string, grid: Tile[], setGrid: (grid: Tile[]) => void, itemEffectsMap: Record<string, ItemEffect[]>, character: any, setCharacter: (character: any) => void }> = ({
+    character_id, grid, setGrid, itemEffectsMap, character, setCharacter
+}) => {
+    
+    const getItemEffects = (itemId: string) => itemEffectsMap[itemId] || [];
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -504,7 +470,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
         }
 
         try {
-            const { data: existingItem, error: fetchError } = await supabase.from("inventory").select("*").eq("character_id", character_id).eq("item_id", itemId).single();
+            const { data: existingItem, error: fetchError } = await supabase.from("inventory").select("*").eq("character_id", character_id).eq("id", itemId).single();
 
             if (fetchError && fetchError.code !== "PGRST116") {
                 console.error("Error fetching inventory item:", fetchError);
@@ -512,7 +478,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
             }
 
             if (existingItem) {
-                const { error: updateError } = await supabase.from("inventory").update({ position: updatedPosition }).eq("character_id", character_id).eq("item_id", itemId);
+                const { error: updateError } = await supabase.from("inventory").update({ position: updatedPosition }).eq("character_id", character_id).eq("id", itemId);
 
                 if (updateError) {
                     throw new Error("Failed to update item position.");
@@ -520,7 +486,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
             } else {
                 const { error: insertError } = await supabase.from("inventory").insert({
                     character_id,
-                    item_id: itemId,
+                    id: itemId,
                     position: updatedPosition,
                 });
 
@@ -557,7 +523,8 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
                         updatedGrid[inventoryEntry.position] = {
                             ...updatedGrid[inventoryEntry.position],
                             item: {
-                                id: itemDetails.id,
+                                id: inventoryEntry.id,
+                                item_id: itemDetails.id,
                                 name: itemDetails.name,
                                 quantity: inventoryEntry.quantity,
                                 description: itemDetails.description,
@@ -580,7 +547,8 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
                                 updatedGrid[i] = {
                                     ...updatedGrid[i],
                                     item: {
-                                        id: itemDetails.id,
+                                        id: inventoryEntry.id,
+                                        item_id: itemDetails.id,
                                         name: itemDetails.name,
                                         quantity: inventoryEntry.quantity,
                                         description: itemDetails.description,
@@ -632,7 +600,7 @@ const Inventory: React.FC<{ character_id: string }> = ({ character_id }) => {
 
         if (toTile?.isTrash) {
             try {
-                const { error: deleteError } = await supabase.from("inventory").delete().eq("character_id", character_id).eq("item_id", item.id);
+                const { error: deleteError } = await supabase.from("inventory").delete().eq("character_id", character_id).eq("id", item.id);
 
                 if (deleteError) {
                     throw new Error("Failed to delete item from the database.");
