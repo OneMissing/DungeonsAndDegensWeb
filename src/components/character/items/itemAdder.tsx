@@ -7,7 +7,7 @@ interface Item {
   id: number;
   name: string;
   description: string;
-  type: string; // Add type to the item interface
+  type: string;
 }
 
 interface BookInventoryProps {
@@ -17,8 +17,7 @@ interface BookInventoryProps {
 const BookInventory: React.FC<BookInventoryProps> = ({ character_id }) => {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<string>('all'); // Default to 'all' tab
-
+  const [activeTab, setActiveTab] = useState<string>('all');
   useEffect(() => {
     fetchItems();
   }, []);
@@ -37,18 +36,13 @@ const BookInventory: React.FC<BookInventoryProps> = ({ character_id }) => {
 
   const addToInventory = async (itemId: number, itemType: string) => {
     try {
-      // List of item types that should always create a new instance
       const uniqueInstanceTypes = ["helmet", "chestplate", "armor", "gauntlets", "boots", "weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield"];
-
       if (uniqueInstanceTypes.includes(itemType)) {
-        // If the item type is in the list, always insert a new record
         const { error: insertError } = await supabase
           .from('inventory')
           .insert([{ character_id, item_id: itemId, quantity: 1 }]);
-
         if (insertError) throw insertError;
       } else {
-        // For other item types, check if the item already exists in the inventory
         const { data: existingItem, error: fetchError } = await supabase
           .from('inventory')
           .select('*')
@@ -59,7 +53,6 @@ const BookInventory: React.FC<BookInventoryProps> = ({ character_id }) => {
         if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
         if (existingItem) {
-          // If item exists, increment the quantity
           const { error: updateError } = await supabase
             .from('inventory')
             .update({ quantity: existingItem.quantity + 1 })
@@ -67,7 +60,6 @@ const BookInventory: React.FC<BookInventoryProps> = ({ character_id }) => {
 
           if (updateError) throw updateError;
         } else {
-          // If item does not exist, insert a new record
           const { error: insertError } = await supabase
             .from('inventory')
             .insert([{ character_id, item_id: itemId, quantity: 1 }]);

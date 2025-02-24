@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import SkillsTable from "@/components/character/dm/skills";
 import CharacterInfo from "@/components/character/dm/characterInfo";
 import { Divider } from "@heroui/react";
-import Inventory from "@/components/character/items/inventory";
+import Inventory from "@/components/character/items/inventoryManager";
 import { createClient } from "@/lib/supabase/client";
 import { ItemEffect } from "@/lib/tools/types";
 import GridItemEffects from "@/components/character/items/bullshit";

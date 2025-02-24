@@ -4,7 +4,7 @@ type Item = {
 	name: string;
 	quantity: number;
 	description?: string;
-	type?: string;
+	type: string;
 	weight?: number;
 	value?: number;
 };
