@@ -45,51 +45,41 @@ export interface Character {
 	survival: number;
 }
 
-export interface Inventory {
-    id: string;
-    character_id: string;
-    item_id: string;
-    quantity: number;
-}
-
 export interface Item {
-    id: string;
-    name: string;
-    description: string;
-    type: string;
-    weight: number;
-    value: number;
+	description: string;
+	item_id: string;
+	name: string;
+	type: string;
+	weight: number;
+	value: number;
+	damage_acid?: string;
+	damage_fire?: string;
+	damage_ice?: string;
+	damage_piercing?: string;
+	heal?: string;
+	armor_class?: string;
 }
 
-export interface ItemEffect {
-    item_id: string;
-    acid_dice_count?: number;
-    acid_dice_sides?: number;
-    bludgeoning_dice_count?: number;
-    bludgeoning_dice_sides?: number;
-    cold_dice_count?: number;
-    cold_dice_sides?: number;
-    fire_dice_count?: number;
-    fire_dice_sides?: number;
-    force_dice_count?: number;
-    force_dice_sides?: number;
-    lightning_dice_count?: number;
-    lightning_dice_sides?: number;
-    necrotic_dice_count?: number;
-    necrotic_dice_sides?: number;
-    piercing_dice_count?: number;
-    piercing_dice_sides?: number;
-    poison_dice_count?: number;
-    poison_dice_sides?: number;
-    psychic_dice_count?: number;
-    psychic_dice_sides?: number;
-    radiant_dice_count?: number;
-    radiant_dice_sides?: number;
-    slashing_dice_count?: number;
-    slashing_dice_sides?: number;
-    thunder_dice_count?: number;
-    thunder_dice_sides?: number;
-    healing_dice_count?: number;
-    healing_dice_sides?: number;
-    armor_class?: number;
+export interface InventoryItem {
+	inventory_id: string;
+	character_id: string;
+	item_id: string;
+	quantity: number;
+	position: number;
+	item: Item;
 }
+
+export interface Tile {
+	id: string;
+	position: number;
+	item?: InventoryItem | null;
+	isSideSlot?: boolean;
+	isTrash?: boolean;
+	slotType?: string;
+}
+
+export function itemFilter(items: Item[], itemId: string): Item | undefined {
+    return items.find(item => item.item_id === itemId);
+}
+
+export const uniqueInstanceTypes = ["helmet", "chestplate", "armor", "gauntlets", "boots", "weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield"];
