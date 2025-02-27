@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Character, Structure } from "@/lib/map/types";
+import { Character, Structure } from "@/lib/tools/map";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -70,17 +70,17 @@ export const PopupLoad = ({
     };
 
     return (
-        <div className='z-[80]'>
+        <div className='z-[80] bg-2-light dar:bg-2-dark'>
             {isOpen && (
                 <div className='fixed inset-0 bg-black bg-opacity-50 z-[100] flex justify-center items-center'>
-                    <div className='bg-white p-6 rounded-lg shadow-lg w-96'>
+                    <div className='bg-2-light dark:bg-2-dark p-6 rounded-lg shadow-lg w-96'>
                         <h2 className='text-lg font-bold mb-4'>Select a Map</h2>
                         <ul className='space-y-2'>
                             {maps.length != 0 ? (
                                 maps.map((map) => (
                                     <li
                                         key={map.id}
-                                        className='flex items-center justify-between bg-gray-200 px-4 py-2 rounded'
+                                        className='flex items-center justify-between bg-1-light hover:bg-3-light dark:bg-1-dark dark:hover:bg-3-dark px-4 py-2 rounded'
                                     >
                                         <button
                                             className='flex-1 text-left'
@@ -205,7 +205,7 @@ export const PopupSave = ({
 
     return (
         <div className='fixed inset-0 bg-black bg-opacity-50 z-[100] flex justify-center items-center'>
-            <div className='bg-white p-6 rounded-lg shadow-lg w-96'>
+                    <div className='bg-2-light dark:bg-2-dark p-6 rounded-lg shadow-lg w-96'>
                 <h2 className='text-lg font-bold mb-4'>Save Map</h2>
                 <input
                     type='text'
@@ -218,11 +218,10 @@ export const PopupSave = ({
                 {error && <p className='text-red-500 text-sm mb-2'>{error}</p>}
                 <div className='flex justify-between'>
                     <button
-                        className='px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded'
+                        className='px-4 py-2 bg-red-500 hover:bg-gray-400 rounded'
                         onClick={onClose}
                         disabled={saving}
                     >
-                        {" "}
                         Cancel
                     </button>
                     <button

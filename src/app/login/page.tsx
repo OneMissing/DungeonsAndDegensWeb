@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { login, signup } from "@/lib/action";
+import { login, signup } from "@/lib/supabase/actions";
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);

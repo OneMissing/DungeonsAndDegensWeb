@@ -1,106 +1,48 @@
-export enum Races {
-    Dragonborn = "Dragonborn",
-    Dwarf = "Dwarf",
-    Elf = "Elf",
-    Gnome = "Gnome",
-    HalfElf = "Half-Elf",
-    Halfling = "Halfling",
-    HalfOrc = "Half-Orc",
-    Human = "Human",
-    Tiefling = "Tiefling",
-    Aarakocra = "Aarakocra",
-    Genasi = "Genasi",
-    Goliath = "Goliath",
-    Tabaxi = "Tabaxi",
-    Firbolg = "Firbolg",
-    Kenku = "Kenku",
-    Lizardfolk = "Lizardfolk",
-    Tortle = "Tortle",
-    YuanTi = "Yuan-Ti Pureblood",
-    Goblin = "Goblin",
-    Hobgoblin = "Hobgoblin",
-    Bugbear = "Bugbear",
-    Kobold = "Kobold",
-    Changeling = "Changeling",
-    Warforged = "Warforged",
-    Shifter = "Shifter",
-    Gith = "Gith",
-    Satyr = "Satyr",
-    Minotaur = "Minotaur",
-    Centaur = "Centaur",
-    Loxodon = "Loxodon",
-    Vedalken = "Vedalken",
-    SimicHybrid = "Simic Hybrid",
-    Harengon = "Harengon",
-    Owlin = "Owlin"
-}
-
-export enum Classes {
-    Barbarian = "Barbarian",
-    Bard = "Bard",
-    Cleric = "Cleric",
-    Druid = "Druid",
-    Fighter = "Fighter",
-    Monk = "Monk",
-    Paladin = "Paladin",
-    Ranger = "Ranger",
-    Rogue = "Rogue",
-    Sorcerer = "Sorcerer",
-    Warlock = "Warlock",
-    Wizard = "Wizard",
-}
-
 export interface Character {
-    id: string;
-    user_id: string;
-    name: string;
-    race: string;
-    class: string;
-    background: string;
-    alignment: string;
-    created_at: string;
-    player_id: string;
-}
+	character_id: string;
+	user_id: string;
+	player_id: string;
+	name: string;
+	race: string;
+	class: string;
+	background: string;
+	alignment: string;
+	created_at: string;
 
-export interface CharacterAttribute {
-    character_id?: string;
-    strength: number;
-    dexterity: number;
-    constitution: number;
-    intelligence: number;
-    wisdom: number;
-    charisma: number;
-}
+	// Attributes
+	strength: number;
+	dexterity: number;
+	constitution: number;
+	intelligence: number;
+	wisdom: number;
+	charisma: number;
 
-export interface CharacterSkill {
-    character_id?: string;
-    acrobatics: number;
-    animal_handling: number;
-    arcana: number;
-    athletics: number;
-    deception: number;
-    history: number;
-    insight: number;
-    intimidation: number;
-    investigation: number;
-    medicine: number;
-    nature: number;
-    perception: number;
-    performance: number;
-    persuasion: number;
-    religion: number;
-    sleight_of_hand: number;
-    stealth: number;
-    survival: number;
-}
+	// Stats
+	level: number;
+	hpmax: number;
+	hpnow: number;
+	hptmp: number;
+	ac: number;
 
-export interface CharacterStat {
-    character_id?: string;
-    level: number;
-    hpmax: number;
-    hpnow: number;
-    hptmp: number;
-    ac: number;
+	// Skills
+	acrobatics: number;
+	animal_handling: number;
+	arcana: number;
+	athletics: number;
+	deception: number;
+	history: number;
+	insight: number;
+	intimidation: number;
+	investigation: number;
+	medicine: number;
+	nature: number;
+	perception: number;
+	performance: number;
+	persuasion: number;
+	religion: number;
+	sleight_of_hand: number;
+	stealth: number;
+	survival: number;
 }
 
 export interface Inventory {
@@ -150,19 +92,4 @@ export interface ItemEffect {
     healing_dice_count?: number;
     healing_dice_sides?: number;
     armor_class?: number;
-    created_at?: string;
-}
-
-export interface Spell {
-    id: string;
-    name: string;
-    description: string;
-    level: number;
-    school: string;
-    casting_time: string;
-    range: string;
-    components: string;
-    duration: string;
-    concentration: boolean;
-    ritual: boolean;
 }

@@ -4,11 +4,11 @@ import { Stage, Layer, Line, Rect, Image } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import Konva from 'konva';
 import MapSidebar from './sidebar';
-import { Character, Structure } from '@/lib/map/types';
-import { loadCanvas } from '@/lib/map/types';
-import {fetchDmCharacters, user, supabase} from "@/lib/tools/fetchTables"
+import { Character, Structure } from '@/lib/tools/map';
+import { loadCanvas } from '@/lib/tools/map';
+import { createClient } from '@/lib/supabase/client';
 
-
+const supabase = createClient();
 const GRID_SIZE = 50;
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 2;
@@ -162,26 +162,26 @@ const Map = () => {
     useEffect(() => {
         const fetchChampions = async () => {
             try {
-                const currentUser = await user();
+                const currentUser = await supabase.auth.getUser();
                 if (!currentUser) {
                     console.error("User not authenticated");
                     return;
                 } const { data, error } = await supabase
                     .from("characters")
-                    .select("id, name, class")
-                    .eq("user_id", currentUser.id);
-                if (error) {
+                    .select("*")
+                    .eq("user_id", currentUser.data.user?.id);
+                if (!data || error) {
                     console.error("Error fetching champions:", error);
                     return;
                 } setChampions(data.map(char => ({
-                    id: char.id,
+                    character_id: char.character_id,
                     name: char.name,
                     class: char.class.toLowerCase(),
                     x: Math.floor(windowSize.width / 2),
                     y: Math.floor(windowSize.width / 2),
                     width: GRID_SIZE,
                     height: GRID_SIZE,
-                    imagePath: `/characters/${char.class.toLowerCase()}.webp`, 
+                    imagePath: `/characters/${char.class.toLowerCase()}.webp    `, 
                     isSelected: false,
                     isDragging: false,
                 })));
@@ -464,7 +464,7 @@ const Map = () => {
             Object.entries(tiles).map(([key, value]) => [key, value ?? null])
         );
 
-        const currentUser = await user();
+        const currentUser = await supabase.auth.getUser();
         if (!currentUser) {
             console.error("User not authenticated");
             return;
@@ -473,8 +473,8 @@ const Map = () => {
         const canvasData = {
             structures,
             tiles: cleanedTiles,
-            characters: characters.map(({ id, x, y, width, height, name, class: characterClass, imagePath }) => ({
-                id,
+            characters: characters.map(({ character_id, x, y, width, height, name, class: characterClass, imagePath }) => ({
+                character_id,
                 x,
                 y,
                 width,
@@ -485,7 +485,7 @@ const Map = () => {
             })),
         };
 
-        const { data, error } = await supabase.from("maps").insert([{ user_id: currentUser.id, data: canvasData }]);
+        const { data, error } = await supabase.from("maps").insert([{ user_id: currentUser.data.user?.id, data: canvasData }]);
 
         if (error) {
             console.error("Error saving canvas:", error);
@@ -501,8 +501,8 @@ const Map = () => {
         setCharacters(
             mapData.characters.map((char: Character) => ({
                 ...char,
-                class: char.class ? char.class.toLowerCase() : "warrior",
-                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/warrior.webp",
+                class: char.class ? char.class.toLowerCase() : "fighter",
+                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/fighter.webp",
                 isDragging: false,
                 isSelected: false,
             }))
@@ -516,7 +516,7 @@ const Map = () => {
 
 
             {/* Sidebar */}
-            <div className="flex overflow-hidden h-main dark:bg-gray-600   ">
+            <div className="flex overflow-hidden h-main bg-2-light dark:bg-2-dark">
                 <MapSidebar
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
@@ -621,7 +621,7 @@ const Map = () => {
                     <Layer>
                         {characters.map((char) => (
                             <Image
-                                key={char.id}
+                                key={char.character_id}
                                 x={char.x}
                                 y={char.y}
                                 width={char.width}
@@ -633,13 +633,13 @@ const Map = () => {
                                 onClick={() => {
                                     setCharacters((prevCharacters) =>
                                         prevCharacters.map((s) =>
-                                            s.id === char.id ? { ...s, isSelected: true } : { ...s, isSelected: false }
+                                            s.character_id === char.character_id ? { ...s, isSelected: true } : { ...s, isSelected: false }
                                         )
                                     );
                                 }} onDragStart={() => {
                                     setCharacters((prevCharacters) =>
                                         prevCharacters.map((s) =>
-                                            s.id === char.id ? { ...s, isDragging: true, isSelected: true } : { ...s, isDragging: false, isSelected: false }
+                                            s.character_id === char.character_id ? { ...s, isDragging: true, isSelected: true } : { ...s, isDragging: false, isSelected: false }
                                         )
                                     );
                                 }} onDragMove={(e) => {
@@ -657,7 +657,7 @@ const Map = () => {
                                         snappedY = Math.floor(adjustedPointer.y / GRID_SIZE) * GRID_SIZE;
                                     } const isTileOccupied = (x: number, y: number) => {
                                         const occupiedByCharacter = characters.some(
-                                            (otherChar) => otherChar.x === x && otherChar.y === y && otherChar.id !== char.id 
+                                            (otherChar) => otherChar.x === x && otherChar.y === y && otherChar.character_id !== char.character_id 
                                         );
                                         return occupiedByCharacter;
                                     }; if (isTileOccupied(snappedX, snappedY)) {
@@ -680,7 +680,7 @@ const Map = () => {
                                 }} onDragEnd={(e) => {
                                     saveState();
                                     const { x: snappedX, y: snappedY } = snapToGrid(e.target.x(), e.target.y());
-                                    setCharacters((prevCharacters) => prevCharacters.map((s) => s.id === char.id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s))}
+                                    setCharacters((prevCharacters) => prevCharacters.map((s) => s.character_id === char.character_id ? { ...s, x: snappedX, y: snappedY, isDragging: false, isSelected: true } : s))}
                                 } onContextMenu={(e) => e.evt.preventDefault()}
                         />))}
                     </Layer>

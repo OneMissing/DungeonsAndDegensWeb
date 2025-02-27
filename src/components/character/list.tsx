@@ -1,20 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import CopyToClipboard from "@/components/character/changes/clipboard";
 import Remove from "./changes/remove";
 import Delete from "./changes/delete";
 import Link from "next/link";
-import { fetchDmCharacters, fetchPlayerCharacters } from "@/lib/tools/fetchTables";
 import { Character } from "@/lib/tools/types";
+import { getDmCharacters, getPlayerCharacters } from "@/lib/fetch/fetch";
 
 const CharacterList = ({
     userId,
     dm,
 }: {
-    userId: string | null;
+    userId: string;
     dm: boolean;
 }) => {
     const [characters, setCharacters] = useState<Character[]>([]);
@@ -26,7 +25,7 @@ const CharacterList = ({
         async function loadCharacters() {
             try {
                 setLoading(true);
-                const data = dm ? await fetchDmCharacters() : await fetchPlayerCharacters() ;
+                const data = dm ? await getDmCharacters(userId) : await getPlayerCharacters(userId) ;
                 setCharacters(data? data : []);
                 
             } catch (error) {
@@ -51,19 +50,19 @@ const CharacterList = ({
                 <h2 className='text-2xl font-bold mb-4 text-center'>
                     DM Characters
                 </h2>
-                <ul className='space-y-3'>
+                <ul className='space-y-3' key="master-shit">
                     {characters.map((char) => (
                         <li
-                            key={char.id}
-                            className='border p-3 rounded-lg shadow-md bg-white cursor-pointer hover:bg-gray-100 transition'
+                            key={char.character_id}
+                            className='border p-3 rounded-lg shadow-md bg-1-light cursor-pointer hover:bg-2-light dark:bg-2-dark dark:hover:bg-3-dark transition'
                             onClick={() =>
-                                router.push(`/home/dm-characters/${char.id}`)
+                                router.push(`/home/dm-characters/${char.character_id}`)
                             }
                         >
                             <div className='grid grid-cols-3'>
                                 <div className='flex space-x-2'>
-                                    <CopyToClipboard text={char.id} />
-                                    <Remove text={char.id} />
+                                    <CopyToClipboard text={char.character_id} />
+                                    <Remove text={char.character_id} />
                                 </div>
                                 <div className='col-span-2'>
                                     <div className='text-right md:text-center w-full md:w-1/2 mt-1'>
@@ -90,11 +89,11 @@ const CharacterList = ({
                     {characters.length !== 0 ? (
                         characters.map((char) => (
                             <li
-                                key={char.id}
-                                className='border p-3 rounded-lg shadow-md bg-white cursor-pointer hover:bg-gray-100 transition'
+                                key={char.character_id}
+                                className='border p-3 rounded-lg shadow-md bg-1-light cursor-pointer hover:bg-2-light dark:bg-2-dark dark:hover:bg-3-dark transition'
                                 onClick={() =>
                                     router.push(
-                                        `/home/player-characters/${char.id}`
+                                        `/home/player-characters/${char.character_id}`
                                     )
                                 }
                             >
@@ -103,8 +102,8 @@ const CharacterList = ({
                                     onClick={(e) => e.preventDefault()}
                                 >
                                     <div className='flex space-x-2'>
-                                        <CopyToClipboard text={char.id} />
-                                        <Delete charId={char.id} />
+                                        <CopyToClipboard text={char.character_id} />
+                                        <Delete charId={char.character_id} />
                                     </div>
                                     <div className='col-span-2'>
                                         <div className='text-right md:text-center w-full md:w-1/2 mt-1'>

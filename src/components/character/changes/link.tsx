@@ -51,13 +51,15 @@ const LinkCharacter = () => {
 
     return (
         <div>
-            <div className='flex items-center gap-2rounded-lg shadow-lg text-white'>
+                <span className="mb-0 w-full text-large text-start text-1-dark dark:text-1-light select-none">Link character</span>
+
+            <div className='flex items-center gap-4 rounded-lg shadow-lg text-white'>
                 <input
                     type='text'
                     value={charId}
                     onChange={(e) => setCharId(e.target.value)}
                     placeholder='Enter Character ID'
-                    className='w-full p-2 text-black rounded-md'
+                    className='w-full p-2 text-1-dark dark:text-1-light rounded-md'
                 />
 
                 <button
