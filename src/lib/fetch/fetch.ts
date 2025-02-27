@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { Character, Inventory, Item } from "@/lib/tools/types";
+import { Character, Item } from "@/lib/tools/types";
 
 const supabase = createClient();
 
@@ -35,21 +35,3 @@ export async function getDmCharacters(userId: string): Promise<Character[]> {
 
 	return data || [];
 }
-
-export const getItems = async (): Promise<Item[]> => {
-	const { data, error } = await supabase.from("items").select("*");
-	if (error) {
-		console.error("Error fetching item data:", error);
-		return [];
-	}
-	return data; 
-};
-
-export const getInventory = async (character_id: string): Promise<Inventory[]> => {
-	const { data, error } = await supabase.from("inventory").select("*").eq("character_id", character_id);
-	if (error) {
-		console.error("Error fetching item data:", error);
-		return [];
-	}
-	return data; 
-};
