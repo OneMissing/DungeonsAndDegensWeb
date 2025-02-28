@@ -177,8 +177,6 @@ const DraggableItem: React.FC<{
 		}
 	};
 
-	const [isTooltipVisible, setIsTooltipVisible] = useState(true);
-
 
 	return (
 		<>
@@ -188,8 +186,7 @@ const DraggableItem: React.FC<{
 			delay={0}
 			placement="bottom"
 			className="pointer-events-none transition-all duration-500 ease-in-out"
-			onMouseEnter={() => setIsTooltipVisible(false)}
-			content={isTooltipVisible ? (
+			content={
 				<div
 					className={`backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 px-1 py-2 bg-2-light dark:bg-slate-700 border border-bg1-dark dark:border-bg1-light rounded-lg w-full h-full select-none ${isDragging ? "hidden" : "visible"}`}>
 					<div className="text-medium font-bold">{currentItemInfo.name}</div>
@@ -218,9 +215,8 @@ const DraggableItem: React.FC<{
 						</div>
 						<p className="transition-opacity duration-300 w-96">{currentItemInfo.description}</p>
 					</div>
-				</div>): null }>
+				</div>}>
 			<div
-				onMouseEnter={() => setIsTooltipVisible(true)}
 				ref={drag as unknown as React.Ref<HTMLDivElement>}
 				className={`relative p-1 bg-3-light dark:bg-3-dark border border-gray-500 rounded cursor-move w-full h-full ${isDragging ? "opacity-50" : "opacity-100"}`}
 				onContextMenu={handleContextMenu}>
