@@ -95,7 +95,7 @@ export default function Page() {
 	
 		loadInventory();
 		loadItems();
-	}, []);
+	}, [id]);
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full pl-4 pr-4 select-none">
