@@ -1,6 +1,6 @@
 "use client";
 
-import Map from '@/components/maps/map';
+import Map from '@/components/map/map';
 import { useEffect } from "react";
 
 const Home: React.FC = () => {

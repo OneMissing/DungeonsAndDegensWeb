@@ -1,31 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import {
-    Character,
-    Races,
-    Classes,
-    CharacterAttribute,
-    CharacterSkill,
-} from "@/lib/tools/types";
+import { Character } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
+
+type CharData = Omit<Character, "character_id" | "created_at">;
 
 const CharacterCreator = () => {
     const supabase = createClient();
     const [state, setState] = useState<"ok" | "loading" | "error">();
     const [activeTab, setActiveTab] = useState(0);
-    const [charName, setCharName] = useState<string>("");
-    const [charRace, setCharRace] = useState<Races>(Races.Human);
-    const [charClass, setCharClass] = useState<Classes>(Classes.Wizard);
-    const [charAtrib, setCharAtrib] = useState<CharacterAttribute>({
+    const [charData, setCharData] = useState<CharData>({
+        user_id: "",
+        player_id: "",
+        name: "",
+        race: "",
+        class:   "", 
+        background: "",
+        alignment: "",
         strength: 10,
         dexterity: 10,
         constitution: 10,
         intelligence: 10,
         wisdom: 10,
         charisma: 10,
-    });
-    const [charSkill, setCharSkill] = useState<CharacterSkill>({
+        level: 1,
+        hpmax: 10,
+        hpnow: 10,
+        hptmp: 0,
+        ac: 10,
         acrobatics: 0,
         animal_handling: 0,
         arcana: 0,
@@ -46,17 +49,10 @@ const CharacterCreator = () => {
         survival: 0,
     });
 
-    const handleSkillChange = (skill: keyof CharacterSkill, value: number) => {
-        setCharSkill((prev) => ({
+    const handleChange = (field: keyof CharData, value: string | number | string[]) => {
+        setCharData((prev) => ({
             ...prev,
-            [skill]: value,
-        }));
-    };
-
-    const handleAtribChange = (atrib: keyof CharacterAttribute, value: number) => {
-        setCharAtrib((prev) => ({
-            ...prev,
-            [atrib]: value,
+            [field]: value,
         }));
     };
 
@@ -71,75 +67,17 @@ const CharacterCreator = () => {
                 return;
             }
 
-            const playerId = userData.user.id;
+            const userId = userData.user.id;
+            const newCharacter = { ...charData, user_id: userId};
 
-            if (!charName.trim()) {
-                console.error("Character name is required");
+            const { error } = await supabase.from("characters").insert([newCharacter]);
+
+            if (error) {
+                console.error("Error creating character:", error);
                 setState("error");
                 return;
             }
 
-            const isValidAttributes = Object.values(charAtrib).every(
-                (value) => value >= 0 && value <= 20
-            );
-            if (!isValidAttributes) {
-                console.error("Attributes must be between 0 and 20");
-                setState("error");
-                return;
-            }
-
-            const { data: charData, error: charError } = await supabase
-                .from("characters")
-                .insert([
-                    {
-                        player_id: playerId,
-                        name: charName,
-                        race: charRace,
-                        class: charClass,
-                    },
-                ])
-                .select("id")
-                .single();
-
-            if (charError) {
-                console.error("Error creating character:", charError);
-                setState("error");
-                return;
-            }
-
-            const characterId = charData.id;
-
-            const { error: attribError } = await supabase
-                .from("character_attrib")
-                .insert([{ character_id: characterId, ...charAtrib }]);
-
-            if (attribError) {
-                console.error("Error inserting attributes:", attribError);
-                setState("error");
-                return;
-            }
-
-            const { error: skillError } = await supabase
-                .from("character_skills")
-                .insert([{ character_id: characterId, ...charSkill }]);
-
-            if (skillError) {
-                console.error("Error inserting skills:", skillError);
-                setState("error");
-                return;
-            }
-
-            const { error: statsError } = await supabase
-                .from("character_stats")
-                .insert([{character_id: characterId, level: 1, hpnow: 10, hpmax: 10, hptmp: 0, ac: 8 }]);
-
-            if (statsError) {
-                console.error("Error inserting skills:", statsError);
-                setState("error");
-                return;
-            }
-
-            console.log("Character created successfully:", characterId);
             setState("ok");
         } catch (err) {
             console.error("Unhandled error:", err);
@@ -157,8 +95,8 @@ const CharacterCreator = () => {
                     <input
                         type="text"
                         name="name"
-                        value={charName}
-                        onChange={(e) => setCharName(e.target.value)}
+                        value={charData.name}
+                        onChange={(e) => handleChange("name", e.target.value)}
                         className="bg-gray-700 text-white p-2 w-full rounded"
                         placeholder="Enter character name"
                     />
@@ -169,36 +107,8 @@ const CharacterCreator = () => {
                     >
                         {state === "loading" ? "Creating..." : "Create Character"}
                     </button>
-                    {state === "ok" && (
-                        <p className="text-green-500">Character created successfully!</p>
-                    )}
-                    {state === "error" && (
-                        <p className="text-red-500">Error creating character. Please try again.</p>
-                    )}
-                </div>
-            ),
-        },
-        {
-            id: "race-selection",
-            label: "Race Selection",
-            content: (
-                <div className="p-4 bg-gray-900 rounded-lg">
-                    <h2 className="text-xl font-bold mb-2">Race</h2>
-                    <div className="grid grid-cols-3 gap-4">
-                        {Object.values(Races).map((race) => (
-                            <button
-                                key={race}
-                                className={`p-4 rounded-lg border ${
-                                    charRace === race
-                                        ? "border-yellow-500"
-                                        : "border-gray-500"
-                                } hover:border-yellow-400 transition`}
-                                onClick={() => setCharRace(race)}
-                            >
-                                {race}
-                            </button>
-                        ))}
-                    </div>
+                    {state === "ok" && <p className="text-green-500">Character created successfully!</p>}
+                    {state === "error" && <p className="text-red-500">Error creating character. Please try again.</p>}
                 </div>
             ),
         },
@@ -209,22 +119,15 @@ const CharacterCreator = () => {
                 <div className="p-4 bg-gray-900 rounded-lg">
                     <h2 className="text-xl font-bold mb-2">Attributes</h2>
                     <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(charAtrib).map(([atrib, value]) => (
-                            <div key={atrib} className="space-y-2">
-                                <label className="block text-sm font-medium">
-                                    {atrib.toUpperCase()}
-                                </label>
+                        {(["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] as (keyof CharData)[]).map((attr) => (
+                            <div key={attr} className="space-y-2">
+                                <label className="block text-sm font-medium">{attr.toUpperCase()}</label>
                                 <input
                                     type="number"
-                                    min="0"
+                                    min="1"
                                     max="20"
-                                    value={value}
-                                    onChange={(e) =>
-                                        handleAtribChange(
-                                            atrib as keyof CharacterAttribute,
-                                            Number(e.target.value)
-                                        )
-                                    }
+                                    value={charData[attr]}
+                                    onChange={(e) => handleChange(attr, Number(e.target.value))}
                                     className="bg-gray-700 text-white p-2 w-full rounded"
                                 />
                             </div>
@@ -240,21 +143,33 @@ const CharacterCreator = () => {
                 <div className="p-4 bg-gray-900 rounded-lg">
                     <h2 className="text-xl font-bold mb-2">Skills</h2>
                     <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(charSkill).map(([skill, value]) => (
+                        {([
+                            "acrobatics",
+                            "animal_handling",
+                            "arcana",
+                            "athletics",
+                            "deception",
+                            "history",
+                            "insight",
+                            "intimidation",
+                            "investigation",
+                            "medicine",
+                            "nature",
+                            "perception",
+                            "performance",
+                            "persuasion",
+                            "religion",
+                            "sleight_of_hand",
+                            "stealth",
+                            "survival",
+                        ] as (keyof CharData)[]).map((skill) => (
                             <div key={skill} className="space-y-2">
-                                <label className="block text-sm font-medium">
-                                    {skill.replace(/_/g, " ").toUpperCase()}
-                                </label>
+                                <label className="block text-sm font-medium">{skill.replace(/_/g, " ").toUpperCase()}</label>
                                 <input
                                     type="number"
                                     min="0"
-                                    value={value}
-                                    onChange={(e) =>
-                                        handleSkillChange(
-                                            skill as keyof CharacterSkill,
-                                            Number(e.target.value)
-                                        )
-                                    }
+                                    value={charData[skill]}
+                                    onChange={(e) => handleChange(skill, Number(e.target.value))}
                                     className="bg-gray-700 text-white p-2 w-full rounded"
                                 />
                             </div>
@@ -273,9 +188,7 @@ const CharacterCreator = () => {
                         key={index}
                         onClick={() => setActiveTab(index)}
                         className={`px-4 py-2 text-lg font-semibold w-full ${
-                            activeTab === index
-                                ? "text-yellow-400 border-b-2 border-yellow-400"
-                                : "text-gray-400"
+                            activeTab === index ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"
                         }`}
                     >
                         {tab.label}

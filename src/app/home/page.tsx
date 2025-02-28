@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import CharacterList from "@/components/character/characterList";
+import CharacterList from "@/components/character/list";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/ui/sidebar"
-import LinkCharacter from "@/components/character/sidebar/linkCharacter";
+import LinkCharacter from "@/components/character/changes/link";
 
 const getUserSession = async () => {
     const supabase = await createClient();

@@ -24,10 +24,12 @@ const CopyToClipboard: React.FC<CopyToClipboardProps> = ({ text }) => {
     return (
         <Tooltip
             placement='bottom'
-            offset={-7}
+            offset={-15}
+            delay={0}
+            closeDelay={0}
             classNames={{
-                base: ["before:bg-neutral-400 dark:before:bg-white"],
-                content: ["py-2 px-4 shadow-xl bg-slate-700 rounded-lg"],
+                base: ["before:bg-neutral-400 bg-1-dark dark:before:bg-1-light rounded-lg border-md border-1-light"],
+                content: ["py-2 px-4 shadow-xl rounded-lg"],
             }}
             content='Copy'
             showArrow={true}

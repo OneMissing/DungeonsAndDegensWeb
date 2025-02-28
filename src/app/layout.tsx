@@ -1,27 +1,25 @@
 import { ReactNode } from "react";
 import "./globals.css";
-import Navbar from "@/components/ui/navbar";
-import ThemeProvider from "@/components/themes/themeProvider";
-import { Providers } from "./provider";
+import Navbar from "@/components/layout/navbar";
+import ThemeProvider from "@/components/providers/theme";
+import { Providers } from "@/components/providers/heroUI";
 
 export const metadata = {
-    title: "DnD",
-    description: "Playable DnD",
+	title: "DnD",
+	description: "Playable DnD",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-    return (
-        <html lang='cs' suppressHydrationWarning>
-            <body className='h-screen overflow-hidden'>
-                <Providers>
-                    <ThemeProvider>
-                        <Navbar />
-                        <main className='absolute h-main top-[calc(4.5rem)] overflow-auto w-svw bg-background-light dark:bg-background-dark'>
-                            {children}
-                        </main>
-                    </ThemeProvider>
-                </Providers>
-            </body>
-        </html>
-    );
+	return (
+		<html lang="cs" suppressHydrationWarning>
+			<body className="h-screen overflow-hidden">
+				<ThemeProvider>
+					<Providers>
+						<Navbar />
+						<main className="absolute h-main top-[calc(4.5rem)] overflow-auto w-svw bg-3-light dark:bg-3-dark">{children}</main>
+					</Providers>
+				</ThemeProvider>
+			</body>
+		</html>
+	);
 }
