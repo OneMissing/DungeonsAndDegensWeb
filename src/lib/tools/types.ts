@@ -1,30 +1,23 @@
 export interface Character {
 	character_id: string;
 	user_id: string;
-	player_id: string;
 	name: string;
 	race: string;
 	class: string;
 	background: string;
 	alignment: string;
 	created_at: string;
-
-	// Attributes
+	player_id: string;
 	strength: number;
 	dexterity: number;
 	constitution: number;
 	intelligence: number;
 	wisdom: number;
 	charisma: number;
-
-	// Stats
 	level: number;
 	hpmax: number;
 	hpnow: number;
 	hptmp: number;
-	ac: number;
-
-	// Skills
 	acrobatics: number;
 	animal_handling: number;
 	arcana: number;
@@ -43,6 +36,15 @@ export interface Character {
 	sleight_of_hand: number;
 	stealth: number;
 	survival: number;
+	spell_slot_1: number;
+	spell_slot_2: number;
+	spell_slot_3: number;
+	spell_slot_4: number;
+	spell_slot_5: number;
+	spell_slot_6: number;
+	spell_slot_7: number;
+	spell_slot_8: number;
+	spell_slot_9: number;
 }
 
 export interface Item {
@@ -79,7 +81,7 @@ export interface Tile {
 }
 
 export function itemFilter(items: Item[], itemId: string): Item | undefined {
-    return items.find(item => item.item_id === itemId);
+	return items.find((item) => item.item_id === itemId);
 }
 
 export const uniqueInstanceTypes = ["helmet", "chestplate", "armor", "gauntlets", "boots", "weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield"];
