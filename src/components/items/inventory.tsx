@@ -16,30 +16,30 @@ const ADDITIONAL_SLOTS = 10;
 const TOTAL_SLOTS = GRID_SIZE * GRID_SIZE + ADDITIONAL_SLOTS;
 
 const isValidItemTypeForSlot = (slotType: string | undefined, itemType: string | undefined): boolean => {
-    if (!slotType || !itemType) return false;
+	if (!slotType || !itemType) return false;
 
-    const validItemTypes: { [key: string]: string[] } = {
-        helmet: ["helmet", "hat", "cap"],
-        chestplate: ["chestplate", "armor"],
-        gauntlets: ["gauntlets"],
-        boots: ["boots"],
-        weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield"	],
-    };
+	const validItemTypes: { [key: string]: string[] } = {
+		helmet: ["helmet", "hat", "cap"],
+		chestplate: ["chestplate", "armor"],
+		gauntlets: ["gauntlets"],
+		boots: ["boots"],
+		weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield"],
+	};
 
-    return validItemTypes[slotType]?.includes(itemType) || false;
+	return validItemTypes[slotType]?.includes(itemType) || false;
 };
 
 const getSlotType = (index: number): string => {
-    const slotTypes = ["helmet", "chestplate", "gauntlets", "boots", "cape", "amulet", "ring", "ring", "weapon", "weapon"];
-    return slotTypes[index] || "weapon";
+	const slotTypes = ["helmet", "chestplate", "gauntlets", "boots", "cape", "amulet", "ring", "ring", "weapon", "weapon"];
+	return slotTypes[index] || "weapon";
 };
 
 const initialGrid: Tile[] = Array.from({ length: TOTAL_SLOTS }, (_, index) => ({
 	id: `tile-${index}`,
 	position: index,
-	item: undefined, 
+	item: undefined,
 	isSideSlot: index >= GRID_SIZE * GRID_SIZE,
-	slotType: 	index >= GRID_SIZE * GRID_SIZE ? getSlotType(index - GRID_SIZE * GRID_SIZE) : undefined,
+	slotType: index >= GRID_SIZE * GRID_SIZE ? getSlotType(index - GRID_SIZE * GRID_SIZE) : undefined,
 }));
 
 initialGrid.push({ id: "trash-tile", position: TOTAL_SLOTS, item: undefined, isTrash: true });
@@ -97,8 +97,7 @@ const ContextMenu: React.FC<{
 						Add {addSliderValue}
 					</button>
 				)}
-                {!uniqueInstanceTypes.includes(currentItemInfo.type) && (
-				<Divider className="my-2" />)}
+				{!uniqueInstanceTypes.includes(currentItemInfo.type) && <Divider className="my-2" />}
 				<button className="text-center text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mt-1" onClick={() => handleAction(`close`)}>
 					Close
 				</button>
@@ -115,6 +114,11 @@ const DraggableItem: React.FC<{
 	items: Item[];
 	character_id: string;
 }> = ({ item, onItemRemoved, onQuantityChanged, fromTileId, items, character_id }) => {
+	const [isTooltipVisible, setIsTooltipVisible] = useState(true);
+	const [contextMenu, setContextMenu] = useState<{ show: boolean; position: { x: number; y: number } }>({
+		show: false,
+		position: { x: 0, y: 0 },
+	});
 	const [{ isDragging }, drag] = useDrag({
 		type: "ITEM",
 		item: { ...item, fromTileId },
@@ -125,29 +129,54 @@ const DraggableItem: React.FC<{
 
 	const currentItemInfo = itemFilter(items, item.item_id);
 	let typeSpecificContent;
-	if(!currentItemInfo) return <></>;
-    switch (currentItemInfo.type) {
-        case 'sword': typeSpecificContent = 		<Sword className="w-full h-full" />; 					break;
-        case 'wand': typeSpecificContent = 			<Wand className="w-full h-full" />; 					break;
-        case 'chestplate': typeSpecificContent = 	<Shirt className="w-full h-full" />;					break;
-        case 'potion': typeSpecificContent = 		<Amphora className="w-full h-full" />;					break;
-        case 'shield': typeSpecificContent = 		<Shield className="w-full h-full" />;					break;
-        case 'bow': typeSpecificContent = 			<ArrowRightFromLine className="w-full h-full" />;		break;
-        case 'ring': typeSpecificContent = 			<Circle className="w-full h-full" />;					break;
-        case 'necklece': typeSpecificContent = 		<Heart className="w-full h-full" />;					break;
-        case 'scroll': typeSpecificContent = 		<Scroll className="w-full h-full" />;					break;
-        case 'book': typeSpecificContent = 			<Book className="w-full h-full" />;						break;
-        case 'food': typeSpecificContent = 			<Ham className="w-full h-full" />;						break;
-        case 'key': typeSpecificContent = 			<Key className="w-full h-full" />;						break;
-        case 'tool': typeSpecificContent = 			<Wrench className="w-full h-full" />;					break;
-        case 'currency': typeSpecificContent = 		<Coins className="w-full h-full" />;					break;
-        default: typeSpecificContent = 				<FileQuestion className="w-full h-full" />; 			break;
-    }
-
-	const [contextMenu, setContextMenu] = useState<{ show: boolean; position: { x: number; y: number } }>({
-		show: false,
-		position: { x: 0, y: 0 },
-	});	
+	if (!currentItemInfo) return <></>;
+	switch (currentItemInfo.type) {
+		case "sword":
+			typeSpecificContent = <Sword className="w-full h-full" />;
+			break;
+		case "wand":
+			typeSpecificContent = <Wand className="w-full h-full" />;
+			break;
+		case "chestplate":
+			typeSpecificContent = <Shirt className="w-full h-full" />;
+			break;
+		case "potion":
+			typeSpecificContent = <Amphora className="w-full h-full" />;
+			break;
+		case "shield":
+			typeSpecificContent = <Shield className="w-full h-full" />;
+			break;
+		case "bow":
+			typeSpecificContent = <ArrowRightFromLine className="w-full h-full" />;
+			break;
+		case "ring":
+			typeSpecificContent = <Circle className="w-full h-full" />;
+			break;
+		case "necklece":
+			typeSpecificContent = <Heart className="w-full h-full" />;
+			break;
+		case "scroll":
+			typeSpecificContent = <Scroll className="w-full h-full" />;
+			break;
+		case "book":
+			typeSpecificContent = <Book className="w-full h-full" />;
+			break;
+		case "food":
+			typeSpecificContent = <Ham className="w-full h-full" />;
+			break;
+		case "key":
+			typeSpecificContent = <Key className="w-full h-full" />;
+			break;
+		case "tool":
+			typeSpecificContent = <Wrench className="w-full h-full" />;
+			break;
+		case "currency":
+			typeSpecificContent = <Coins className="w-full h-full" />;
+			break;
+		default:
+			typeSpecificContent = <FileQuestion className="w-full h-full" />;
+			break;
+	}
 
 	const handleContextMenu = (event: { preventDefault: () => void; clientX: any; clientY: any }) => {
 		event.preventDefault();
@@ -177,62 +206,71 @@ const DraggableItem: React.FC<{
 		}
 	};
 
-
 	return (
 		<>
-		<Tooltip
-			offset={0}
-			closeDelay={0}
-			delay={0}
-			placement="bottom"
-			className="pointer-events-none transition-all duration-500 ease-in-out"
-			content={
+			<Tooltip
+				offset={4}
+				closeDelay={0}
+				delay={0}
+				placement="bottom"
+				className="pointer-events-none transition-all duration-500 ease-in-out"
+				onMouseEnter={() => setIsTooltipVisible(false)}
+				content={
+					isTooltipVisible && (
+						<div
+							className={`backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 px-1 py-2 bg-2-light dark:bg-slate-700 border border-bg1-dark dark:border-bg1-light rounded-lg w-full h-full select-none ${
+								isDragging ? "hidden" : "visible"
+							}`}>
+							<div className="text-medium font-bold">{currentItemInfo.name}</div>
+							<div className="text-small w-full p-2">
+								{!uniqueInstanceTypes.includes(currentItemInfo.type) && (
+									<div className="flex justify-center gap-2">
+										<p className="font-semibold">Quantity: </p> {item.quantity}
+									</div>
+								)}
+								<div className="flex justify-center gap-2">
+									<p className="font-semibold">Type: </p> {currentItemInfo.type}
+								</div>
+								<div className="grid grid-cols-3 w-full mt-0.5">
+									<div className="flex justify-end gap-4">
+										<p className="font-semibold">Value: </p> {currentItemInfo.value}
+									</div>
+									<Divider orientation="vertical" className="w-[0.08rem] rounded bg-gray-400 mx-auto" />
+									<div className="flex justify-start gap-4">
+										<p className="font-semibold">Weight: </p> {currentItemInfo.weight}
+									</div>
+								</div>
+							</div>
+							<div className="group overflow-hidden transition-all duration-100 ease-in-out -mt-1">
+								<div className=" font-semibold flex items-center justify-center overflow-hidden whitespace-nowrap">
+									<p className="text-center font-semibold">Description:</p>
+								</div>
+								<p className="transition-opacity duration-300 w-96">{currentItemInfo.description}</p>
+							</div>
+						</div>
+					)
+				}>
 				<div
-					className={`backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 px-1 py-2 bg-2-light dark:bg-slate-700 border border-bg1-dark dark:border-bg1-light rounded-lg w-full h-full select-none ${isDragging ? "hidden" : "visible"}`}>
-					<div className="text-medium font-bold">{currentItemInfo.name}</div>
-					<div className="text-small w-full p-2">
-					{!uniqueInstanceTypes.includes(currentItemInfo.type) &&(
-						<div className="flex justify-center gap-2">
-							<p className="font-semibold">Quantity: </p> {item.quantity}
-						</div>)}
-						<div className="flex justify-center gap-2">
-							<p className="font-semibold">Type: </p> {currentItemInfo.type}
-						</div>
-						<div className="grid grid-cols-3 w-full mt-0.5">
-							<div className="flex justify-end gap-4">
-								<p className="font-semibold">Value: </p> {currentItemInfo.value}
-							</div>
-							<Divider orientation="vertical" className="w-[0.08rem] rounded bg-gray-400 mx-auto" />
-							<div className="flex justify-start gap-4">
-								<p className="font-semibold">Weight: </p> {currentItemInfo.weight}
-							</div>
-						</div>
-						
-					</div>
-					<div className="group overflow-hidden transition-all duration-100 ease-in-out -mt-1">
-						<div className=" font-semibold flex items-center justify-center overflow-hidden whitespace-nowrap">
-							<p className="text-center font-semibold">Description:</p>
-						</div>
-						<p className="transition-opacity duration-300 w-96">{currentItemInfo.description}</p>
-					</div>
-				</div>}>
-			<div
-				ref={drag as unknown as React.Ref<HTMLDivElement>}
-				className={`relative p-1 bg-3-light dark:bg-3-dark border border-gray-500 rounded cursor-move w-full h-full ${isDragging ? "opacity-50" : "opacity-100"}`}
-				onContextMenu={handleContextMenu}>
-				{typeSpecificContent}
-				{!uniqueInstanceTypes.includes(currentItemInfo.type) &&(<span className="absolute bottom-0 right-0 text-xs bg-black bg-opacity-70 text-white px-1 rounded">x{item.quantity}</span>)}
-			</div>
-		</Tooltip>
-		{contextMenu.show && (
-			<ContextMenu
+					ref={drag as unknown as React.Ref<HTMLDivElement>}
+					className={`relative p-1 bg-3-light dark:bg-3-dark border border-gray-500 rounded cursor-move w-full h-full ${isDragging ? "opacity-50" : "opacity-100"}`}
+					onMouseEnter={() => setIsTooltipVisible(true)}
+					onContextMenu={handleContextMenu}>
+					{typeSpecificContent}
+					{!uniqueInstanceTypes.includes(currentItemInfo.type) && (
+						<span className="absolute bottom-0 right-0 text-xs bg-black bg-opacity-70 text-white px-1 rounded">x{item.quantity}</span>
+					)}
+				</div>
+			</Tooltip>
+			{contextMenu.show && (
+				<ContextMenu
 					item={item}
 					position={contextMenu.position}
 					onClose={() => setContextMenu({ show: false, position: { x: 0, y: 0 } })}
-					onAction={handleContextMenuAction} 
-					currentItemInfo={currentItemInfo}			/>
-		)}
-	</>
+					onAction={handleContextMenuAction}
+					currentItemInfo={currentItemInfo}
+				/>
+			)}
+		</>
 	);
 };
 
@@ -252,9 +290,11 @@ const DroppableTile: React.FC<{
 				return;
 			}
 			moveItem(draggedItem.fromTileId, tile.id, draggedItem);
-		}, canDrop: (draggedItem) => {
+		},
+		canDrop: (draggedItem) => {
 			return tile.id !== String(draggedItem.position) && !tile.item;
-		}, collect: (monitor) => ({
+		},
+		collect: (monitor) => ({
 			isOver: !!monitor.isOver(),
 			canDrop: !!monitor.canDrop(),
 		}),
@@ -263,18 +303,31 @@ const DroppableTile: React.FC<{
 	return (
 		<div
 			ref={drop as unknown as React.Ref<HTMLDivElement>}
-			className={`aspect-square ${tile.isTrash? "align-middle bg-red-400 bg-opacity-80 dark:bg-opacity-80 hover:border rounded-xl text-yellow-300 p-4": "bg-2-light dark:bg-2-dark shadow-xs shadow-3-dark dark:shadow-3-light"} border border-gray-600 flex items-center justify-center rounded-lg`}>
-			{tile.item && <DraggableItem item={tile.item} onItemRemoved={onItemRemoved} onQuantityChanged={onQuantityChanged} fromTileId={tile.id} items={items} character_id={character_id} />}
+			className={`aspect-square ${
+				tile.isTrash
+					? "align-middle bg-red-400 bg-opacity-80 dark:bg-opacity-80 hover:border rounded-xl text-yellow-300 p-4"
+					: "bg-2-light dark:bg-2-dark shadow-xs shadow-3-dark dark:shadow-3-light"
+			} border border-gray-600 flex items-center justify-center rounded-lg`}>
+			{tile.item && (
+				<DraggableItem
+					item={tile.item}
+					onItemRemoved={onItemRemoved}
+					onQuantityChanged={onQuantityChanged}
+					fromTileId={tile.id}
+					items={items}
+					character_id={character_id}
+				/>
+			)}
 			{tile.isTrash && <Trash />}
 		</div>
 	);
 };
 
 const Inventory: React.FC<{
-	character_id: string; 
-	grid: Tile[]; 
-	setGrid: (grid: Tile[]) => void; 
-	items: Item[] 
+	character_id: string;
+	grid: Tile[];
+	setGrid: (grid: Tile[]) => void;
+	items: Item[];
 }> = ({ character_id, grid, setGrid, items }) => {
 	const [error, setError] = useState<string | null>(null);
 
@@ -307,15 +360,17 @@ const Inventory: React.FC<{
 		if (toTile.isTrash) {
 			try {
 				await supabase.from("inventory").delete().eq("character_id", character_id).eq("inventory_id", item.inventory_id);
-				setGrid(grid.map((tile) => {
-					if (tile.id === fromTileId) 
-						return { ...tile, item: null };
-					return tile;
-				}));
+				setGrid(
+					grid.map((tile) => {
+						if (tile.id === fromTileId) return { ...tile, item: null };
+						return tile;
+					})
+				);
 			} catch (err) {
 				setError("Failed to delete item from inventory.");
 				console.error(err);
-			} return;
+			}
+			return;
 		}
 
 		if (toTile.item) {
@@ -329,11 +384,13 @@ const Inventory: React.FC<{
 			return;
 		}
 
-		setGrid(grid.map((tile) => {
-			if (tile.id === fromTileId) return { ...tile, item: undefined };
-			if (tile.id === toTileId) return { ...tile, item };
-			return tile;
-		}));
+		setGrid(
+			grid.map((tile) => {
+				if (tile.id === fromTileId) return { ...tile, item: undefined };
+				if (tile.id === toTileId) return { ...tile, item };
+				return tile;
+			})
+		);
 		await supabase.from("inventory").update({ position: toTile.position }).eq("character_id", character_id).eq("inventory_id", item.inventory_id);
 	};
 
@@ -345,14 +402,30 @@ const Inventory: React.FC<{
 					<div className="col-span-6 h-full">
 						<div className="grid grid-cols-8 gap-1 md:gap-2 border border-gray-600 p-0 md:p-2 bg-3-light dark:bg-3-dark rounded flex-grow h-full">
 							{grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
-								<DroppableTile key={tile.id} tile={tile} character_id={character_id} moveItem={moveItem} onItemRemoved={handleItemRemoved} onQuantityChanged={handleQuantityChanged} items={items} />
+								<DroppableTile
+									key={tile.id}
+									tile={tile}
+									character_id={character_id}
+									moveItem={moveItem}
+									onItemRemoved={handleItemRemoved}
+									onQuantityChanged={handleQuantityChanged}
+									items={items}
+								/>
 							))}
 						</div>
 					</div>
 					<div className="col-span-2 h-full bg-3-light dark:bg-3-dark border border-gray-600 ml-0 sm:ml-3 rounded">
 						<div className="grid grid-cols-2 gap-1 md:gap-2 p-0 md:p-2 rounded flex-grow">
 							{grid.slice(GRID_SIZE * GRID_SIZE, TOTAL_SLOTS).map((tile) => (
-								<DroppableTile key={tile.id} tile={tile} character_id={character_id} moveItem={moveItem} onItemRemoved={handleItemRemoved} onQuantityChanged={handleQuantityChanged} items={items} />
+								<DroppableTile
+									key={tile.id}
+									tile={tile}
+									character_id={character_id}
+									moveItem={moveItem}
+									onItemRemoved={handleItemRemoved}
+									onQuantityChanged={handleQuantityChanged}
+									items={items}
+								/>
 							))}
 							<div className="m-auto col-span-2 h-full w-full">
 								<DroppableTile
