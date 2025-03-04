@@ -55,9 +55,18 @@ export interface Item {
 	weight: number;
 	value: number;
 	damage_acid?: string;
+	damage_bludgeoning?: string;
+	damage_cold?: string;
 	damage_fire?: string;
-	damage_ice?: string;
+	damage_force?: string;
+	damage_lightning?: string;
+	damage_necrotic?: string;
 	damage_piercing?: string;
+	damage_poison?: string;
+	damage_psychic?: string;
+	damage_radiant?: string;
+	damage_slashing?: string;
+	damage_thunder?: string;
 	heal?: string;
 	armor_class?: string;
 }

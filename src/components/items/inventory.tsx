@@ -55,8 +55,7 @@ const ContextMenu: React.FC<{
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (menuRef.current && !menuRef.current.contains(event.target as Node)) 
-				onClose();
+			if (menuRef.current && !menuRef.current.contains(event.target as Node)) onClose();
 		};
 
 		document.addEventListener("mousedown", handleClickOutside);
@@ -242,6 +241,64 @@ const DraggableItem: React.FC<{
 								</div>
 								<p className="transition-opacity duration-300 w-96">{currentItemInfo.description}</p>
 							</div>
+							<div>
+    <p className="text-center font-semibold mb-2">Effects:</p>
+    <div className="grid grid-cols-6 gap-2">
+        {(() => {
+            const effectsMap = new Map([
+                ["Acid", currentItemInfo.damage_acid],
+                ["Bludgeoning", currentItemInfo.damage_bludgeoning],
+                ["Cold", currentItemInfo.damage_cold],
+                ["Fire", currentItemInfo.damage_fire],
+                ["Force", currentItemInfo.damage_force],
+                ["Lightning", currentItemInfo.damage_lightning],
+                ["Necrotic", currentItemInfo.damage_necrotic],
+                ["Piercing", currentItemInfo.damage_piercing],
+                ["Poison", currentItemInfo.damage_poison],
+                ["Psychic", currentItemInfo.damage_psychic],
+                ["Radiant", currentItemInfo.damage_radiant],
+                ["Slashing", currentItemInfo.damage_slashing],
+                ["Thunder", currentItemInfo.damage_thunder],
+                ["Heal", currentItemInfo.heal],
+                ["AC", currentItemInfo.armor_class],
+            ]);
+
+            const effects: React.ReactNode[] = [];
+            let effectCount = 0;
+
+            effectsMap.forEach((value) => {
+                if (value) effectCount++;
+            });
+
+            let currentIndex = 0;
+            effectsMap.forEach((value, key) => {
+                if (value) {
+                    currentIndex++;
+                    let colSpanClass = "";
+                    if (effectCount === 1)  colSpanClass = "col-span-6 justify-self-center";
+                    else {
+                        const remainder = effectCount % 3; 
+                        if (remainder === 1 && currentIndex === effectCount) colSpanClass = "col-span-6 justify-self-center";
+                        else if (remainder === 2 && currentIndex >= effectCount - 1) colSpanClass = "col-span-3 justify-self-center";
+                        else colSpanClass = "col-span-2 justify-self-center";
+                    }
+
+                    effects.push(
+                        <div
+                            key={key}
+                            className={`flex justify-between gap-2 px-2 ${colSpanClass}`}
+                        >
+                            <p className="font-semibold">{key}:</p>
+                            <p>{value}</p>
+                        </div>
+                    );
+                }
+            });
+
+            return effects;
+        })()}
+    </div>
+</div>
 						</div>
 					)
 				}>
@@ -297,7 +354,9 @@ const DroppableTile: React.FC<{
 
 	return (
 		<div
-			onContextMenu={(event) => {event.preventDefault();}}
+			onContextMenu={(event) => {
+				event.preventDefault();
+			}}
 			ref={drop as unknown as React.Ref<HTMLDivElement>}
 			className={`aspect-square ${
 				tile.isTrash
@@ -392,11 +451,27 @@ const Inventory: React.FC<{
 
 	return (
 		<DndProvider backend={HTML5Backend}>
-			<div className="rounded-lg w-full" onContextMenu={(event) => {event.preventDefault();}} >
+			<div
+				className="rounded-lg w-full"
+				onContextMenu={(event) => {
+					event.preventDefault();
+				}}>
 				{error && <p className="text-red-500">{error}</p>}
-				<div className="grid grid-cols-8 gap-4 sm:gap-0 w-full h-full" onContextMenu={(event) => {event.preventDefault();}} >
-					<div className="col-span-6 h-full" onContextMenu={(event) => {event.preventDefault();}} >
-						<div onContextMenu={(event) => {event.preventDefault();}} className="grid grid-cols-8 gap-1 md:gap-2 border border-gray-600 p-0 md:p-2 bg-3-light dark:bg-3-dark rounded flex-grow h-full">
+				<div
+					className="grid grid-cols-8 gap-4 sm:gap-0 w-full h-full"
+					onContextMenu={(event) => {
+						event.preventDefault();
+					}}>
+					<div
+						className="col-span-6 h-full"
+						onContextMenu={(event) => {
+							event.preventDefault();
+						}}>
+						<div
+							onContextMenu={(event) => {
+								event.preventDefault();
+							}}
+							className="grid grid-cols-8 gap-1 md:gap-2 border border-gray-600 p-0 md:p-2 bg-3-light dark:bg-3-dark rounded flex-grow h-full">
 							{grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
 								<DroppableTile
 									key={tile.id}

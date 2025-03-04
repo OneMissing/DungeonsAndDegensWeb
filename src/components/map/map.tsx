@@ -494,27 +494,8 @@ const Map = () => {
         }
     };
 
-
-    const buildMap = (mapData: { structures: Structure[]; tiles: { [key: string]: string | null }; characters: Character[] }) => {
-        setStructures(mapData.structures);
-        setTiles(mapData.tiles);
-        setCharacters(
-            mapData.characters.map((char: Character) => ({
-                ...char,
-                class: char.class ? char.class.toLowerCase() : "fighter",
-                imagePath: char.class ? `/characters/${char.class.toLowerCase()}.webp` : "/characters/fighter.webp",
-                isDragging: false,
-                isSelected: false,
-            }))
-        );
-    };
-
     return (
         <div className="absolute w-screen h-main overflow-hidden">
-
-            {/* ModeSelect */}
-
-
             {/* Sidebar */}
             <div className="flex overflow-hidden h-main bg-2-light dark:bg-2-dark">
                 <MapSidebar
