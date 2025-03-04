@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 
-const D20Modal = () => {
+const D20Modal: React.FC<{roll: Number}> = ({ roll }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [result, setResult] = useState(1);
   const [modifier, setModifier] = useState(0);

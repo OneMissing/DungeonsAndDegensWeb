@@ -8,6 +8,7 @@ import { Tile, Item, Character, Spell, Action } from "@/lib/tools/types";
 import { Divider } from "@heroui/react";
 import BookInventory from "@/components/items/adder";
 import SpellList from "@/components/character/spellList";
+import CharacterList from "@/components/character/dm/panel";
 
 const supabase = createClient();
 
@@ -37,20 +38,20 @@ export default function Page() {
 	const [table, setTable] = useState<[boolean, boolean]>([true, true]);
 	const [items, setItems] = useState<Item[]>([]);
 	const [spells, setSpells] = useState<Spell[]>([]);
-	const [character, setCharacter]= useState<Character | undefined>(undefined);
-	const [actions, setActions]= useState<Action[]>([]);
+	const [character, setCharacter] = useState<Character | undefined>(undefined);
+	const [actions, setActions] = useState<Action[]>([]);
 
 	useEffect(() => {
 		if (!id) return;
 		const loadInventory = async () => {
 			try {
 				const { data, error } = await supabase.from("inventory").select("*").eq("character_id", id).order("position");
-	
+
 				if (error) {
 					setError("Error fetching inventory data.");
 					return;
 				}
-	
+
 				const updatedGrid = [...initialGrid];
 				data.forEach((inventoryEntry) => {
 					const existingItem = updatedGrid.find((tile) => tile.item?.inventory_id === inventoryEntry.inventory_id);
@@ -77,7 +78,7 @@ export default function Page() {
 				setError("Unexpected error fetching data.");
 			}
 		};
-	
+
 		const loadItems = async () => {
 			try {
 				const { data, error } = await supabase.from("items").select("*");
@@ -91,7 +92,7 @@ export default function Page() {
 				console.error(err);
 			}
 		};
-	
+
 		const loadSpells = async () => {
 			try {
 				const { data, error } = await supabase.from("spells").select("*");
@@ -123,11 +124,7 @@ export default function Page() {
 
 		const loadCharacter = async () => {
 			try {
-				const { data, error } = await supabase
-					.from("characters")
-					.select("*")
-					.eq("character_id", id)
-					.single();
+				const { data, error } = await supabase.from("characters").select("*").eq("character_id", id).single();
 
 				if (error) {
 					setError("Error fetching character data.");
@@ -146,7 +143,7 @@ export default function Page() {
 
 		loadInventory();
 		loadItems();
-		
+
 		loadSpells();
 		loadActions();
 	}, []);
@@ -164,13 +161,14 @@ export default function Page() {
 					</button>
 				</div>
 				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4">{table[0] ? <></> : <></>}</div>
+				<div className="mt-4">{table[0] ? <CharacterList character={character} /> : <></>}</div>
 			</section>
 			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
 				<h3 className="text-2xl font-semibold">Spells</h3>
 				<SpellList character_id={id as string} spells={spells} actions={actions} />
 			</section>
-			<section className={`bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none md:col-span-2 min-h-fill max-h-full`}>
+			<section
+				className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none md:col-span-2 min-h-fill max-h-full" >
 				<div className="grid grid-cols-11">
 					<button onClick={() => setTable([table[0], true])} className={`text-center text-2xl col-span-5`}>
 						Character
@@ -182,8 +180,12 @@ export default function Page() {
 				</div>
 				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
 				<div className="mt-4 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
-					{table[1] 	? <Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} /> 
-								: <BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />}</div>
+					{table[1] ? (
+						<Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
+					) : (
+						<BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
+					)}
+				</div>
 			</section>
 		</div>
 	);
