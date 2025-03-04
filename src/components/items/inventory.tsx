@@ -74,33 +74,29 @@ const ContextMenu: React.FC<{
 	const [dropSliderValue, setDropSliderValue] = useState<number>(1);
 	const [addSliderValue, setAddSliderValue] = useState<number>(1);
 	return (
-		<div
-			ref={menuRef}
-			className={`absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-[40000] w-40 p-2`}
-			style={{
-				top: position.y - 50,
-				left: position.x - 50,
-			}}>
-			<div className={`grid ${uniqueInstanceTypes.includes(currentItemInfo.type) ? "grid-rows-6" : "grid-rows-8"}`}>
-				<button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1" onClick={() => handleAction("use 1")}>
-					Use
-				</button>
-				<Divider className="my-2" />
-				<Slider min={1} max={item.quantity} value={dropSliderValue} onChange={setDropSliderValue} />
-				<button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 mt-1" onClick={() => handleAction(`drop ${dropSliderValue}`)}>
-					Drop {dropSliderValue}
-				</button>
-				<Divider className="my-2" />
-				{!uniqueInstanceTypes.includes(currentItemInfo.type) && <Slider min={1} max={99} value={addSliderValue} onChange={setAddSliderValue} />}
-				{!uniqueInstanceTypes.includes(currentItemInfo.type) && (
-					<button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 mt-1" onClick={() => handleAction(`add ${addSliderValue}`)}>
-						Add {addSliderValue}
+		<div id="contextMenu" ref={menuRef} className={`absolute z-[40000] pointer-events-none`}>
+			<div className="pointer-events-auto relative bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg w-40 p-2 mt-56 z-[40001]">
+				<div className={`grid ${uniqueInstanceTypes.includes(currentItemInfo.type) ? "grid-rows-6" : "grid-rows-8"}`}>
+					<button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1" onClick={() => handleAction("use 1")}>
+						Use
 					</button>
-				)}
-				{!uniqueInstanceTypes.includes(currentItemInfo.type) && <Divider className="my-2" />}
-				<button className="text-center text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mt-1" onClick={() => handleAction(`close`)}>
-					Close
-				</button>
+					<Divider className="my-2" />
+					<Slider min={1} max={item.quantity} value={dropSliderValue} onChange={setDropSliderValue} />
+					<button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 mt-1" onClick={() => handleAction(`drop ${dropSliderValue}`)}>
+						Drop {dropSliderValue}
+					</button>
+					<Divider className="my-2" />
+					{!uniqueInstanceTypes.includes(currentItemInfo.type) && <Slider min={1} max={99} value={addSliderValue} onChange={setAddSliderValue} />}
+					{!uniqueInstanceTypes.includes(currentItemInfo.type) && (
+						<button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 mt-1" onClick={() => handleAction(`add ${addSliderValue}`)}>
+							Add {addSliderValue}
+						</button>
+					)}
+					{!uniqueInstanceTypes.includes(currentItemInfo.type) && <Divider className="my-2" />}
+					<button className="text-center text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mt-1" onClick={() => handleAction(`close`)}>
+						Close
+					</button>
+				</div>
 			</div>
 		</div>
 	);
@@ -302,6 +298,7 @@ const DroppableTile: React.FC<{
 
 	return (
 		<div
+			onContextMenu={(event) => {event.preventDefault();}}
 			ref={drop as unknown as React.Ref<HTMLDivElement>}
 			className={`aspect-square ${
 				tile.isTrash
@@ -396,11 +393,11 @@ const Inventory: React.FC<{
 
 	return (
 		<DndProvider backend={HTML5Backend}>
-			<div className="rounded-lg w-full">
+			<div className="rounded-lg w-full" onContextMenu={(event) => {event.preventDefault();}} >
 				{error && <p className="text-red-500">{error}</p>}
-				<div className="grid grid-cols-8 gap-4 sm:gap-0 w-full h-full">
-					<div className="col-span-6 h-full">
-						<div className="grid grid-cols-8 gap-1 md:gap-2 border border-gray-600 p-0 md:p-2 bg-3-light dark:bg-3-dark rounded flex-grow h-full">
+				<div className="grid grid-cols-8 gap-4 sm:gap-0 w-full h-full" onContextMenu={(event) => {event.preventDefault();}} >
+					<div className="col-span-6 h-full" onContextMenu={(event) => {event.preventDefault();}} >
+						<div onContextMenu={(event) => {event.preventDefault();}} className="grid grid-cols-8 gap-1 md:gap-2 border border-gray-600 p-0 md:p-2 bg-3-light dark:bg-3-dark rounded flex-grow h-full">
 							{grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
 								<DroppableTile
 									key={tile.id}

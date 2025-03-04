@@ -192,12 +192,13 @@ export default function Page() {
 					</button>
 				</div>
 				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full"> 	
+				<div onContextMenu={(event) => {event.preventDefault();}} className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full"> 	
 					<motion.div
+						onContextMenu={(event) => {event.preventDefault();}}
 						className="flex w-[200%] transition-transform"
 						animate={{ x: table[1] ? "0%" : "-50%" }}
 						transition={{ duration: 0.2, ease: "easeInOut" }}>
-						<div className="w-1/2">
+						<div className="w-1/2" onContextMenu={(event) => {event.preventDefault();}} >
 						<Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
 						</div>
 						<div className="w-1/2 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
