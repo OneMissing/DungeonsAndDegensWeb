@@ -82,7 +82,13 @@ const Navbar = () => {
 					</div>
 				</div>
 
-				{isOpen && <div className="relative">{navButtons("md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900")}</div>}
+				<div className="transition-all duration-400 ease-in-out">
+					<div
+						className={`relative overflow-hidden transition-all duration-700 ease-in-out 
+      ${isOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"}`}>
+						{navButtons("md:hidden flex flex-col items-center space-y-4 mt-4 bg-brown-700 p-4 rounded-lg border border-brown-900")}
+					</div>
+				</div>
 			</div>
 		</nav>
 	);

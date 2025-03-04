@@ -55,9 +55,8 @@ const ContextMenu: React.FC<{
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+			if (menuRef.current && !menuRef.current.contains(event.target as Node)) 
 				onClose();
-			}
 		};
 
 		document.addEventListener("mousedown", handleClickOutside);
@@ -74,7 +73,7 @@ const ContextMenu: React.FC<{
 	const [dropSliderValue, setDropSliderValue] = useState<number>(1);
 	const [addSliderValue, setAddSliderValue] = useState<number>(1);
 	return (
-		<div id="contextMenu" ref={menuRef} className={`absolute z-[40000] pointer-events-none`}>
+		<div id="contextMenu" ref={menuRef} className={`fixed z-[40000] pointer-events-none`}>
 			<div className="pointer-events-auto relative bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg w-40 p-2 mt-56 z-[40001]">
 				<div className={`grid ${uniqueInstanceTypes.includes(currentItemInfo.type) ? "grid-rows-6" : "grid-rows-8"}`}>
 					<button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1" onClick={() => handleAction("use 1")}>
