@@ -1,6 +1,7 @@
 import { Character } from "@/lib/tools/types";
 import { CircleMinus, CirclePlus, Minus, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { skillRoll } from "@/lib/rolling/skillRoll";
 
 const supabase = createClient();
 
@@ -38,16 +39,18 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
 			.eq("character_id", character.character_id)
 			.select()
 			.single();
-		if (!error && data) 
+		if (!error && data)  
 			setCharacter(data);
 	};
 
 	return (
-		<div className="grid grid-cols-1">
+		<div className="grid grid-cols-1">	
 			{skills.map((skill, index) => (
-				<div className="mb-1 p-2 bg-gray-700 rounded flex justify-between" key={index}>
+				<div className="mb-1 p-2 bg-gray-700 rounded flex justify-between" key={index} onClick={() => skillRoll(Number(character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]))}>
 					<div>
-						<span className="font-semibold">{skill}:</span> {character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}
+						<span className="font-semibold">
+							{skill}:
+						</span> {character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}
 					</div>
 					<div className="flex gap-2">
 						<CirclePlus  color="green" onClick={() => updateSkill(skill,  1)} />
