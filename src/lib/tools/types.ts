@@ -105,3 +105,57 @@ export function itemFilter(items: Item[], itemId: string): Item | undefined {
 }
 
 export const uniqueInstanceTypes = ["helmet", "chestplate", "armor", "gauntlets", "boots", "weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield"];
+
+
+export enum Classes {
+    barbarian = "barbarian",
+    bard = "bard",
+    cleric = "cleric",
+    druid = "druid",
+    fighter = "fighter",
+    monk = "monk",
+    paladin = "paladin",
+    ranger = "ranger",
+    rogue = "rogue",
+    sorcerer = "sorcerer",
+    warlock = "warlock",
+    wizard = "wizard",
+}
+
+export enum Races {
+    dragonborn = "dragonborn",
+    dwarf = "dwarf",
+    elf = "elf",
+    gnome = "gnome",
+    halfelf = "half-elf",
+    halfling = "halfling",
+    halforc = "half-orc",
+    human = "human",
+    tiefling = "tiefling",
+    aarakocra = "aarakocra",
+    genasi = "genasi",
+    goliath = "goliath",
+    tabaxi = "tabaxi",
+    firbolg = "firbolg",
+    kenku = "kenku",
+    lizardfolk = "lizardfolk",
+    tortle = "tortle",
+    yuanti = "yuan-ti pureblood",
+    goblin = "goblin",
+    hobgoblin = "hobgoblin",
+    bugbear = "bugbear",
+    kobold = "kobold",
+    changeling = "changeling",
+    warforged = "warforged",
+    shifter = "shifter",
+    gith = "gith",
+    satyr = "satyr",
+    minotaur = "minotaur",
+    centaur = "centaur",
+    loxodon = "loxodon",
+    vedalken = "vedalken",
+    simichybrid = "simic hybrid",
+    harengon = "harengon",
+    owlin = "owlin"
+}
+
