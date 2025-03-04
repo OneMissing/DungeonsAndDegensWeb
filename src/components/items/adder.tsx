@@ -70,21 +70,19 @@ const BookInventory: React.FC<{character_id: string; items: Item[]; grid: Tile[]
 	return (
 		<div className="flex h-full">
 			<div className="w-1/5 border-r-1 border-yellow-400 h-full">
-				<h2 className="text-lg font-bold mb-2 pb-2 w-full border-b-1 border-yellow-400">Categories</h2>
-				<ul className="px-2 h-full overflow-auto">
-					<li className={`mb-1 p-1 cursor-pointer ${activeTab === "all" ? " text-white" : ""}`} onClick={() => setActiveTab("all")}>
+				<ul className="h-full overflow-auto">
+					<li className={`mb-1 p-1 cursor-pointer border-b-1 border-yellow-400 ${activeTab === "all" ? " text-white" : ""}`} onClick={() => setActiveTab("all")}>
 						All
 					</li>
 					{itemTypes.map((type) => (
 						<li key={type} className={`mb-1 p-1 cursor-pointer ${activeTab === type ? " text-white" : ""}`} onClick={() => setActiveTab(type)}>
-							{type}
+							{type.slice(0,1).toUpperCase() + type.slice(1).toLowerCase()}
 						</li>
 					))}
 				</ul>
 			</div>
 
-			<div className="w-4/5 p-4">
-				<h1 className="text-2xl font-bold mb-4">Items</h1>
+			<div className="w-4/5 pl-4 overflow-y-auto">
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{filteredItems.map((item) => (
 						<div

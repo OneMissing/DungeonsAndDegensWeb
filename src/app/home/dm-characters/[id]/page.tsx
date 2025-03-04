@@ -10,6 +10,7 @@ import BookInventory from "@/components/items/adder";
 import SpellList from "@/components/character/spellList";
 import CharacterPanel from "@/components/character/dm/characterPanel";
 import SkillsPanel from "@/components/character/dm/skillsPanel";
+import { motion } from "framer-motion";
 
 const supabase = createClient();
 
@@ -162,14 +163,25 @@ export default function Page() {
 					</button>
 				</div>
 				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4">{table[0] ? <CharacterPanel character={character} setCharacter={setCharacter} /> : <SkillsPanel character={character} setCharacter={setCharacter} />}</div>
+				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full"> 	
+					<motion.div
+						className="flex w-[200%] transition-transform"
+						animate={{ x: table[0] ? "0%" : "-50%" }}
+						transition={{ duration: 0.2, ease: "easeInOut" }}>
+						<div className="w-1/2">
+							<CharacterPanel character={character} setCharacter={setCharacter} />
+						</div>
+						<div className="w-1/2 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
+							<SkillsPanel character={character} setCharacter={setCharacter} />
+						</div>
+					</motion.div>
+				</div>
 			</section>
 			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
 				<h3 className="text-2xl font-semibold">Spells</h3>
 				<SpellList character_id={id as string} spells={spells} actions={actions} />
 			</section>
-			<section
-				className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none md:col-span-2 min-h-fill max-h-full" >
+			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none md:col-span-2 min-h-fill max-h-full">
 				<div className="grid grid-cols-11">
 					<button onClick={() => setTable([table[0], true])} className={`text-center text-2xl col-span-5`}>
 						Character
@@ -180,12 +192,18 @@ export default function Page() {
 					</button>
 				</div>
 				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
-					{table[1] ? (
+				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full"> 	
+					<motion.div
+						className="flex w-[200%] transition-transform"
+						animate={{ x: table[1] ? "0%" : "-50%" }}
+						transition={{ duration: 0.2, ease: "easeInOut" }}>
+						<div className="w-1/2">
 						<Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
-					) : (
-						<BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
-					)}
+						</div>
+						<div className="w-1/2 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
+							<BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
+						</div>
+					</motion.div>
 				</div>
 			</section>
 		</div>
