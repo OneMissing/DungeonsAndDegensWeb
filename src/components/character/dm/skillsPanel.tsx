@@ -51,7 +51,7 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
 					</div>
 					<div className="flex gap-2">
 						<CirclePlus  color="green" onClick={() => updateSkill(skill,  1)} />
-						<CircleMinus color="red"   onClick={() => updateSkill(skill, -1)} />
+						<CircleMinus color={`${character[skill.toLowerCase().replace(/ /g, "_") as keyof Character] === 0? "gray" : "red"}`}   onClick={() => updateSkill(skill, -1)} />
 					</div>
 				</div>
 			))}
