@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Inventory from "@/components/items/inventory";
 import { useParams } from "next/navigation";
-import { Tile, Item, Character } from "@/lib/tools/types";
+import { Tile, Item, Character, Spell, Action } from "@/lib/tools/types";
 import { Divider } from "@heroui/react";
 import BookInventory from "@/components/items/adder";
+import SpellList from "@/components/character/spellList";
 
 const supabase = createClient();
 
@@ -35,7 +36,9 @@ export default function Page() {
 	const [error, setError] = useState<string | null>(null);
 	const [table, setTable] = useState<[boolean, boolean]>([true, true]);
 	const [items, setItems] = useState<Item[]>([]);
+	const [spells, setSpells] = useState<Spell[]>([]);
 	const [character, setCharacter]= useState<Character | undefined>(undefined);
+	const [actions, setActions]= useState<Action[]>([]);
 
 	useEffect(() => {
 		if (!id) return;
@@ -89,6 +92,35 @@ export default function Page() {
 			}
 		};
 	
+		const loadSpells = async () => {
+			try {
+				const { data, error } = await supabase.from("spells").select("*");
+				if (error) {
+					setError("Error fetching inventory data.");
+					return;
+				}
+				setSpells(data);
+			} catch (err) {
+				setError("Unexpected error fetching data.");
+				console.error(err);
+			}
+		};
+
+		const loadActions = async () => {
+			try {
+				const { data, error } = await supabase.from("actions").select("*").eq("character_id", id);
+				if (error) {
+					setError("Error fetching actions data.");
+					return;
+				}
+				console.log(data);
+				setActions(data);
+			} catch (err) {
+				setError("Unexpected error fetching data.");
+				console.error(err);
+			}
+		};
+
 		const loadCharacter = async () => {
 			try {
 				const { data, error } = await supabase
@@ -104,7 +136,6 @@ export default function Page() {
 				}
 
 				setCharacter(data);
-				console.log("Loaded character:", data);
 			} catch (err) {
 				setError("Unexpected error fetching character data.");
 				console.error(err);
@@ -112,8 +143,12 @@ export default function Page() {
 		};
 
 		loadCharacter();
+
 		loadInventory();
 		loadItems();
+		
+		loadSpells();
+		loadActions();
 	}, []);
 
 	return (
@@ -133,7 +168,7 @@ export default function Page() {
 			</section>
 			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
 				<h3 className="text-2xl font-semibold">Spells</h3>
-				<p>No spells learned</p>
+				<SpellList character_id={id as string} spells={spells} actions={actions} />
 			</section>
 			<section className={`bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none md:col-span-2 min-h-fill max-h-full`}>
 				<div className="grid grid-cols-11">

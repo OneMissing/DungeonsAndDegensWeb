@@ -80,6 +80,26 @@ export interface Tile {
 	slotType?: string;
 }
 
+export interface Spell {
+	spell_id: string;
+	name: string;
+	description: string;
+	level: number;
+	school: string;
+	casting_time: string;
+	range: string;
+	components: string;
+	duration: string;
+	concentration: boolean;
+	ritual: boolean;
+}
+
+export interface Action {
+	action_id: string;
+	character_id: string;
+	spell_id: string;
+}
+
 export function itemFilter(items: Item[], itemId: string): Item | undefined {
 	return items.find((item) => item.item_id === itemId);
 }

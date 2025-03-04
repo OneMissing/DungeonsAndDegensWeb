@@ -80,7 +80,7 @@ const Popup: React.FC<PopupProps> = ({ type, onClose }) => {
 	);
 };
 
-const SettingsDropdown: React.FC = () => {
+const SettingsDropdown: React.FC<{className? : string}> = (className) => {
 	const [popup, setPopup] = useState<string | null>(null);
 
 	const handleItemClick = (type: string) => {
@@ -91,7 +91,7 @@ const SettingsDropdown: React.FC = () => {
 		<>
 			<Dropdown className="relative">
 				<DropdownTrigger>
-					<Settings className="mt-0.5 w-6 h-6 text-gray-300 hover:text-white transition duration-300" />
+					<Settings className={`${className}`} />
 				</DropdownTrigger>
 				<DropdownMenu
 					aria-label="User Settings"
@@ -117,7 +117,6 @@ const SettingsDropdown: React.FC = () => {
 					</DropdownItem>
 				</DropdownMenu>
 			</Dropdown>
-            
 			{popup && <Popup type={popup} onClose={() => setPopup(null)} />}
 		</>
 	);
