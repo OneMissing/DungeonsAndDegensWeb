@@ -28,7 +28,6 @@ const CharacterCreator = () => {
         hpmax: 10,
         hpnow: 10,
         hptmp: 0,
-        ac: 10,
         acrobatics: 0,
         animal_handling: 0,
         arcana: 0,
@@ -47,6 +46,15 @@ const CharacterCreator = () => {
         sleight_of_hand: 0,
         stealth: 0,
         survival: 0,
+        spell_slot_1: 0,
+        spell_slot_2: 0,
+        spell_slot_3: 0,
+        spell_slot_4: 0,
+        spell_slot_5: 0,
+        spell_slot_6: 0,
+        spell_slot_7: 0,
+        spell_slot_8: 0,
+        spell_slot_9: 0,
     });
 
     const handleChange = (field: keyof CharData, value: string | number | string[]) => {
