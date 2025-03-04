@@ -1,7 +1,13 @@
-import { Character } from "@/lib/tools/types";
+"use client";
 
-const SkillsPanel: React.FC<{character: Character | undefined}> = ({ character }) => {
+import { Character } from "@/lib/tools/types";
+import { useEffect, useState } from "react";
+
+const CharacterPanel: React.FC<{ character: Character | undefined; setCharacter: (character: Character) => void }> = ({ character, setCharacter }) => {
 	if (character === undefined) return <>Loading</>;
+
+	
+
 	return (
 		<div className="p-6 bg-gray-800 text-white rounded-lg shadow-lg max-w-3xl mx-auto">
 			<h1 className="text-3xl font-bold mb-2">{character.name}</h1>
@@ -13,6 +19,11 @@ const SkillsPanel: React.FC<{character: Character | undefined}> = ({ character }
 			</p>
 			<hr className="my-4 border-gray-600" />
 
+			<h2 className="text-xl font-semibold">Hit Points</h2>
+			<p className="p-2 bg-gray-700 rounded">
+				Current: {character.hpnow} / {character.hpmax} (Temp: {character.hptmp})
+			</p>
+
 			<h2 className="text-xl font-semibold">Attributes</h2>
 			<div className="grid grid-cols-3 gap-2 my-2">
 				{["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"].map((attr, index) => (
@@ -21,39 +32,6 @@ const SkillsPanel: React.FC<{character: Character | undefined}> = ({ character }
 					</div>
 				))}
 			</div>
-
-			<h2 className="text-xl font-semibold">Skills</h2>
-			<div className="grid grid-cols-2 gap-2 my-2">
-				{[
-					"Acrobatics",
-					"Animal Handling",
-					"Arcana",
-					"Athletics",
-					"Deception",
-					"History",
-					"Insight",
-					"Intimidation",
-					"Investigation",
-					"Medicine",
-					"Nature",
-					"Perception",
-					"Performance",
-					"Persuasion",
-					"Religion",
-					"Sleight of Hand",
-					"Stealth",
-					"Survival",
-				].map((skill, index) => (
-					<div key={index} className="p-2 bg-gray-700 rounded">
-						<span className="font-semibold">{skill}:</span> {character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}
-					</div>
-				))}
-			</div>
-
-			<h2 className="text-xl font-semibold">Hit Points</h2>
-			<p className="p-2 bg-gray-700 rounded">
-				Current: {character.hpnow} / {character.hpmax} (Temp: {character.hptmp})
-			</p>
 
 			<h2 className="text-xl font-semibold">Spell Slots</h2>
 			<div className="grid grid-cols-3 gap-2 my-2">
@@ -67,3 +45,4 @@ const SkillsPanel: React.FC<{character: Character | undefined}> = ({ character }
 	);
 };
 
+export default CharacterPanel;

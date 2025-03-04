@@ -8,7 +8,8 @@ import { Tile, Item, Character, Spell, Action } from "@/lib/tools/types";
 import { Divider } from "@heroui/react";
 import BookInventory from "@/components/items/adder";
 import SpellList from "@/components/character/spellList";
-import CharacterList from "@/components/character/dm/panel";
+import CharacterPanel from "@/components/character/dm/characterPanel";
+import SkillsPanel from "@/components/character/dm/skillsPanel";
 
 const supabase = createClient();
 
@@ -161,7 +162,7 @@ export default function Page() {
 					</button>
 				</div>
 				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4">{table[0] ? <CharacterList character={character} /> : <></>}</div>
+				<div className="mt-4">{table[0] ? <CharacterPanel character={character} setCharacter={setCharacter} /> : <SkillsPanel character={character} setCharacter={setCharacter} />}</div>
 			</section>
 			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
 				<h3 className="text-2xl font-semibold">Spells</h3>
