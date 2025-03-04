@@ -10,6 +10,7 @@ import { structureData } from "@/lib/tools/map";
 import Sidebar from "../ui/sidebar";
 import { Divider } from "@heroui/react";
 
+
 const MapSidebar: React.FC<SidebarProps> = ({
 	activeTab,
 	setActiveTab,

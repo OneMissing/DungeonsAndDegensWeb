@@ -90,3 +90,31 @@ Link:hover {
 .custom-animate-fade-in {
   animation: fade-in 0.3s ease-in-out;
 }
+
+
+@keyframes roll {
+  0% { transform: rotateX(0) rotateY(0) rotateZ(0) scale(1); }
+  30% { transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg) scale(1.2); }
+  60% { transform: rotateX(1440deg) rotateY(720deg) rotateZ(360deg) scale(0.9); }
+  100% { transform: rotateX(2160deg) rotateY(1080deg) rotateZ(540deg) scale(1); }
+}
+
+.animate-roll {
+  animation: roll 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.font-papyrus {
+  font-family: Papyrus, fantasy;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
