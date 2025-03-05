@@ -73,8 +73,8 @@ const ContextMenu: React.FC<{
 	const [dropSliderValue, setDropSliderValue] = useState<number>(1);
 	const [addSliderValue, setAddSliderValue] = useState<number>(1);
 	return (
-		<div id="contextMenu" ref={menuRef} className={`fixed z-[40000] pointer-events-none`}>
-			<div className="pointer-events-auto relative bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg w-40 p-2 mt-56 z-[40001]">
+		<div id="contextMenu" ref={menuRef} className={`fixed z-[40000] pointer-events-none`} style={{left: position.x - 80 , top: position.y}}>
+			<div className="pointer-events-auto relative bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg w-40 p-2 z-[40001]">
 				<div className={`grid ${uniqueInstanceTypes.includes(currentItemInfo.type) ? "grid-rows-6" : "grid-rows-8"}`}>
 					<button className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1" onClick={() => handleAction("use 1")}>
 						Use
@@ -185,7 +185,7 @@ const DraggableItem: React.FC<{
 		const result = action.trim().split(/\s+/).slice(0, 2);
 		const amount = parseInt(result[1], 10);
 
-		if (result[0] === "use" || result[0] === "drop") {
+		if (result[0] === "drop") {
 			const newQuantity = item.quantity - amount;
 			if (newQuantity === 0) {
 				await supabase.from("inventory").delete().eq("character_id", character_id).eq("inventory_id", item.inventory_id);
@@ -198,6 +198,8 @@ const DraggableItem: React.FC<{
 			const newQuantity = item.quantity + amount;
 			await supabase.from("inventory").update({ quantity: newQuantity }).eq("inventory_id", item.inventory_id);
 			onQuantityChanged(item.inventory_id, newQuantity);
+		} else if (result[0] === "use") {
+			weaponRoll(currentItemInfo);
 		}
 	};
 
@@ -307,8 +309,7 @@ const DraggableItem: React.FC<{
 					ref={drag as unknown as React.Ref<HTMLDivElement>}
 					className={`relative p-1 bg-3-light dark:bg-3-dark border border-gray-500 rounded cursor-move w-full h-full ${isDragging ? "opacity-50" : "opacity-100"}`}
 					onMouseEnter={() => setIsTooltipVisible(true)}
-					onContextMenu={handleContextMenu}
-					onClick={() => weaponRoll(currentItemInfo)}>
+					onContextMenu={handleContextMenu}>
 					{typeSpecificContent}
 					{!uniqueInstanceTypes.includes(currentItemInfo.type) && (
 						<span className="absolute bottom-0 right-0 text-xs bg-black bg-opacity-70 text-white px-1 rounded">x{item.quantity}</span>
