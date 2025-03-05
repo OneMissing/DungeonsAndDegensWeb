@@ -8,6 +8,7 @@ import { Item, Tile, InventoryItem, itemFilter, uniqueInstanceTypes } from "@/li
 import { Amphora, ArrowRightFromLine, Book, Circle, Coins, FileQuestion, Ham, Heart, Key, Scroll, Shield, Shirt, Sword, SwordIcon, Trash, Wand, Wrench } from "lucide-react";
 import { Divider, Tooltip } from "@heroui/react";
 import Slider from "../ui/slider";
+import { weaponRoll } from "@/lib/rolling/damageRoll";
 
 const supabase = createClient();
 
@@ -306,7 +307,8 @@ const DraggableItem: React.FC<{
 					ref={drag as unknown as React.Ref<HTMLDivElement>}
 					className={`relative p-1 bg-3-light dark:bg-3-dark border border-gray-500 rounded cursor-move w-full h-full ${isDragging ? "opacity-50" : "opacity-100"}`}
 					onMouseEnter={() => setIsTooltipVisible(true)}
-					onContextMenu={handleContextMenu}>
+					onContextMenu={handleContextMenu}
+					onClick={() => weaponRoll(currentItemInfo)}>
 					{typeSpecificContent}
 					{!uniqueInstanceTypes.includes(currentItemInfo.type) && (
 						<span className="absolute bottom-0 right-0 text-xs bg-black bg-opacity-70 text-white px-1 rounded">x{item.quantity}</span>
