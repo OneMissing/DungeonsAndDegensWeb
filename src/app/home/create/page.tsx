@@ -108,6 +108,13 @@ const CharacterCreator = () => {
 		return true;
 	};
 
+	const calculateSkillValue = (skill: keyof CharData, attr: keyof CharData) => {
+		const abilityMod = Math.floor((Number(charData[attr]) - 10) / 2);
+		const isSelected = selectedSkills.includes(skill);
+		const bonus = isSelected ? 3 : 0;
+		return abilityMod + Number(charData[skill]) + bonus;
+	};
+
 	const createCharacter = async () => {
 		if (!validateCharacter()) {
 			return;
@@ -122,11 +129,39 @@ const CharacterCreator = () => {
 				return;
 			}
 
+			// Calculate skill values with attribute modifiers and bonuses
+			const skills = [
+				{ name: "acrobatics", attr: "dexterity" },
+				{ name: "animal_handling", attr: "wisdom" },
+				{ name: "arcana", attr: "intelligence" },
+				{ name: "athletics", attr: "strength" },
+				{ name: "deception", attr: "charisma" },
+				{ name: "history", attr: "intelligence" },
+				{ name: "insight", attr: "wisdom" },
+				{ name: "intimidation", attr: "charisma" },
+				{ name: "investigation", attr: "intelligence" },
+				{ name: "medicine", attr: "wisdom" },
+				{ name: "nature", attr: "intelligence" },
+				{ name: "perception", attr: "wisdom" },
+				{ name: "performance", attr: "charisma" },
+				{ name: "persuasion", attr: "charisma" },
+				{ name: "religion", attr: "intelligence" },
+				{ name: "sleight_of_hand", attr: "dexterity" },
+				{ name: "stealth", attr: "dexterity" },
+				{ name: "survival", attr: "wisdom" },
+			] as { name: keyof CharData; attr: keyof CharData }[];
+
+			const updatedSkills = skills.reduce((acc, { name, attr }) => {
+				acc[name] = calculateSkillValue(name, attr);
+				return acc;
+			}, {} as Record<keyof CharData, number>);
+
+			// Create the new character with updated skill values
 			const newCharacter = {
 				...charData,
+				...updatedSkills,
 				user_id: userData.user.id,
 				player_id: userData.user.id,
-				...selectedSkills.reduce((acc, skill) => ({ ...acc, [skill]: Number(charData[skill]) + 3 }), {}),
 			};
 
 			const { error } = await supabase.from("characters").insert([newCharacter]);
@@ -237,6 +272,8 @@ const CharacterCreator = () => {
 										const attributes = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] as (keyof CharData)[];
 										const currentTotal = attributes.reduce((sum, attr) => sum + (charData[attr] as number), 0);
 										const newTotal = currentTotal - Number(charData[attr]) + newValue;
+
+										// Check if the new value is within the allowed range and the total points do not exceed 72
 										if (newValue >= 1 && newValue <= 20 && newTotal <= 72) {
 											handleChange(attr, newValue);
 										}
@@ -286,21 +323,18 @@ const CharacterCreator = () => {
 							{ name: "stealth", attr: "dexterity" },
 							{ name: "survival", attr: "wisdom" },
 						] as { name: keyof CharData; attr: keyof CharData }[]).map(({ name, attr }) => {
-							const abilityMod = Math.floor((Number(charData[attr]) - 10) / 2);
-							const isSelected = selectedSkills.includes(name);
-							const bonus = isSelected ? 3 : 0;
-							const skillValue = abilityMod + Number(charData[name]) + bonus;
+							const skillValue = calculateSkillValue(name, attr);
 
 							return (
 								<div
 									key={name}
 									onClick={() => toggleSkill(name)}
 									className={`p-4 rounded-lg cursor-pointer ${
-										isSelected
+										selectedSkills.includes(name)
 											? "bg-blue-600 text-white" // Selected state
 											: "bg-gray-700 text-white" // Default state
 									} ${
-										!isSelected && selectedSkills.length >= 2
+										!selectedSkills.includes(name) && selectedSkills.length >= 2
 											? "opacity-50 cursor-not-allowed" // Disabled state
 											: "hover:bg-blue-500" // Hover state
 									}`}

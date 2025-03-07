@@ -32,7 +32,7 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
 	const updateSkill = async (skill: string, delta: number) => {
 		const skillKey = skill.toLowerCase().replace(/ /g, "_") as keyof Character;
 		const newSkillValue = Number(character[skillKey]) + delta;
-		if(newSkillValue < 0) return;
+		if(newSkillValue < -20 || newSkillValue > 20) return;
 		const { data, error } = await supabase
 			.from("characters")
 			.update({ [skillKey]: newSkillValue })
@@ -53,8 +53,8 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
 						</span> {character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}
 					</div>
 					<div className="flex gap-2">
-						<CirclePlus  color="green" onClick={() => updateSkill(skill,  1)} />
-						<CircleMinus color={`${character[skill.toLowerCase().replace(/ /g, "_") as keyof Character] === 0? "gray" : "red"}`}   onClick={() => updateSkill(skill, -1)} />
+						<CirclePlus  color={`${character[skill.toLowerCase().replace(/ /g, "_") as keyof Character] ===  20? "gray" : "green"}` } onClick={() => updateSkill(skill,  1)} />
+						<CircleMinus color={`${character[skill.toLowerCase().replace(/ /g, "_") as keyof Character] === -20? "gray" : "red"}`   } onClick={() => updateSkill(skill, -1)} />
 					</div>
 				</div>
 			))}
