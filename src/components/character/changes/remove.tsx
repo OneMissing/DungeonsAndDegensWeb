@@ -15,7 +15,7 @@ const Remove: React.FC<CopyToClipboardProps> = ({ text }) => {
 	const [copied, setCopied] = useState(false);
 	const handleRemove = async () => {
 		try {
-			const { error } = await supabase.from("characters").update({ user_id: null }).eq("id", text);
+			const { error } = await supabase.from("characters").update({ player_id: null }).eq("character_id", text);
 			window.location.reload();
 		} catch (error) {
 			console.error("Failed to copy text:", error);
@@ -25,7 +25,7 @@ const Remove: React.FC<CopyToClipboardProps> = ({ text }) => {
 	return (
 		<Tooltip
 			placement="bottom"
-			offset={-15}
+			offset={0}
 			delay={0}
 			closeDelay={0}
 			classNames={{

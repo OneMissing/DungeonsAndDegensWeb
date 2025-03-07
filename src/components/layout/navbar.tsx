@@ -56,14 +56,14 @@ const Navbar = () => {
 					Logout
 				</button>
 			)}
-			{isLogged && (
-				<div className="flex gap-4">
-					<ThemeToggle className="text-xl hover:text-yellow-400 transition duration-300" />
+			<div className="flex gap-4">
+				<ThemeToggle className="text-xl hover:text-yellow-400 transition duration-300" />
+				{isLogged && (
 					<div className="mt-[0.21rem]">
 						<SettingsDropdown />
 					</div>
-				</div>
-			)}
+				)}
+			</div>
 		</div>
 	);
 	return (

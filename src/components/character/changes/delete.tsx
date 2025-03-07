@@ -21,7 +21,7 @@ const Delete: React.FC<DeleteProps> = ({ charId }) => {
 		setLoading(true);
 		setError(null);
 		try {
-			const { error } = await supabase.from("characters").delete().eq("id", charId);
+			const { error } = await supabase.from("characters").delete().eq("character_id", charId);
 			if (error) throw new Error(error.message);
 		} catch (err) {
 			setError((err as Error).message);
@@ -42,7 +42,7 @@ const Delete: React.FC<DeleteProps> = ({ charId }) => {
 		<>
 			<Tooltip
 				placement="bottom"
-				offset={-15}
+				offset={0}
 				delay={0}
 				closeDelay={0}
 				classNames={{

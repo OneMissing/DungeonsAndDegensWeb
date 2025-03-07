@@ -28,8 +28,8 @@ const LinkCharacter = () => {
 
             const { error: updateError } = await supabase
                 .from("characters")
-                .update({ user_id: user.id })
-                .eq("id", charId);
+                .update({ player_id: user.id })
+                .eq("character_id", charId);
 
             if (updateError) {
                 throw new Error(updateError.message);

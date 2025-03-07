@@ -24,7 +24,7 @@ const CopyToClipboard: React.FC<CopyToClipboardProps> = ({ text }) => {
     return (
         <Tooltip
             placement='bottom'
-            offset={-15}
+            offset={0}
             delay={0}
             closeDelay={0}
             classNames={{
