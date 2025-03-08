@@ -184,6 +184,13 @@ const CharacterInfo = ({ character, setCharacter, className }: { character?: Cha
 					</li>
 				))}
 			</ul>
+			{/* Dice Button */}
+			<button 
+    		className="mt-4 px-4 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-600 transition"		
+			onClick={() => window.open("/")}
+			>
+    		Roll Dice
+			</button>
 		</div>
 	);
 };

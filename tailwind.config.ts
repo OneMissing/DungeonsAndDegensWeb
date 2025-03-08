@@ -23,15 +23,15 @@ const config: Config = {
 			},
 			colors: {
 				1: {
-					light: "#ffffff",
+					light: "#F8F9FA",
 					dark: "#0f172a",
 				},
 				2: {
-					light: "#e2e8f0",
+					light: "#FFFFFF",
 					dark: "#1e293b",
 				},
 				3: {
-					light: "#d1d5db",
+					light: "#D1D5DB",
 					dark: "#334155",
 				},
 				text1: {
@@ -39,27 +39,27 @@ const config: Config = {
 					dark: "#f8fafc",
 				},
 				text2: {
-					light: "#1f2937",
+					light: "#4A4A4A",
 					dark: "#e2e8f0",
 				},
 				text3: {
-					light: "#374151",
+					light: "#6B7280",
 					dark: "#cbd5e1",
 				},
 				primary: {
-					light: "#2563eb",
+					light: "#D4AF37",
 					dark: "#3b82f6",
 				},
 				secondary: {
-					light: "#d97706",
+					light: "#0056B3",
 					dark: "#f59e0b",
 				},
 				accent: {
-					light: "#10b981",
+					light: "#FF6B6B",
 					dark: "#34d399",
 				},
 				border: {
-					light: "#d1d5db",
+					light: "#FF6B6B",
 					dark: "#334155",
 				},
 			},

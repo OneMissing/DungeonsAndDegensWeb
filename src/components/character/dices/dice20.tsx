@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from 'react';
 
-const D20Modal = () => {
+const D20Modal: React.FC<{ roll: number }> = ({ roll }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [result, setResult] = useState(1);
+  const [result, setResult] = useState(roll);
   const [modifier, setModifier] = useState(0);
   const [history, setHistory] = useState<string[]>([]);
   const [isRolling, setIsRolling] = useState(false);
@@ -36,34 +36,15 @@ const D20Modal = () => {
     return transforms[number] || '';
   };
 
-  const rollDice = () => {
-    if (isRolling) return;
-    setIsRolling(true);
-    
-    const rollResult = Math.floor(Math.random() * 20) + 1;
-    const total = rollResult + modifier;
-
-    setTimeout(() => {
-      setIsRolling(false);
-      setResult(total);
-      setHistory(prev => [
-        `${rollResult} + ${modifier} = ${total}`,
-        ...prev.slice(0, 4)
-      ]);
-    }, 1800);
-  };
-
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && isModalOpen) {
-        e.preventDefault();
-        rollDice();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isModalOpen, modifier, isRolling]);
+    if (isRolling) {
+      setTimeout(() => {
+        setIsRolling(false);
+        setResult(roll + modifier);
+        setHistory(prev => [`${roll} + ${modifier} = ${roll + modifier}`, ...prev.slice(0, 4)]);
+      }, 1800);
+    }
+  }, [roll, modifier, isRolling]);
 
   return (
     <>
@@ -121,7 +102,7 @@ const D20Modal = () => {
               />
 
               <button
-                onClick={rollDice}
+                onClick={() => setIsRolling(true)}
                 className="bg-secondary-dark hover:bg-secondary-light text-text1-dark px-6 py-3 rounded-lg
                          font-bold text-lg transition-colors flex items-center gap-2"
               >
