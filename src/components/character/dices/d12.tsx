@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 
-const D12Modal: React.FC<{roll: Number}> = ({ roll }) => {
+const D12Modal: React.FC<{ roll: number }> = ({ roll }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [result, setResult] = useState(1);
+  const [result, setResult] = useState(roll);
   const [modifier, setModifier] = useState(0);
   const [history, setHistory] = useState<string[]>([]);
   const [isRolling, setIsRolling] = useState(false);
 
-  const faces = Array.from({ length: 12 }, (_, i) => i + 1);
+  const faces = Array.from({ length: 20 }, (_, i) => i + 1);
 
   const getTransform = (number: number) => {
     const transforms: { [key: number]: string } = {
@@ -27,34 +27,17 @@ const D12Modal: React.FC<{roll: Number}> = ({ roll }) => {
     return transforms[number] || '';
   };
 
-  const rollDice = () => {
-    if (isRolling) return;
-    setIsRolling(true);
-    
-    const rollResult = Math.floor(Math.random() * 12) + 1;
-    const total = rollResult + modifier;
-
-    setTimeout(() => {
-      setIsRolling(false);
-      setResult(total);
-      setHistory(prev => [
-        `${rollResult} + ${modifier} = ${total}`,
-        ...prev.slice(0, 4)
-      ]);
-    }, 1800);
-  };
-
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && isModalOpen) {
-        e.preventDefault();
-        rollDice();
-      }
-    };
+    if (isRolling) {
+      setTimeout(() => {
+        setIsRolling(false);
+        setResult(roll + modifier);
+        setHistory(prev => [`${roll} + ${modifier} = ${roll + modifier}`, ...prev.slice(0, 4)]);
+      }, 1800);
+    }
+  }, [roll, modifier, isRolling]);
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isModalOpen, modifier, isRolling]);
+
 
   return (
     <>
@@ -112,7 +95,7 @@ const D12Modal: React.FC<{roll: Number}> = ({ roll }) => {
               />
 
               <button
-                onClick={rollDice}
+                onClick={() => setIsRolling(true)}
                 className="bg-secondary-dark hover:bg-secondary-light text-text1-dark px-6 py-3 rounded-lg
                          font-bold text-lg transition-colors flex items-center gap-2"
               >
