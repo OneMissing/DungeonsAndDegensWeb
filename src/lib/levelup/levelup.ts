@@ -1,35 +1,39 @@
 import { Character } from "../tools/types";
 
 let totalSkillPoints: number = 5;
-let remainingSkillPoints: number = totalSkillPoints; 
-let totalStatPoints: number = 5; 
-let remainingStatPoints: number = totalStatPoints; 
+let remainingSkillPoints: number = totalSkillPoints;
+let totalStatPoints: number = 5;
+let remainingStatPoints: number = totalStatPoints;
 
 let skillPoints: Record<string, number> = {};
 let skillEnablePlus: Record<string, boolean> = {};
 let skillEnableMinus: Record<string, boolean> = {};
+let skillEnable: boolean = false; // ✅ Updated condition
 
 let statPoints: Record<string, number> = {};
 let statEnablePlus: Record<string, boolean> = {};
 let statEnableMinus: Record<string, boolean> = {};
+let statEnable: boolean = false; // ✅ Updated condition
 
 let stats: Record<string, number> = {};
 let skills: Record<string, number> = {};
 let minStats: Record<string, number> = {};
 let minSkills: Record<string, number> = {};
 
-const shouldAllocatePoints = (level: number, type: 'stat' | 'skill'): boolean => {
-
-  if (type === 'skill') {
-    return level % 2 === 0;  
+const shouldAllocatePoints = (level: number, type: "stat" | "skill"): boolean => {
+  if (type === "skill") {
+    return level % 2 !== 0;
   }
-  if (type === 'stat') {
-    return level % 3 === 0;  
+  if (type === "stat") {
+    return level % 2 !== 0;
   }
   return false;
 };
 
-export function loadCharacter(inputCharacter: Character) {
+export function CharacterLoad(inputCharacter: Character | undefined) {
+  if (!inputCharacter) {
+    return;
+  }
 
   minStats = {
     strength: inputCharacter.strength,
@@ -64,24 +68,27 @@ export function loadCharacter(inputCharacter: Character) {
   stats = { ...minStats };
   skills = { ...minSkills };
 
-  Object.keys(minSkills).forEach(skill => {
-    skillPoints[skill] = 0;  
-    skillEnablePlus[skill] = shouldAllocatePoints(inputCharacter.level, 'skill') && remainingSkillPoints > 0; 
-    skillEnableMinus[skill] = false; 
+  skillEnable = shouldAllocatePoints(inputCharacter.level, "skill");
+  statEnable = shouldAllocatePoints(inputCharacter.level, "stat");
+
+  Object.keys(minSkills).forEach((skill) => {
+    skillPoints[skill] = 0;
+    skillEnablePlus[skill] = skillEnable && remainingSkillPoints > 0;
+    skillEnableMinus[skill] = false;
   });
 
-  Object.keys(minStats).forEach(stat => {
-    statPoints[stat] = 0;  
-    statEnablePlus[stat] = shouldAllocatePoints(inputCharacter.level, 'stat') && remainingStatPoints > 0; 
-    statEnableMinus[stat] = false; 
+  Object.keys(minStats).forEach((stat) => {
+    statPoints[stat] = 0;
+    statEnablePlus[stat] = statEnable && remainingStatPoints > 0;
+    statEnableMinus[stat] = false;
   });
 }
 
 export function skillPlus(skill: string) {
   if (remainingSkillPoints > 0 && skillEnablePlus[skill]) {
-    skillPoints[skill] += 1;  
-    skills[skill] += 1;  
-    remainingSkillPoints--;  
+    skillPoints[skill] += 1;
+    skills[skill] += 1;
+    remainingSkillPoints--;
 
     skillEnableMinus[skill] = true;
 
@@ -93,9 +100,9 @@ export function skillPlus(skill: string) {
 
 export function skillMinus(skill: string) {
   if (skillPoints[skill] > 0) {
-    skillPoints[skill] -= 1;  
-    skills[skill] -= 1;  
-    remainingSkillPoints++;  
+    skillPoints[skill] -= 1;
+    skills[skill] -= 1;
+    remainingSkillPoints++;
 
     skillEnablePlus[skill] = true;
 
@@ -107,9 +114,9 @@ export function skillMinus(skill: string) {
 
 export function statPlus(stat: string) {
   if (remainingStatPoints > 0 && statEnablePlus[stat]) {
-    statPoints[stat] += 1;  
-    stats[stat] += 1;  
-    remainingStatPoints--;  
+    statPoints[stat] += 1;
+    stats[stat] += 1;
+    remainingStatPoints--;
 
     statEnableMinus[stat] = true;
 
@@ -121,9 +128,9 @@ export function statPlus(stat: string) {
 
 export function statMinus(stat: string) {
   if (statPoints[stat] > 0) {
-    statPoints[stat] -= 1;  
-    stats[stat] -= 1;  
-    remainingStatPoints++;  
+    statPoints[stat] -= 1;
+    stats[stat] -= 1;
+    remainingStatPoints++;
 
     statEnablePlus[stat] = true;
 
@@ -133,4 +140,4 @@ export function statMinus(stat: string) {
   }
 }
 
-export { skillEnablePlus, skillEnableMinus, statEnablePlus, statEnableMinus };
+export { skillEnablePlus, skillEnableMinus, statEnablePlus, statEnableMinus, skillEnable, statEnable };

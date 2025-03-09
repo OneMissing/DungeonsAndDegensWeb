@@ -1,70 +1,45 @@
-"use client";
+/* "use client";
 
 import React, { useState, useEffect } from "react";
 import { Character } from "@/lib/tools/types";
-import {
-  loadCharacter,
-  skillMinus,
-  skillPlus,
-  statMinus,
-  statPlus,
-  skillEnablePlus,
-  skillEnableMinus,
-  statEnablePlus,
-  statEnableMinus,
-} from "@/lib/levelup/levelup";
+import { CharacterLoad,skillMinus,skillPlus,statMinus,statPlus,skillEnablePlus,skillEnableMinus,statEnablePlus,statEnableMinus,} from "@/lib/levelup/levelup";
+import { useParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import Inventory from "@/components/items/inventory";
+import { Divider } from "@heroui/react";
+import BookInventory from "@/components/items/adder";
+import SpellList from "@/components/character/spellList";
+import CharacterPanel from "@/components/character/dm/characterPanel";
+import SkillsPanel from "@/components/character/dm/skillsPanel";
+import { motion } from "framer-motion";
 
-// Example Character data
-const exampleCharacter: Character = {
-  character_id: "char_12345",
-  user_id: "user_67890",
-  name: "Eldrin Shadowleaf",
-  race: "Elf",
-  class: "Rogue",
-  background: "Outlander",
-  alignment: "Chaotic Good",
-  created_at: "2023-10-01T12:34:56Z",
-  player_id: "player_54321",
-  strength: 14,
-  dexterity: 18,
-  constitution: 12,
-  intelligence: 10,
-  wisdom: 8,
-  charisma: 16,
-  level: 2,
-  hpmax: 120,
-  hpnow: 85,
-  hptmp: 25,
-  acrobatics: 7,
-  animal_handling: 4,
-  arcana: 3,
-  athletics: 9,
-  deception: 6,
-  history: 5,
-  insight: 8,
-  intimidation: 7,
-  investigation: 6,
-  medicine: 4,
-  nature: 5,
-  perception: 7,
-  performance: 3,
-  persuasion: 8,
-  religion: 2,
-  sleight_of_hand: 9,
-  stealth: 10,
-  survival: 6,
-  spell_slot_1: 2,
-  spell_slot_2: 1,
-  spell_slot_3: 0,
-  spell_slot_4: 3,
-  spell_slot_5: 2,
-  spell_slot_6: 1,
-  spell_slot_7: 0,
-  spell_slot_8: 0,
-  spell_slot_9: 0,
+const supabase = createClient();
+
+const { id } = useParams();
+const [error, setError] = useState<string | null>(null);
+const [character, setCharacter] = useState<Character  | undefined>(undefined);
+const loadCharacter = async () => {
+  try {
+    const { data, error } = await supabase.from("characters").select("*").eq("character_id", id).single();
+
+    if (error) {
+      setError("Error fetching character data.");
+      console.error(error);
+      return;
+    }
+
+    setCharacter(data);
+  } catch (err) {
+    setError("Unexpected error fetching character data.");
+    console.error(err);
+  }
 };
 
-loadCharacter(exampleCharacter);
+loadCharacter();
+useEffect(() => {console.log(character)}, [character]);
+CharacterLoad(character);
+
+  const characterR:Character | undefined = character;
 
 // Define a type for the stats portion of the character
 type CharacterStats = {
@@ -78,7 +53,7 @@ type CharacterStats = {
 
 const SkillStatLevelUpComponent: React.FC = () => {
   // Update the state to reflect full `Character` structure
-  const [tempSkills, setTempSkills] = useState<Character>({ ...exampleCharacter });
+  const [tempSkills, setTempSkills] = useState<Character | undefined>({ ...character });
   const [tempStats, setTempStats] = useState<CharacterStats>({
     strength: exampleCharacter.strength,
     dexterity: exampleCharacter.dexterity,
@@ -164,7 +139,7 @@ const SkillStatLevelUpComponent: React.FC = () => {
     <div>
       <h2 className="text-xl font-bold mb-4">Skill & Stat Level-Up</h2>
 
-      {/* Display remaining points */}
+      {}
       <div className="mb-4">
         <p>
           Remaining Skill Points:{" "}
@@ -176,7 +151,8 @@ const SkillStatLevelUpComponent: React.FC = () => {
         </p>
       </div>
 
-      {/* Stats Section */}
+    
+      {}
       <h3 className="text-lg font-semibold mb-2">Stats</h3>
       {["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"].map(
         (stat, index) => {
@@ -207,7 +183,7 @@ const SkillStatLevelUpComponent: React.FC = () => {
         }
       )}
 
-      {/* Skills Section */}
+      {}
       <h3 className="text-lg font-semibold mt-4 mb-2">Skills</h3>
       {[
         "animal_handling",
@@ -254,7 +230,7 @@ const SkillStatLevelUpComponent: React.FC = () => {
         );
       })}
 
-      {/* Submit Button */}
+      {}
       <div className="mt-4">
         <button
           onClick={() => alert("Changes submitted!")}
@@ -268,3 +244,68 @@ const SkillStatLevelUpComponent: React.FC = () => {
 };
 
 export default SkillStatLevelUpComponent;
+ */
+"use client"
+
+import LevelUpSkill from "@/components/levelup/skillLevelup";
+import LevelUpStat from "@/components/levelup/statLevelup";
+import { CharacterLoad, skillEnable, statEnable} from "@/lib/levelup/levelup";
+import { createClient } from "@/lib/supabase/client";
+import { Character } from "@/lib/tools/types";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
+
+export default function Page() {
+  const { id } = useParams();
+  const supabase = createClient();
+  const [error, setError] = useState<string | null>(null);
+  const [character, setCharacter] = useState<Character  | undefined>(undefined);
+
+  useEffect(() => {
+    const loadCharacter = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("characters")
+          .select("*")
+          .eq("character_id", id)
+          .single();
+
+        if (error) {
+          setError("Error fetching character data.");
+          console.error(error);
+          return;
+        }
+
+        setCharacter(data);
+      } catch (err) {
+        setError("Unexpected error fetching character data.");
+        console.error(err);
+      }
+    };
+
+    if (id) {
+      loadCharacter();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (character) {
+      console.log(character);
+    }
+  }, [character]);
+
+  useEffect(() => {
+    if (character) {
+      CharacterLoad(character);
+    }
+  }, [character]);
+
+  return(
+    
+    <div>
+      {skillEnable && (<LevelUpSkill character={character}/>)}
+      {statEnable && (<LevelUpStat character={character}/>)}
+    </div>
+  );
+};
