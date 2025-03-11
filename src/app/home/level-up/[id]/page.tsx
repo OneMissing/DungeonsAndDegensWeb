@@ -7,6 +7,36 @@ import { CircleMinus, CirclePlus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+const supabase = createClient();
+
+export const updateCharacter = async (
+  characterId: string, 
+  updatedStats: Record<string, number>, 
+  updatedSkills: Record<string, number>,
+  currentLevel: number // Add current level as a parameter
+) => {
+  const updateData = { 
+    ...updatedStats, 
+    ...updatedSkills, 
+    level: currentLevel // Increment level by 1
+  };
+
+  console.log("Updating character:", characterId, updateData);
+
+  const { data, error } = await supabase
+    .from("characters")
+    .update(updateData)
+    .eq("character_id", characterId);
+
+  if (error) {
+    console.error("Error updating character:", error);
+  } else {
+    console.log("Character successfully updated:", data);
+  }
+};
+
+
+
 export default function Page() {
   const { id } = useParams();
   const [error, setError] = useState<string | null>(null);
@@ -14,6 +44,10 @@ export default function Page() {
   const [characterManager, setCharacterManager] = useState<CharacterManager | null>(null);
 
   const supabase = createClient();
+
+  
+  
+  
 
   const loadCharacter = async () => {
     try {
@@ -38,13 +72,10 @@ export default function Page() {
 
   const updateStateCallback = () => {
     console.log("State updated!");
-    setCharacterManager((prev) => {
-      if (prev) {
-        return new CharacterManager(prev.character, updateStateCallback);
-      }
-      return null;
-    });
+    setCharacterManager((prev) => prev ? Object.assign(Object.create(Object.getPrototypeOf(prev)), prev) : null);
   };
+  
+  
 
   useEffect(() => {
     loadCharacter();
@@ -76,14 +107,16 @@ export default function Page() {
                 <span className="font-semibold">{skill.key}:</span> {skill.value}
               </div>
               <div className="flex gap-2">
-                <CirclePlus
-                  color={characterManager.plusEnable(characterManager.currentSkills, characterManager.originalSkills, characterManager.skillPoints) ? "green" : "gray"}
-                  onClick={
-                    characterManager.plusEnable(characterManager.currentSkills, characterManager.originalSkills, characterManager.skillPoints)
-                      ? () => characterManager.plus("skill", skill.key)
-                      : undefined
+              <CirclePlus
+                color={characterManager.plusEnable(characterManager.currentSkills, characterManager.originalSkills, characterManager.skillPoints) ? "green" : "gray"}
+                onClick={() => {
+                  if (characterManager.plusEnable(characterManager.currentSkills, characterManager.originalSkills, characterManager.skillPoints)) {
+                    characterManager.plus("skill", skill.key);
+                    setCharacterManager((prev) => prev); // ✅ Forces a re-render without breaking the instance
+
                   }
-                />
+                }}
+              />
                 <CircleMinus
                   color={characterManager.minusEnable(skill.key, characterManager.currentSkills, characterManager.originalSkills) ? "red" : "gray"}
                   onClick={
@@ -107,14 +140,15 @@ export default function Page() {
                 <span className="font-semibold">{stat.key}:</span> {stat.value}
               </div>
               <div className="flex gap-2">
-                <CirclePlus
-                  color={characterManager.plusEnable(characterManager.currentStats, characterManager.originalStats, characterManager.statPoints) ? "green" : "gray"}
-                  onClick={
-                    characterManager.plusEnable(characterManager.currentStats, characterManager.originalStats, characterManager.statPoints)
-                      ? () => characterManager.plus("stat", stat.key)
-                      : undefined
+              <CirclePlus
+                color={characterManager.plusEnable(characterManager.currentStats, characterManager.originalStats, characterManager.statPoints) ? "green" : "gray"}
+                onClick={() => {
+                  if (characterManager.plusEnable(characterManager.currentStats, characterManager.originalStats, characterManager.statPoints)) {
+                    characterManager.plus("stat", stat.key);
+                    setCharacterManager((prev) => prev); // ✅ Forces a re-render without breaking the instance
                   }
-                />
+                }}
+              />
                 <CircleMinus
                   color={characterManager.minusEnable(stat.key, characterManager.currentStats, characterManager.originalStats) ? "red" : "gray"}
                   onClick={
@@ -128,6 +162,10 @@ export default function Page() {
           ))}
         </div>
       )}
+      <button onClick={() => characterManager?.updateCharacterInDB()}>
+        Save Changes
+      </button>
+
     </div>
   );
 }

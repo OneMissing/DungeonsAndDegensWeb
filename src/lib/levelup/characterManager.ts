@@ -1,4 +1,6 @@
+import { updateCharacter } from "@/app/home/level-up/[id]/page";
 import { Character } from "../tools/types";
+
 
 export class CharacterManager {
   character: Character;
@@ -8,8 +10,8 @@ export class CharacterManager {
   currentStats: { key: string; value: number }[];
   updateStateCallback: () => void;
   
-  skillPoints:number = 5;
-  statPoints:number = 5
+  skillPoints:number = 4;
+  statPoints:number = 4
 
   static readonly stats:string[] = [
     "Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma",
@@ -32,6 +34,16 @@ export class CharacterManager {
     this.character.level++;
 
     this.updateStateCallback = updateStateCallback;
+  }
+
+  async updateCharacterInDB() {
+    const updatedStats = Object.fromEntries(this.currentStats.map(stat => [stat.key.toLowerCase(), stat.value]));
+    const updatedSkills = Object.fromEntries(this.currentSkills.map(skill => [skill.key.toLowerCase(), skill.value]));
+  
+    console.log("Saving character:", this.character.character_id, updatedStats, updatedSkills);
+    
+    await updateCharacter(this.character.character_id, updatedStats, updatedSkills, this.character.level);
+
   }
 
   private getKeyValueArray(keys: string[], source: Character): { key: string; value: number }[] {
@@ -79,54 +91,62 @@ export class CharacterManager {
     let points: number;
   
     if (type === "skill") {
-      current = this.currentSkills;
+      current = [...this.currentSkills]; // Create a copy (important!)
       original = this.originalSkills;
       points = this.skillPoints;
-    } else if (type === "stat") {
-      current = this.currentStats;
+    } else {
+      current = [...this.currentStats]; // Create a copy (important!)
       original = this.originalStats;
       points = this.statPoints;
-    } else {
-      return; // Invalid type
     }
   
     if (this.plusEnable(current, original, points)) {
-      const itemToUpdate = key ? current.find((item) => item.key === key) : current[0]; // Update specific item or first item
+      const itemToUpdate = key ? current.find((item) => item.key === key) : current[0];
+  
       if (itemToUpdate) {
         itemToUpdate.value++;
+  
         if (type === "skill") {
           this.skillPoints--;
-        } else if (type === "stat") {
+          this.currentSkills = current; // Assign the updated array
+        } else {
           this.statPoints--;
+          this.currentStats = current; // Assign the updated array
         }
-        this.updateStateCallback(); // Notify the UI of the change
+  
+        this.updateStateCallback(); // Notify UI
       }
     }
   }
+  
   
   public minus(type: "skill" | "stat", key?: string) {
     let current: { key: string; value: number }[];
     let original: { key: string; value: number }[];
   
     if (type === "skill") {
-      current = this.currentSkills;
+      current = [...this.currentSkills]; // Create a new array
       original = this.originalSkills;
-    } else if (type === "stat") {
-      current = this.currentStats;
-      original = this.originalStats;
     } else {
-      return; // Invalid type
+      current = [...this.currentStats]; // Create a new array
+      original = this.originalStats;
     }
   
-    const itemToUpdate = key ? current.find((item) => item.key === key) : current[0]; // Update specific item or first item
+    const itemToUpdate = key ? current.find((item) => item.key === key) : current[0];
+  
     if (itemToUpdate && this.minusEnable(itemToUpdate.key, current, original)) {
       itemToUpdate.value--;
+  
       if (type === "skill") {
         this.skillPoints++;
-      } else if (type === "stat") {
+        this.currentSkills = current; // Assign the updated array
+      } else {
         this.statPoints++;
+        this.currentStats = current; // Assign the updated array
       }
-      this.updateStateCallback(); // Notify the UI of the change
+  
+      this.updateStateCallback(); // Notify UI
     }
   }
+  
 }
