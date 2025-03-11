@@ -1,6 +1,18 @@
-import { updateCharacter } from "@/app/home/level-up/[id]/page";
 import { Character } from "../tools/types";
 
+
+const updateCharacter = async (
+  characterId: string, 
+  updatedStats: Record<string, number>, 
+  updatedSkills: Record<string, number>,
+  currentLevel: number // Add current level as a parameter
+) => {
+  const updateData = { 
+    ...updatedStats, 
+    ...updatedSkills, 
+    level: currentLevel // Increment level by 1
+  };
+}
 
 export class CharacterManager {
   character: Character;

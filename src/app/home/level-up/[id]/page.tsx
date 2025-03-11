@@ -9,33 +9,6 @@ import { useEffect, useState } from "react";
 
 const supabase = createClient();
 
-export const updateCharacter = async (
-  characterId: string, 
-  updatedStats: Record<string, number>, 
-  updatedSkills: Record<string, number>,
-  currentLevel: number // Add current level as a parameter
-) => {
-  const updateData = { 
-    ...updatedStats, 
-    ...updatedSkills, 
-    level: currentLevel // Increment level by 1
-  };
-
-  console.log("Updating character:", characterId, updateData);
-
-  const { data, error } = await supabase
-    .from("characters")
-    .update(updateData)
-    .eq("character_id", characterId);
-
-  if (error) {
-    console.error("Error updating character:", error);
-  } else {
-    console.log("Character successfully updated:", data);
-  }
-};
-
-
 
 export default function Page() {
   const { id } = useParams();
