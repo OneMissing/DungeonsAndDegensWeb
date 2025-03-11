@@ -56,7 +56,11 @@ export class CharacterManager {
     
     await updateCharacter(this.character.character_id, updatedStats, updatedSkills, this.character.level);
 
-  }
+    let redirectPath = `/home/player-characters/${this.character.character_id}`;    
+
+    window.location.href = redirectPath;
+}
+
 
   private getKeyValueArray(keys: string[], source: Character): { key: string; value: number }[] {
     return keys.map((key) => ({
