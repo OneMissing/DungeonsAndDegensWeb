@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 
-const D12Modal: React.FC<{ roll: number }> = ({ roll }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const D12Page: React.FC<{ roll: number }> = ({ roll }) => {
   const [result, setResult] = useState(roll);
   const [modifier, setModifier] = useState(0);
   const [history, setHistory] = useState<string[]>([]);
   const [isRolling, setIsRolling] = useState(false);
 
-  const faces = Array.from({ length: 20 }, (_, i) => i + 1);
+  const faces = Array.from({ length: 12 }, (_, i) => i + 1);
 
   const getTransform = (number: number) => {
     const transforms: { [key: number]: string } = {
@@ -37,85 +36,50 @@ const D12Modal: React.FC<{ roll: number }> = ({ roll }) => {
     }
   }, [roll, modifier, isRolling]);
 
-
-
   return (
-    <>
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="bg-primary-light dark:bg-primary-dark text-text1-dark px-8 py-4 rounded-xl
-                   text-2xl font-bold hover:scale-105 transition-transform shadow-lg"
-      >
-        🜺 D12 Kostka
-      </button>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-2-dark p-8 rounded-2xl relative max-w-md w-full
-                        border-2 border-secondary-dark shadow-xl">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-secondary-dark text-3xl
-                       hover:rotate-90 transition-transform"
+    <div className="flex flex-col items-center justify-center min-h-screen bg-2-dark text-text1-dark p-8">
+      <h1 className="text-4xl font-bold mb-6">D12 Hod Kostečkou</h1>
+      <div className="text-6xl font-papyrus text-primary-dark mb-4">{result}</div>
+      <div className="w-48 h-48 perspective-1000 cursor-pointer">
+        <div className={`w-full h-full relative preserve-3d ${isRolling ? 'animate-roll' : ''}`}>
+          {faces.map((num) => (
+            <div
+              key={num}
+              className="absolute w-full h-full bg-gradient-to-br from-secondary-dark to-secondary-light
+                        border-2 border-text1-dark rounded-xl flex items-center justify-center
+                        text-2xl font-bold backface-hidden"
+              style={{ transform: getTransform(num) }}
             >
-              &times;
-            </button>
-
-            <div className="text-6xl text-center my-4 font-papyrus text-primary-dark">
-              {result}
+              {num}
             </div>
-
-            <div className="flex justify-center my-8">
-              <div className="w-48 h-48 perspective-1000 cursor-pointer">
-                <div className={`w-full h-full relative preserve-3d ${isRolling ? 'animate-roll' : ''}`}>
-                  {faces.map((num) => (
-                    <div
-                      key={num}
-                      className="absolute w-full h-full bg-gradient-to-br from-secondary-dark to-secondary-light
-                               border-2 border-text1-dark rounded-xl flex items-center justify-center
-                               text-2xl font-bold backface-hidden"
-                      style={{ transform: getTransform(num) }}
-                    >
-                      {num}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 items-center">
-              <input
-                type="number"
-                value={modifier}
-                onChange={(e) => setModifier(Number(e.target.value))}
-                className="bg-3-dark border-2 border-secondary-dark rounded-lg px-4 py-2
-                         text-center text-xl w-32 focus:outline-none focus:ring-2
-                         focus:ring-secondary-dark"
-                placeholder="Mod"
-              />
-
-              <button
-                onClick={() => setIsRolling(true)}
-                className="bg-secondary-dark hover:bg-secondary-light text-text1-dark px-6 py-3 rounded-lg
-                         font-bold text-lg transition-colors flex items-center gap-2"
-              >
-                ⟳ Hodit Znovu
-              </button>
-
-              <div className="bg-3-dark p-4 rounded-lg w-full mt-4">
-                <h3 className="text-xl font-bold mb-2">📜 Historie:</h3>
-                {history.map((entry, i) => (
-                  <div key={i} className="py-1 border-b border-border-dark last:border-0">
-                    {entry}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
-      )}
-    </>
+      </div>
+      <input
+        type="number"
+        value={modifier}
+        onChange={(e) => setModifier(Number(e.target.value))}
+        className="bg-3-dark border-2 border-secondary-dark rounded-lg px-4 py-2 text-center text-xl w-32
+                   focus:outline-none focus:ring-2 focus:ring-secondary-dark mt-6"
+        placeholder="Modifikátor"
+      />
+      <button
+        onClick={() => setIsRolling(true)}
+        className="bg-secondary-dark hover:bg-secondary-light text-text1-dark px-6 py-3 rounded-lg
+                   font-bold text-lg transition-colors flex items-center gap-2 mt-4"
+      >
+        ⟳ Hodit Znovu
+      </button>
+      <div className="bg-3-dark p-4 rounded-lg w-full mt-6 max-w-md">
+        <h3 className="text-xl font-bold mb-2">📜 Historie:</h3>
+        {history.map((entry, i) => (
+          <div key={i} className="py-1 border-b border-border-dark last:border-0">
+            {entry}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
-export default D12Modal;
+export default D12Page;
