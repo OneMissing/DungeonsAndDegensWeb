@@ -5,8 +5,33 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+  --nav-bg: #2c1b0b;
+  --nav-border: #8b0000;
+  --link-bg-start: #551a1a;
+  --link-bg-end: #8b0000;
+  --link-color: #fff;
+  --link-hover-bg-start: #8b0000;
+  --link-hover-bg-end: #c0392b;
+  --link-hover-color: #d4af37;
+  --link-border: #8b0000;
+  --text-primary: #d4af37;
+ 
 }
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --nav-bg: #1a1206;
+  --nav-border: #4a0000;
+  --link-bg-start: #3d0000;
+  --link-bg-end: #660000;
+  --link-color: #f0e6d2;
+  --link-hover-bg-start: #660000;
+  --link-hover-bg-end: #992d22;
+  --link-hover-color: #ffd700;
+  --link-border: #4a0000;
+  --text-primary: #ffd700;
+}
+
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -20,19 +45,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Cinzel:wght@400;700&display=swap');
 
 body {
-    font-family: 'Cinzel', serif;
-    background: url('https://images.unsplash.com/photo-1593642634402-b0eb5e2f60b9') no-repeat center center fixed;
-    background-size: cover;
-    color: #d4af37;
+  font-family: 'Cinzel', serif;
+    background: var(--background);
+    color: var(--text-primary);
     margin: 0;
     padding: 0;
     text-align: center;
+    transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
 }
 
 nav {
-  background: #2c1b0b;
+  background: var(--nav-bg);
+  border-bottom: 5px solid var(--nav-border);
   padding: 15px;
-  border-bottom: 5px solid #8b0000;
   position: fixed;
   top: 0;
   left: 0;
@@ -40,35 +65,31 @@ nav {
   display: flex;
   justify-content: center;
   z-index: 1000;
-  transition:var(--background) 0.5s ease-in-out, border-color 0.5s ease-in-out;
+  transition: background-color 0.5s ease-in-out, border-color 0.5s ease-in-out;
+  
 }
 
 Link {
   font-family: 'Uncial Antiqua', serif;
   padding: 12px 20px;
-  border: 2px solid #8b0000;
+  border: 2px solid var(--link-border);
   cursor: pointer;
-  background: linear-gradient(135deg, #551a1a, #8b0000);
-  color: #fff;
+  background: linear-gradient(135deg, var(--link-bg-start), var(--link-bg-end));
+  color: var(--link-color);
   font-size: 18px;
   font-weight: bold;
   border-radius: 8px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  transition: 
-      var(--background) 0.3s ease-in-out,
-      transform 0.3s ease-in-out,
-      color 0.3s ease-in-out,
-      border-color 0.3s ease-in-out,
-      box-shadow 0.3s ease-in-out;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease-in-out;
 }
 
 Link:hover {
-  background: linear-gradient(135deg, #8b0000, #c0392b);
-    color: #d4af37;
-    transform: scale(1.1);
-    border-color: #d4af37;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(135deg, var(--link-hover-bg-start), var(--link-hover-bg-end));
+  color: var(--link-hover-color);
+  transform: scale(1.1);
+  border-color: var(--link-hover-border);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
 }
 
 @keyframes fadeInUp {
@@ -83,7 +104,7 @@ Link:hover {
 }
 
 .animate-fadeInUp {
-  animation: fadeInUp 0.25s ease-out;
+  animation: fadeInUp 0.5s ease-out;
 }
 
 @keyframes fade-in {
