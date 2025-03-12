@@ -1,87 +1,72 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const D6Page: React.FC<{ roll: number }> = ({ roll }) => {
-  const [result, setResult] = useState(roll);
-  const [modifier, setModifier] = useState(0);
-  const [history, setHistory] = useState<string[]>([]);
-  const [isRolling, setIsRolling] = useState(false);
+  const cubeRef = useRef<HTMLDivElement>(null);
 
-  const faces = Array.from({ length: 6 }, (_, i) => i + 1); 
-
-  const getTransform = (number: number) => {
+  const getCubeTransform = (number: number) => {
     const transforms: { [key: number]: string } = {
-      1: 'translateZ(50px)',
-      2: 'rotateY(180deg) translateZ(50px)',
-      3: 'rotateY(-90deg) translateZ(50px)',
-      4: 'rotateY(90deg) translateZ(50px)',
-      5: 'rotateX(90deg) translateZ(50px)',
-      6: 'rotateX(-90deg) translateZ(50px)',
+      1: 'rotateX(0deg) rotateY(0deg)',
+      2: 'rotateY(180deg)',
+      3: 'rotateY(-90deg)',
+      4: 'rotateY(90deg)',
+      5: 'rotateX(90deg)',
+      6: 'rotateX(-90deg)',
     };
     return transforms[number] || '';
   };
 
   useEffect(() => {
-    if (isRolling) {
-      setTimeout(() => {
-        setIsRolling(false);
-        setResult(roll + modifier);
-        setHistory(prev => [`${roll} + ${modifier} = ${roll + modifier}`, ...prev.slice(0, 4)]);
-      }, 1800);
+    const cube = cubeRef.current;
+    if (cube) {
+      const targetTransform = getCubeTransform(roll);
+      const animation = cube.animate(
+        [
+          { transform: 'rotateX(0) rotateY(0)' },
+          { transform: `rotateY(720deg) ${targetTransform}` }
+        ],
+        {
+          duration: 1000,
+          easing: 'ease-out',
+        }
+      );
+
+      animation.onfinish = () => {
+        cube.style.transform = targetTransform;
+      };
     }
-  }, [roll, modifier, isRolling]);
+  }, [roll]);
 
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold text-center mb-6">D6 Kostka</h1>
-
-      <div className="text-6xl text-center my-4 font-papyrus text-primary-dark">
-        {result}
-      </div>
-
-      <div className="flex justify-center my-8">
-        <div className="w-48 h-48 perspective-1000 cursor-pointer">
-          <div className={`w-full h-full relative preserve-3d ${isRolling ? 'animate-roll' : ''}`}>
-            {faces.map((num) => (
-              <div
-                key={num}
-                className="absolute w-full h-full bg-gradient-to-br from-secondary-dark to-secondary-light
-                         border-2 border-text1-dark rounded-xl flex items-center justify-center
-                         text-2xl font-bold backface-hidden"
-                style={{ transform: getTransform(num) }}
-              >
-                {num}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-4 items-center">
-        <input
-          type="number"
-          value={modifier}
-          onChange={(e) => setModifier(Number(e.target.value))}
-          className="bg-3-dark border-2 border-secondary-dark rounded-lg px-4 py-2
-                   text-center text-xl w-32 focus:outline-none focus:ring-2
-                   focus:ring-secondary-dark"
-          placeholder="Mod"
-        />
-
-        <button
-          onClick={() => setIsRolling(true)}
-          className="bg-secondary-dark hover:bg-secondary-light text-text1-dark px-6 py-3 rounded-lg
-                   font-bold text-lg transition-colors flex items-center gap-2"
+    <div className="flex justify-center items-center h-screen">
+      <div className="w-48 h-48 perspective-1000">
+        <div
+          ref={cubeRef}
+          className="w-full h-full relative preserve-3d"
         >
-          ⟳ Hodit Znovu
-        </button>
-
-        <div className="bg-3-dark p-4 rounded-lg w-full mt-4">
-          <h3 className="text-xl font-bold mb-2">📜 Historie:</h3>
-          {history.map((entry, i) => (
-            <div key={i} className="py-1 border-b border-border-dark last:border-0">
-              {entry}
-            </div>
-          ))}
+          <div className="absolute w-full h-full bg-gray-200 border-2 border-gray-700 rounded-xl flex items-center justify-center text-2xl font-bold backface-hidden" 
+               style={{ transform: 'translateZ(50px)' }}>
+            1
+          </div>
+          <div className="absolute w-full h-full bg-gray-200 border-2 border-gray-700 rounded-xl flex items-center justify-center text-2xl font-bold backface-hidden" 
+               style={{ transform: 'rotateY(180deg) translateZ(50px)' }}>
+            2
+          </div>
+          <div className="absolute w-full h-full bg-gray-200 border-2 border-gray-700 rounded-xl flex items-center justify-center text-2xl font-bold backface-hidden" 
+               style={{ transform: 'rotateY(-90deg) translateZ(50px)' }}>
+            3
+          </div>
+          <div className="absolute w-full h-full bg-gray-200 border-2 border-gray-700 rounded-xl flex items-center justify-center text-2xl font-bold backface-hidden" 
+               style={{ transform: 'rotateY(90deg) translateZ(50px)' }}>
+            4
+          </div>
+          <div className="absolute w-full h-full bg-gray-200 border-2 border-gray-700 rounded-xl flex items-center justify-center text-2xl font-bold backface-hidden" 
+               style={{ transform: 'rotateX(90deg) translateZ(50px)' }}>
+            5
+          </div>
+          <div className="absolute w-full h-full bg-gray-200 border-2 border-gray-700 rounded-xl flex items-center justify-center text-2xl font-bold backface-hidden" 
+               style={{ transform: 'rotateX(-90deg) translateZ(50px)' }}>
+            6
+          </div>
         </div>
       </div>
     </div>

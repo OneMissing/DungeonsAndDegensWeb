@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Character, Classes, Races } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
 
+
 const supabase = createClient();
 
 const CharacterInfo = ({ character, setCharacter, className }: { character?: Character; setCharacter: (character: Character) => void; className?: string }) => {
@@ -184,13 +185,15 @@ const CharacterInfo = ({ character, setCharacter, className }: { character?: Cha
 					</li>
 				))}
 			</ul>
-			{/* Dice Button */}
-			<button 
-    		className="mt-4 px-4 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-600 transition"		
-			onClick={() => window.open("/")}
-			>
-    		Roll Dice
-			</button>
+			<a 
+  	  		onClick={() => { 
+        
+   			 }} 
+
+  			  className="mt-4 px-4 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-600 transition block text-center"
+				>
+   			 Roll Dice
+		</a>
 		</div>
 	);
 };
