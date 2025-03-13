@@ -49,7 +49,7 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
 				<div
 					className="mb-1 p-2 bg-gray-700 rounded flex justify-between"
 					key={index}>
-					<div onClick={(e) => { showPopup(`1d20+${character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}`, "skill") }}>
+					<div onClick={(e) => { showPopup(`1d20+${character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}`) }}>
 						<span className="font-semibold">{skill}:</span> {character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}
 					</div>
 					<div className="flex gap-2">
