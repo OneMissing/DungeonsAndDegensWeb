@@ -2,7 +2,7 @@ import { Character } from "@/lib/tools/types";
 import { CircleMinus, CirclePlus, Minus, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { skillRoll } from "@/lib/rolling/skillRoll";
-import { usePopup } from "../dices/dicePopup";
+import { usePopup } from "../../dices/dicePopup";
 
 const supabase = createClient();
 
@@ -49,7 +49,7 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
 				<div
 					className="mb-1 p-2 bg-gray-700 rounded flex justify-between"
 					key={index}>
-					<div onClick={(e) => {showPopup("1d20")}}>
+					<div onClick={(e) => { showPopup(`1d20+${character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}`, "skill") }}>
 						<span className="font-semibold">{skill}:</span> {character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}
 					</div>
 					<div className="flex gap-2">

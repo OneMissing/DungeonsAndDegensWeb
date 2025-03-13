@@ -1,0 +1,37 @@
+/* Base styles for all dice */
+.transform-style-3d {
+	transform-style: preserve-3d;
+}
+
+.animate-roll {
+	animation: roll 1s ease-out;
+}
+
+@keyframes roll {
+	0% {
+		transform: rotateX(0deg) rotateY(0deg);
+	}
+	100% {
+		transform: rotateX(720deg) rotateY(720deg);
+	}
+}
+
+/* 6-faced dice (cube) */
+.face-1 {
+	transform: translateZ(3rem);
+}
+.face-2 {
+	transform: rotateY(90deg) translateZ(3rem);
+}
+.face-3 {
+	transform: rotateY(180deg) translateZ(3rem);
+}
+.face-4 {
+	transform: rotateY(-90deg) translateZ(3rem);
+}
+.face-5 {
+	transform: rotateX(90deg) translateZ(3rem);
+}
+.face-6 {
+	transform: rotateX(-90deg) translateZ(3rem);
+}

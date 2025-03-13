@@ -7,5 +7,5 @@ export const skillRoll = (skill: number) =>{
   const diceRolled = randomNumber(20);
   const allRolled = randomNumber(20) + skill;
 
-  console.log(allRolled)
+  return(diceRolled as number);
 }

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { PopupProvider } from '@/components/character/dices/dicePopup';
+import { PopupProvider } from '@/components/dices/dicePopup';
 
 interface HomeLayoutProps { children: ReactNode; }
 
