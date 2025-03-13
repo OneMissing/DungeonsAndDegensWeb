@@ -3,19 +3,21 @@
 import { useState } from "react";
 import { Character, Classes, Races } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { BookPlus } from "lucide-react";
 
-const supabase = createClient();
 
 const CharacterInfo = ({ character, className }: { character?: Character; className?: string }) => {
   if (character === undefined) return;
 
   return (
     <div className={`${className}`}>
-      <h2 className="text-4xl font-bold text-center">{character.name}</h2>
+      <div className="absolute top-2 left-0"><Link href={`/home/level-up/${character.character_id}`}><BookPlus size={30} /></Link></div>
+      <h2 className="text-4xl font-bold text-center w-10/12 m-auto">{character.name}</h2>
       <div className="text-lg text-center">
-        <span className="inline-block w-20 text-center">{character.race.slice(0, 1).toUpperCase() + character.race.slice(1).toLowerCase()}</span>
+        <span className="inline-block text-end">{character.race.slice(0, 1).toUpperCase() + character.race.slice(1).toLowerCase()}</span>
         {" - "}
-        <span className="inline-block w-20 text-center">{character.class.slice(0, 1).toUpperCase() + character.class.slice(1).toLowerCase()}</span>
+        <span className="inline-block text-start">{character.class.slice(0, 1).toUpperCase() + character.class.slice(1).toLowerCase()}</span>
         {" (Level "}
         {character.level}
         {")"}

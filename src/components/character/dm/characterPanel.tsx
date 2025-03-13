@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Character, Classes, Races } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { BookPlus } from "lucide-react";
 
 
 const supabase = createClient();
@@ -44,7 +46,8 @@ const CharacterInfo = ({ character, setCharacter, className }: { character?: Cha
 
 	return (
 		<div className={`${className}`}>
-			<h2 className="text-4xl font-bold text-center" onDoubleClick={() => handleDoubleClick("name")}>
+			<div className="absolute top-2 left-0"><Link href={`/home/level-up/${character.character_id}`}><BookPlus size={30} /></Link></div>
+			<h2 className="text-4xl font-bold text-center w-10/12 m-auto" onDoubleClick={() => handleDoubleClick("name")}>
 				{editingField === "name" ? (
 					<input
 						type="text"
@@ -59,7 +62,7 @@ const CharacterInfo = ({ character, setCharacter, className }: { character?: Cha
 				)}
 			</h2>
 			<div className="text-lg text-center">
-				<span onDoubleClick={() => handleDoubleClick("race")} className="inline-block w-20 text-center">
+				<span onDoubleClick={() => handleDoubleClick("race")} className="inline-block text-end">
 					{editingField === "race" ? (
 						<div>
 							<input
@@ -82,7 +85,7 @@ const CharacterInfo = ({ character, setCharacter, className }: { character?: Cha
 					)}
 				</span>
 				{" - "}
-				<span onDoubleClick={() => handleDoubleClick("class")} className="inline-block w-20 text-center">
+				<span onDoubleClick={() => handleDoubleClick("class")} className="inline-block text-start">
 					{editingField === "class" ? (
 						<div>
 							<input

@@ -80,7 +80,6 @@ export default function Page() {
 				setError("Unexpected error fetching data.");
 			}
 		};
-
 		const loadItems = async () => {
 			try {
 				const { data, error } = await supabase.from("items").select("*");
@@ -94,7 +93,6 @@ export default function Page() {
 				console.error(err);
 			}
 		};
-
 		const loadSpells = async () => {
 			try {
 				const { data, error } = await supabase.from("spells").select("*");
@@ -108,7 +106,6 @@ export default function Page() {
 				console.error(err);
 			}
 		};
-
 		const loadActions = async () => {
 			try {
 				const { data, error } = await supabase.from("actions").select("*").eq("character_id", id);
@@ -122,7 +119,6 @@ export default function Page() {
 				console.error(err);
 			}
 		};
-
 		const loadCharacter = async () => {
 			try {
 				const { data, error } = await supabase.from("characters").select("*").eq("character_id", id).single();
@@ -166,7 +162,7 @@ export default function Page() {
 				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
 					<motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
 						<div className="w-1/2">
-							<CharacterPanel character={character} setCharacter={setCharacter} />
+							<CharacterPanel character={character} setCharacter={setCharacter} className="mt-1" />
 						</div>
 						<div className="w-1/2 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
 							<SkillsPanel character={character} setCharacter={setCharacter} />

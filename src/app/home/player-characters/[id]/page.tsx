@@ -112,31 +112,20 @@ export default function Page() {
 		const loadActions = async () => {
 			try {
 				const { data, error } = await supabase.from("actions").select("*").eq("character_id", id);
-				if (error) {
-					setError("Error fetching actions data.");
-					return;
-				}
+				if (error) throw new Error("Error fetching data");
 				setActions(data);
-			} catch (err) {
-				setError("Unexpected error fetching data.");
-				console.error(err);
+			} catch (error) {
+				setError(error as string);
 			}
 		};
 
 		const loadCharacter = async () => {
 			try {
 				const { data, error } = await supabase.from("characters").select("*").eq("character_id", id).single();
-
-				if (error) {
-					setError("Error fetching character data.");
-					console.error(error);
-					return;
-				}
-
+				if (error) throw new Error("Error fetching data");
 				setCharacter(data);
 			} catch (err) {
-				setError("Unexpected error fetching character data.");
-				console.error(err);
+				setError(error as string);
 			}
 		};
 
@@ -166,7 +155,7 @@ export default function Page() {
 				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
 					<motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
 						<div className="w-1/2">
-							<CharacterPanel character={character} />
+							<CharacterPanel character={character} className="mt-1" />
 						</div>
 						<div className="w-1/2 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
 							<SkillsPanel character={character} setCharacter={setCharacter} />
