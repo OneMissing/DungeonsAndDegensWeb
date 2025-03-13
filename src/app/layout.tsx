@@ -2,12 +2,21 @@ import { ReactNode } from "react";
 import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import ThemeProvider from "@/components/providers/theme";
+import Image from "next/image";
 import { Providers } from "@/components/providers/heroUI";
 
 export const metadata = {
 	title: "DnD",
 	description: "Playable DnD",
+	icons: {
+		icon: "/dnd_icon.png", 
+		shortcut: "/dnd_icon.png", 
+		apple: "/dnd_icon.png",
+	  },
+		
+	
 };
+
 
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
