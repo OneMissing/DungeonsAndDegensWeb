@@ -1,18 +1,32 @@
+import { createClient } from "../supabase/client";
 import { Character } from "../tools/types";
 
+const supabase = createClient();
 
 const updateCharacter = async (
   characterId: string, 
   updatedStats: Record<string, number>, 
   updatedSkills: Record<string, number>,
-  currentLevel: number // Add current level as a parameter
+  currentLevel: number
 ) => {
   const updateData = { 
     ...updatedStats, 
     ...updatedSkills, 
-    level: currentLevel // Increment level by 1
+    level: currentLevel
   };
-}
+
+  const { error } = await supabase
+    .from("characters")
+    .update(updateData)
+    .eq("character_id", characterId);
+
+  if (error) {
+    console.error("Error updating character:", error);
+    throw error;
+  } else {
+    console.log("Character updated successfully.");
+  }
+};
 
 export class CharacterManager {
   character: Character;

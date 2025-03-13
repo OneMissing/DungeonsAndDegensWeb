@@ -73,7 +73,7 @@ export default function Page() {
     <div>
       {characterManager.skillEnable() && (
         <div>
-          <p>Skill Enable is true!</p>
+          <p>Skills</p>
           {characterManager.currentSkills.map((skill, index) => (
             <div className="mb-1 p-2 bg-gray-700 rounded flex justify-between" key={index}>
               <div>
@@ -106,7 +106,7 @@ export default function Page() {
 
       {characterManager.statEnable() && (
         <div>
-          <p>Stat Enable is true!</p>
+          <p>Stats:</p>
           {characterManager.currentStats.map((stat, index) => (
             <div className="mb-1 p-2 bg-gray-700 rounded flex justify-between" key={index}>
               <div>
