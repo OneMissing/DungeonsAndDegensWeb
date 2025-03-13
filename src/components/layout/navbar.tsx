@@ -40,12 +40,6 @@ const Navbar = () => {
 			<Link href="/home" className="text-xl hover:text-yellow-400 transition duration-300">
 				Home
 			</Link>
-			<Link href="/wiki" className="text-xl hover:text-yellow-400 transition duration-300">
-				Adventure
-			</Link>
-			<Link href="/about" className="text-xl hover:text-yellow-400 transition duration-300">
-				About
-			</Link>
 			{isLogged && (
 				<Link href="/home/maps" className="text-xl hover:text-yellow-400 transition duration-300">
 					Map
