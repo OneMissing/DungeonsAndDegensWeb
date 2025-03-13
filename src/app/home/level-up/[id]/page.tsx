@@ -44,7 +44,6 @@ export default function Page() {
   };
 
   const updateStateCallback = () => {
-    console.log("State updated!");
     setCharacterManager((prev) => prev ? Object.assign(Object.create(Object.getPrototypeOf(prev)), prev) : null);
   };
   

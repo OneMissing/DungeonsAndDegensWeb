@@ -185,15 +185,7 @@ const CharacterInfo = ({ character, setCharacter, className }: { character?: Cha
 					</li>
 				))}
 			</ul>
-			<a 
-  	  		onClick={() => { 
-        
-   			 }} 
-
-  			  className="mt-4 px-4 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-600 transition block text-center"
-				>
-   			 Roll Dice
-		</a>
+			
 		</div>
 	);
 };

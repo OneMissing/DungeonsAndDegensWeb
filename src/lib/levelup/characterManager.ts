@@ -23,8 +23,6 @@ const updateCharacter = async (
   if (error) {
     console.error("Error updating character:", error);
     throw error;
-  } else {
-    console.log("Character updated successfully.");
   }
 };
 
@@ -56,22 +54,15 @@ export class CharacterManager {
     this.currentSkills = this.getKeyValueArray(CharacterManager.skills, this.character);
     this.originalStats = this.getKeyValueArray(CharacterManager.stats, this.character);
     this.currentStats = this.getKeyValueArray(CharacterManager.stats, this.character);
-
     this.character.level++;
-
     this.updateStateCallback = updateStateCallback;
   }
 
   async updateCharacterInDB() {
     const updatedStats = Object.fromEntries(this.currentStats.map(stat => [stat.key.toLowerCase(), stat.value]));
     const updatedSkills = Object.fromEntries(this.currentSkills.map(skill => [skill.key.toLowerCase(), skill.value]));
-  
-    console.log("Saving character:", this.character.character_id, updatedStats, updatedSkills);
-    
     await updateCharacter(this.character.character_id, updatedStats, updatedSkills, this.character.level);
-
     let redirectPath = `/home/player-characters/${this.character.character_id}`;    
-
     window.location.href = redirectPath;
 }
 

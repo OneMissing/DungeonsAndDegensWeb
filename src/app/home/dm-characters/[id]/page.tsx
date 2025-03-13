@@ -116,7 +116,6 @@ export default function Page() {
 					setError("Error fetching actions data.");
 					return;
 				}
-				console.log(data);
 				setActions(data);
 			} catch (err) {
 				setError("Unexpected error fetching data.");

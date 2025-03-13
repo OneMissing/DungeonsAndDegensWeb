@@ -9,6 +9,7 @@ import { Amphora, ArrowRightFromLine, Book, Circle, Coins, FileQuestion, Ham, He
 import { Divider, Tooltip } from "@heroui/react";
 import Slider from "../ui/slider";
 import { weaponRoll } from "@/lib/rolling/damageRoll";
+import { usePopup } from "@/components/dices/dicePopup";
 
 const supabase = createClient();
 
@@ -109,6 +110,7 @@ const DraggableItem: React.FC<{
 	items: Item[];
 	character_id: string;
 }> = ({ item, onItemRemoved, onQuantityChanged, fromTileId, items, character_id }) => {
+	const { showPopup } = usePopup();
 	const [isTooltipVisible, setIsTooltipVisible] = useState(true);
 	const [contextMenu, setContextMenu] = useState<{ show: boolean; position: { x: number; y: number } }>({
 		show: false,
@@ -199,7 +201,7 @@ const DraggableItem: React.FC<{
 			await supabase.from("inventory").update({ quantity: newQuantity }).eq("inventory_id", item.inventory_id);
 			onQuantityChanged(item.inventory_id, newQuantity);
 		} else if (result[0] === "use") {
-			weaponRoll(currentItemInfo);
+			showPopup(weaponRoll(currentItemInfo));
 		}
 	};
 

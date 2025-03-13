@@ -117,7 +117,7 @@ const DiceRoller = ({ sides, rolled }: { sides: DiceType; rolled: number }) => {
     const flyTimer = setTimeout(() => {
       setShouldFly(true);
       setIsVisible(false)
-    }, 3500);
+    }, 3050);
     return () => {
       clearTimeout(visibilityTimer);
       clearTimeout(flyTimer);

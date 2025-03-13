@@ -4,9 +4,13 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Inventory from "@/components/items/inventory";
 import { useParams } from "next/navigation";
-import { Tile, Item, InventoryItem } from "@/lib/tools/types";
+import { Tile, Item, Character, Spell, Action } from "@/lib/tools/types";
 import { Divider } from "@heroui/react";
 import BookInventory from "@/components/items/adder";
+import SpellList from "@/components/character/spellList";
+import CharacterPanel from "@/components/character/player/characterPanel";
+import SkillsPanel from "@/components/character/player/skillsPanel";
+import { motion } from "framer-motion";
 
 const supabase = createClient();
 
@@ -35,22 +39,21 @@ export default function Page() {
 	const [error, setError] = useState<string | null>(null);
 	const [table, setTable] = useState<[boolean, boolean]>([true, true]);
 	const [items, setItems] = useState<Item[]>([]);
-	const className = "bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none";
+	const [spells, setSpells] = useState<Spell[]>([]);
+	const [character, setCharacter] = useState<Character | undefined>(undefined);
+	const [actions, setActions] = useState<Action[]>([]);
 
 	useEffect(() => {
+		if (!id) return;
 		const loadInventory = async () => {
 			try {
-				const { data, error } = await supabase
-					.from("inventory")
-					.select("*")
-					.eq("character_id", id)
-					.order("position");
-	
+				const { data, error } = await supabase.from("inventory").select("*").eq("character_id", id).order("position");
+
 				if (error) {
 					setError("Error fetching inventory data.");
 					return;
 				}
-	
+
 				const updatedGrid = [...initialGrid];
 				data.forEach((inventoryEntry) => {
 					const existingItem = updatedGrid.find((tile) => tile.item?.inventory_id === inventoryEntry.inventory_id);
@@ -77,7 +80,7 @@ export default function Page() {
 				setError("Unexpected error fetching data.");
 			}
 		};
-	
+
 		const loadItems = async () => {
 			try {
 				const { data, error } = await supabase.from("items").select("*");
@@ -85,21 +88,71 @@ export default function Page() {
 					setError("Error fetching inventory data.");
 					return;
 				}
-				console.log(data);
 				setItems(data);
 			} catch (err) {
 				setError("Unexpected error fetching data.");
 				console.error(err);
 			}
 		};
-	
+
+		const loadSpells = async () => {
+			try {
+				const { data, error } = await supabase.from("spells").select("*");
+				if (error) {
+					setError("Error fetching inventory data.");
+					return;
+				}
+				setSpells(data);
+			} catch (err) {
+				setError("Unexpected error fetching data.");
+				console.error(err);
+			}
+		};
+
+		const loadActions = async () => {
+			try {
+				const { data, error } = await supabase.from("actions").select("*").eq("character_id", id);
+				if (error) {
+					setError("Error fetching actions data.");
+					return;
+				}
+				setActions(data);
+			} catch (err) {
+				setError("Unexpected error fetching data.");
+				console.error(err);
+			}
+		};
+
+		const loadCharacter = async () => {
+			try {
+				const { data, error } = await supabase.from("characters").select("*").eq("character_id", id).single();
+
+				if (error) {
+					setError("Error fetching character data.");
+					console.error(error);
+					return;
+				}
+
+				setCharacter(data);
+			} catch (err) {
+				setError("Unexpected error fetching character data.");
+				console.error(err);
+			}
+		};
+
+		loadCharacter();
 		loadInventory();
 		loadItems();
+		loadSpells();
+		loadActions();
 	}, []);
+
+	if(error !== null)
+		return <>Loading</> 
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full pl-4 pr-4 select-none">
-			<section className={className}>
+			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
 				<div className="grid grid-cols-11">
 					<button onClick={() => setTable([true, table[1]])} className={`text-center text-2xl col-span-5`}>
 						Charcter
@@ -110,16 +163,25 @@ export default function Page() {
 					</button>
 				</div>
 				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4">{table[0] ? <></> : <></>}</div>
+				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
+					<motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
+						<div className="w-1/2">
+							<CharacterPanel character={character} />
+						</div>
+						<div className="w-1/2 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
+							<SkillsPanel character={character} setCharacter={setCharacter} />
+						</div>
+					</motion.div>
+				</div>
 			</section>
-			<section className={className}>
+			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
 				<h3 className="text-2xl font-semibold">Spells</h3>
-				<p>No spells learned</p>
+				<SpellList character_id={id as string} spells={spells} actions={actions} />
 			</section>
-			<section className={`${className} md:col-span-2 min-h-fill max-h-full`}>
+			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none md:col-span-2 min-h-fill max-h-full">
 				<div className="grid grid-cols-11">
 					<button onClick={() => setTable([table[0], true])} className={`text-center text-2xl col-span-5`}>
-						Charcter
+						Character
 					</button>
 					<Divider orientation="vertical" className="w-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
 					<button onClick={() => setTable([table[0], false])} className={`text-2xl col-span-5`}>
@@ -127,9 +189,30 @@ export default function Page() {
 					</button>
 				</div>
 				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
-					{table[1] 	? <Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} /> 
-								: <BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />}</div>
+				<div
+					onContextMenu={(event) => {
+						event.preventDefault();
+					}}
+					className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
+					<motion.div
+						onContextMenu={(event) => {
+							event.preventDefault();
+						}}
+						className="flex w-[200%] transition-transform"
+						animate={{ x: table[1] ? "0%" : "-50%" }}
+						transition={{ duration: 0.2, ease: "easeInOut" }}>
+						<div
+							className="w-1/2"
+							onContextMenu={(event) => {
+								event.preventDefault();
+							}}>
+							<Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
+						</div>
+						<div className="w-1/2 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
+							<BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
+						</div>
+					</motion.div>
+				</div>
 			</section>
 		</div>
 	);

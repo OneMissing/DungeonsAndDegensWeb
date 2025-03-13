@@ -487,11 +487,7 @@ const Map = () => {
 
         const { data, error } = await supabase.from("maps").insert([{ user_id: currentUser.data.user?.id, data: canvasData }]);
 
-        if (error) {
-            console.error("Error saving canvas:", error);
-        } else {
-            console.log("Canvas saved successfully:", data);
-        }
+        if (error) console.error("Error saving canvas:", error);
     };
 
     return (
