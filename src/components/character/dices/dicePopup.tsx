@@ -32,7 +32,6 @@ export function PopupProvider({ children }: { children: ReactNode }) {
           <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="fixed inset-0 bg-black opacity-50" onClick={closePopup}></div>
             <div className="bg-white p-6 rounded-lg shadow-lg relative w-96 z-50" onClick={(e) => e.stopPropagation()}>
-              <ThreeDice />
 
             </div>
           </div>,
