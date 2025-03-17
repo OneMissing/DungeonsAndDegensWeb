@@ -136,6 +136,8 @@ export default function Page() {
 		loadActions();
 	}, []);
 
+	useEffect(()=>{console.log(actions)},[actions])
+
 	if(error !== null)
 		return <>Loading</> 
 
@@ -155,7 +157,7 @@ export default function Page() {
 				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
 					<motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
 						<div className="w-1/2">
-							<CharacterPanel character={character} className="mt-1" />
+							<CharacterPanel character={character} setCharacter={setCharacter} className="mt-1" spells={spells} actions={actions} setActions={setActions} />
 						</div>
 						<div className="w-1/2 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
 							<SkillsPanel character={character} setCharacter={setCharacter} />
