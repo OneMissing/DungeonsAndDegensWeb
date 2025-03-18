@@ -300,7 +300,7 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
             </div>
             <div className="absolute right-0 bottom-0">
               <div className="p-4 flex gap-4 w-[100svw] md:w-fit">
-                <button onClick={handleLevelUp} className="flex-1 md:flex-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                <button onClick={() => setCharacter(null)} className="flex-1 md:flex-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                   Close
                 </button>
                 <button onClick={handleLevelUp} className="flex-1 md:flex-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
