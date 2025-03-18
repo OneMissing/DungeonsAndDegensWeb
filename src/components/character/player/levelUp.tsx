@@ -198,34 +198,34 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
           <h2 className="text-xl font-bold mb-2">Attributes</h2>
           <div>
             <div className="grid grid-cols-2 gap-4">
-            {(["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] as (keyof Character)[]).map((attr) => (
-              <div key={attr} className="space-y-2">
-                <label className="block text-sm font-medium">{attr.toUpperCase()}</label>
-                <input
-                  type="number"
-                  min={prevChar?.[attr]}
-                  max="20"
-                  value={character?.[attr] ?? ""}
-                  onChange={(e) => {
-                    const newValue = Number(e.target.value);
-                    if (!character) return;
-                    if (defTotal === 0 && newValue < (character[attr] as number)) return;
-                    if (newValue >= 1 && newValue <= 20 && Math.abs(defTotal + (newValue - (character[attr] as number))) <= defmax) handleChange(attr, newValue);
-                  }}
-                  className="bg-gray-700 text-white p-2 w-full rounded outline-none focus:ring-2 focus:ring-blue-500"
-                  disabled={defTotal === 0 && (character?.[attr] as number) >= 20}
-                  onKeyDown={(e) => {
-                    if (e.key === "ArrowDown" && (character?.[attr] === 1 || character?.[attr] === prevChar?.[attr])) e.preventDefault();
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <p className="text-sm">
-              Total Points Used: {defTotal} / {defmax}
-            </p>
-          </div>
+              {(["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] as (keyof Character)[]).map((attr) => (
+                <div key={attr} className="space-y-2">
+                  <label className="block text-sm font-medium">{attr.toUpperCase()}</label>
+                  <input
+                    type="number"
+                    min={prevChar?.[attr]}
+                    max="20"
+                    value={character?.[attr] ?? ""}
+                    onChange={(e) => {
+                      const newValue = Number(e.target.value);
+                      if (!character) return;
+                      if (defTotal === 0 && newValue < (character[attr] as number)) return;
+                      if (newValue >= 1 && newValue <= 20 && Math.abs(defTotal + (newValue - (character[attr] as number))) <= defmax) handleChange(attr, newValue);
+                    }}
+                    className="bg-gray-700 text-white p-2 w-full rounded outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={defTotal === 0 && (character?.[attr] as number) >= 20}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowDown" && (character?.[attr] === 1 || character?.[attr] === prevChar?.[attr])) e.preventDefault();
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-4">
+              <p className="text-sm">
+                Total Points Used: {defTotal} / {defmax}
+              </p>
+            </div>
           </div>
         </div>
       ),
@@ -242,9 +242,8 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
                 <div
                   key={name}
                   onClick={() => setSelectedSkills((prev) => (prev.includes(name) ? prev.filter((s) => s !== name) : prev.length < 2 ? [...prev, name] : prev))}
-                  className={`p-2 sm:p-4 rounded-lg cursor-pointer text-center sm:text-left ${
-                    selectedSkills.includes(name) ? `bg-blue-600 text-white` : "bg-gray-700 text-white"
-                  } ${!selectedSkills.includes(name) && selectedSkills.length >= 2 ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-500"}`}>
+                  className={`p-2 sm:p-4 rounded-lg cursor-pointer text-center sm:text-left ${selectedSkills.includes(name) ? `bg-blue-600 text-white` : "bg-gray-700 text-white"
+                    } ${!selectedSkills.includes(name) && selectedSkills.length >= 2 ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-500"}`}>
                   {name.replace(/_/g, " ").toUpperCase()}
                 </div>
               ))}

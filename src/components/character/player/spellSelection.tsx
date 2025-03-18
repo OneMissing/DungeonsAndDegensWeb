@@ -56,28 +56,45 @@ const SpellSelection: React.FC<SpellSelectionProps> = ({
   };
 
   return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-        {spells.map((spell) => {
-          const isSelected = selectedSpells.includes(spell.spell_id);
-          const isKnown = knownSpellIds.has(spell.spell_id);
-          const isAboveMaxLevel = spell.level > highestAvailableSpellLevel;
-          const isFull = (selectedCounts[spell.level] || 0) >= (maxSpellsByLevel[spell.level] || 0) && !isSelected;
-          if (isKnown || isAboveMaxLevel) return null; 
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+      {spells.map((spell) => {
+        const isSelected = selectedSpells.includes(spell.spell_id);
+        const isKnown = knownSpellIds.has(spell.spell_id);
+        const isAboveMaxLevel = spell.level > highestAvailableSpellLevel;
+        const isFull = (selectedCounts[spell.level] || 0) >= (maxSpellsByLevel[spell.level] || 0) && !isSelected;
+        if (isKnown || isAboveMaxLevel || spell.level === 0) return null;
 
-          return (
-            <div
-              key={spell.spell_id}
-              className={`p-4 border rounded-lg cursor-pointer transition ${
-                isSelected ? "bg-blue-500 text-white" : "bg-gray-200"
+        return (
+          <div
+            key={spell.spell_id}
+            className={`p-4 border rounded-lg cursor-pointer transition ${isSelected ? "bg-blue-500 text-white" : "bg-gray-200"
               } ${isFull ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
-              onClick={() => !isFull && handleSelect(spell.spell_id, spell.level)}
-            >
-              <h3 className="font-bold">{spell.name} (Level {spell.level})</h3>
-              <p>{spell.description}</p>
-            </div>
-          );
-        })}
-      </div>
+            onClick={() => !isFull && handleSelect(spell.spell_id, spell.level)}
+          >
+            <h3 className="font-bold">{spell.name} (Level {spell.level})</h3>
+            <p>{spell.description}</p>
+          </div>
+        );
+      })}
+      {spells.map((spell) => {
+        const isSelected = selectedSpells.includes(spell.spell_id);
+        const isKnown = knownSpellIds.has(spell.spell_id);
+        const isFull = (selectedCounts[0]) >= 3 && !isSelected;
+        if (isKnown || spell.level !== 0) return null;
+
+        return (
+          <div
+            key={spell.spell_id}
+            className={`p-4 border rounded-lg cursor-pointer transition ${isSelected ? "bg-blue-500 text-white" : "bg-gray-200"
+              } ${isFull ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
+            onClick={() => !isFull && handleSelect(spell.spell_id, spell.level)}
+          >
+            <h3 className="font-bold">{spell.name} (Level {spell.level})</h3>
+            <p>{spell.description}</p>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 
