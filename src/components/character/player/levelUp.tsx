@@ -4,6 +4,7 @@ import { createContext, useContext, useState, ReactNode, useEffect, SetStateActi
 import { Action, Character, Spell } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
 import SpellSelection from "./spellSelection";
+import CantripSelection from "./cantripSelection";
 
 interface LevelUpContextType {
   openLevelUp: (
@@ -260,6 +261,17 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
           <h2 className="text-xl font-bold mb-2 text-center">Select a Spell</h2>
           <div className="h-[calc(100svh-12rem)] overflow-y-auto pt-2">
             <SpellSelection character={character as Character} spells={spells} actions={actions} selectedSpells={selectedSpells} setSelectedSpells={setSelectedSpells} />
+          </div>
+        </div>
+      ),
+    },{
+      id: "cantrips",
+      label: "Cantrips",
+      content: (
+        <div className="overflow-hidden">
+          <h2 className="text-xl font-bold mb-2 text-center">Select a Spell</h2>
+          <div className="h-[calc(100svh-12rem)] overflow-y-auto pt-2">
+            <CantripSelection character={character as Character} spells={spells} actions={actions} selectedSpells={selectedSpells} setSelectedSpells={setSelectedSpells} />
           </div>
         </div>
       ),
