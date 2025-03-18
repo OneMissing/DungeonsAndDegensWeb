@@ -40,8 +40,6 @@ const LinkCharacter = () => {
             setTimeout(() => {
                 setSuccess(false);
             }, 3000);
-            window.location.reload();
-
         } catch (err) {
             setError((err as Error).message);
         } finally {

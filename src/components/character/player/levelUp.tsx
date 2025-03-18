@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, SetStateAction } from "react";
-import { Action, Character, Spell } from "@/lib/tools/types";
+import { Action, cantripSlotTable, Character, Spell, spellSlotTable } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
 import SpellSelection from "./spellSelection";
 import CantripSelection from "./cantripSelection";
@@ -53,6 +53,8 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
   const [spells, setSpells] = useState<Spell[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
   const [selectedSpells, setSelectedSpells] = useState<string[]>([]);
+  const [cantripNumber, setCantripNumber] = useState<number>(0);
+  const [spellNumber, setSpellNumber] = useState<number>(0);
 
   const openLevelUp = (
     char: Character,
@@ -62,6 +64,11 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
     updateActions: (updatedActions: Action[]) => void
   ) => {
     setCharacter(char);
+    const nextLevel = char.level + 1;
+    const currentCantrips = cantripSlotTable[char.class]?.[char.level] || 0;
+    const nextCantrips = cantripSlotTable[char.class]?.[nextLevel] || 0;
+    setCantripNumber(nextCantrips - currentCantrips);
+    setSpellNumber(spellSlotTable[char.class]?.[char.level].reduce((acc, num) => acc + num, 0));
     setSpells(spells);
     setActions(actions);
     setPrevChar(char);
@@ -69,15 +76,19 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
     setOnUpdate(() => updateFunc);
     setOnUpdate2(() => updateActions);
     setSelectedSkills([]);
-    setDefTotal(0);
     setActiveTab(0);
     setHealthBoost(0);
-    setDefmax(2);
+    setDefTotal(0);
+    setDefmax(((char.level + 1) % 4 === 0) ? 2 : 0);
   };
 
   useEffect(() => {
     if (character != null && character != undefined) setHealthBoost(Math.floor(Math.random() * getHitDie(character?.class as string)) + 1);
   }, [character]);
+
+  useEffect(() => {
+    console.log(selectedSpells.length , "/", cantripNumber + spellNumber);
+  },[selectedSpells,cantripNumber,spellNumber])
 
   const handleChange = (key: keyof Character, value: number) => {
     if (!character) return;
@@ -91,7 +102,7 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const calculateSkillValue = (skill: keyof Character, attr: keyof Character) => {
-    const abilityMod = Math.floor((Number(character?.[attr]) - 10) / 2);
+    const abilityMod = 0 /*Math.floor((Number(character?.[attr]) - 10) / 2)*/;
     const isSelected = selectedSkills.includes(skill);
     const bonus = isSelected ? 3 : 0;
     return abilityMod + Number(character?.[skill]) + bonus;
@@ -165,6 +176,14 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
     if (level >= 9) return 4;
     if (level >= 5) return 3;
     return 2;
+  };
+
+  const getTotalSpellSlots = (className: string, level: number): number => {
+    const spellSlots = spellSlotTable[className];
+    if (!spellSlots) return 0;
+    let total = 0;
+    for (let i = 1; i <= level; i++) if (spellSlots[i]) total += spellSlots[i].reduce((sum, num) => sum + num, 0);
+    return total;
   };
 
   const tabs = [
@@ -243,8 +262,9 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
                 <div
                   key={name}
                   onClick={() => setSelectedSkills((prev) => (prev.includes(name) ? prev.filter((s) => s !== name) : prev.length < 2 ? [...prev, name] : prev))}
-                  className={`p-2 sm:p-4 rounded-lg cursor-pointer text-center sm:text-left ${selectedSkills.includes(name) ? `bg-blue-600 text-white` : "bg-gray-700 text-white"
-                    } ${!selectedSkills.includes(name) && selectedSkills.length >= 2 ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-500"}`}>
+                  className={`p-2 sm:p-4 rounded-lg cursor-pointer text-center sm:text-left ${
+                    selectedSkills.includes(name) ? `bg-blue-600 text-white` : "bg-gray-700 text-white"
+                  } ${!selectedSkills.includes(name) && selectedSkills.length >= 2 ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-500"}`}>
                   {name.replace(/_/g, " ").toUpperCase()}
                 </div>
               ))}
@@ -260,23 +280,33 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
         <div className="overflow-hidden">
           <h2 className="text-xl font-bold mb-2 text-center">Select a Spell</h2>
           <div className="h-[calc(100svh-12rem)] overflow-y-auto pt-2">
-            <SpellSelection character={character as Character} spells={spells} actions={actions} selectedSpells={selectedSpells} setSelectedSpells={setSelectedSpells} />
+            <SpellSelection character={character as Character} spells={spells} actions={actions} selectedSpells={selectedSpells} setSelectedSpells={setSelectedSpells} maxSpells={spellNumber} />
           </div>
         </div>
       ),
-    },{
+    },
+    {
       id: "cantrips",
       label: "Cantrips",
       content: (
         <div className="overflow-hidden">
           <h2 className="text-xl font-bold mb-2 text-center">Select a Spell</h2>
           <div className="h-[calc(100svh-12rem)] overflow-y-auto pt-2">
-            <CantripSelection maxCantrips={3} character={character as Character} spells={spells} actions={actions} selectedSpells={selectedSpells} setSelectedSpells={setSelectedSpells} />
+            <CantripSelection
+              maxCantrips={cantripNumber}
+              character={character as Character}
+              spells={spells}
+              actions={actions}
+              selectedSpells={selectedSpells}
+              setSelectedSpells={setSelectedSpells}
+            />
           </div>
         </div>
       ),
     },
   ];
+
+
 
   return (
     <LevelUpContext.Provider value={{ openLevelUp }}>
@@ -287,14 +317,44 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
             <h2 className="mb-7"></h2>
             <div className="md:flex">
               <div className="w-56 grid-cols-1 p-4 flex md:block">
-                {tabs.map((tab, index) => (
+                <button
+                  onClick={() => setActiveTab(0)}
+                  className={`py-2 text-lg font-semibold w-full ${activeTab === 0 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+                  {tabs[0].label}
+                </button>
+
+                {(character.level + 1) % 4 === 0 && (
                   <button
-                    key={index}
-                    onClick={() => setActiveTab(index)}
-                    className={`py-2 text-lg font-semibold w-full ${activeTab === index ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
-                    {tab.label}
+                    onClick={() => setActiveTab(1)}
+                    className={`py-2 text-lg font-semibold w-full ${activeTab === 1 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+                    {tabs[1].label}
                   </button>
-                ))}
+                )}
+
+                {character.level + 1 === 5 &&  (
+                  <button
+                    onClick={() => setActiveTab(2)}
+                    className={`py-2 text-lg font-semibold w-full ${activeTab === 2 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+                    {tabs[2].label}
+                  </button>
+                )}
+
+                {spellNumber !== 0 && (
+                  <button
+                  id="sandijan"
+                    onClick={() => setActiveTab(3)}
+                    className={`py-2 text-lg font-semibold w-full ${activeTab === 3 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+                    {tabs[3].label}
+                  </button>
+                )}
+
+                {(cantripSlotTable[character.class]?.[character.level + 1] || 0) !== 0 && (
+                  <button
+                    onClick={() => setActiveTab(4)}
+                    className={`py-2 text-lg font-semibold w-full ${activeTab === 4 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+                    {tabs[4].label}
+                  </button>
+                )}
               </div>
               <div className="flex-1 md:pt-8 overflow-none mr-4 ml-4 md:ml-0">{tabs[activeTab].content}</div>
             </div>
@@ -303,7 +363,15 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
                 <button onClick={() => setCharacter(null)} className="flex-1 md:flex-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                   Close
                 </button>
-                <button onClick={handleLevelUp} className="flex-1 md:flex-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                <button
+                  onClick={handleLevelUp}
+                  disabled={(((character.level + 1) % 4 === 0) && defTotal !== defmax) || (selectedSkills.length < 2 && character.level + 1 === 5) || (selectedSpells.length < (spellNumber + cantripNumber))}
+                  
+                  className={`flex-1 md:flex-auto px-4 py-2 text-white rounded-lg ${
+                    (((character.level + 1) % 4 === 0) && defTotal !== defmax) || (selectedSkills.length < 2 && character.level + 1 === 5) || (selectedSpells.length < (spellNumber + cantripNumber))
+                      ? "bg-gray-600"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}>
                   Level Up
                 </button>
               </div>

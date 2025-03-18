@@ -11,6 +11,7 @@ import SpellList from "@/components/character/spellList";
 import CharacterPanel from "@/components/character/player/characterPanel";
 import SkillsPanel from "@/components/character/player/skillsPanel";
 import { motion } from "framer-motion";
+import DecorativeLine from "@/components/ui/decorativeLine";
 
 const supabase = createClient();
 
@@ -19,192 +20,214 @@ const ADDITIONAL_SLOTS = 10;
 const TOTAL_SLOTS = GRID_SIZE * GRID_SIZE + ADDITIONAL_SLOTS;
 
 const getSlotType = (index: number): string => {
-	const slotTypes = ["helmet", "chestplate", "gauntlets", "boots", "cape", "amulet", "ring", "ring", "weapon", "weapon"];
-	return slotTypes[index] || "weapon";
+  const slotTypes = ["helmet", "chestplate", "gauntlets", "boots", "cape", "amulet", "ring", "ring", "weapon", "weapon"];
+  return slotTypes[index] || "weapon";
 };
 
 const initialGrid: Tile[] = Array.from({ length: TOTAL_SLOTS }, (_, index) => ({
-	id: `tile-${index}`,
-	position: index,
-	item: undefined,
-	isSideSlot: index >= GRID_SIZE * GRID_SIZE,
-	slotType: index >= GRID_SIZE * GRID_SIZE ? getSlotType(index - GRID_SIZE * GRID_SIZE) : undefined,
+  id: `tile-${index}`,
+  position: index,
+  item: undefined,
+  isSideSlot: index >= GRID_SIZE * GRID_SIZE,
+  slotType: index >= GRID_SIZE * GRID_SIZE ? getSlotType(index - GRID_SIZE * GRID_SIZE) : undefined,
 }));
 
 initialGrid.push({ id: "trash-tile", position: TOTAL_SLOTS, item: undefined, isTrash: true });
 
 export default function Page() {
-	const { id } = useParams();
-	const [grid, setGrid] = useState<Tile[]>(initialGrid);
-	const [error, setError] = useState<string | null>(null);
-	const [table, setTable] = useState<[boolean, boolean]>([true, true]);
-	const [items, setItems] = useState<Item[]>([]);
-	const [spells, setSpells] = useState<Spell[]>([]);
-	const [character, setCharacter] = useState<Character | undefined>(undefined);
-	const [actions, setActions] = useState<Action[]>([]);
+  const { id } = useParams();
+  const [grid, setGrid] = useState<Tile[]>(initialGrid);
+  const [error, setError] = useState<string | null>(null);
+  const [table, setTable] = useState<[boolean, boolean]>([true, true]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [spells, setSpells] = useState<Spell[]>([]);
+  const [character, setCharacter] = useState<Character | undefined>(undefined);
+  const [actions, setActions] = useState<Action[]>([]);
 
-	useEffect(() => {
-		if (!id) return;
-		const loadInventory = async () => {
-			try {
-				const { data, error } = await supabase.from("inventory").select("*").eq("character_id", id).order("position");
+  useEffect(() => {
+    if (!id) return;
+    const loadInventory = async () => {
+      try {
+        const { data, error } = await supabase.from("inventory").select("*").eq("character_id", id).order("position");
 
-				if (error) {
-					setError("Error fetching inventory data.");
-					return;
-				}
+        if (error) {
+          setError("Error fetching inventory data.");
+          return;
+        }
 
-				const updatedGrid = [...initialGrid];
-				data.forEach((inventoryEntry) => {
-					const existingItem = updatedGrid.find((tile) => tile.item?.inventory_id === inventoryEntry.inventory_id);
-					if (existingItem) return;
-					if (inventoryEntry.position !== null) {
-						const tile = updatedGrid.find((tile) => tile.position === inventoryEntry.position);
-						if (tile) tile.item = inventoryEntry;
-					} else {
-						const firstAvailableTile = updatedGrid.find((tile) => !tile.item);
-						if (firstAvailableTile) {
-							firstAvailableTile.item = inventoryEntry;
-							supabase
-								.from("inventory")
-								.update({ position: firstAvailableTile.position })
-								.eq("inventory_id", inventoryEntry.inventory_id)
-								.then(({ error }) => {
-									if (error) console.error("Failed to update item position in the database:", error);
-								});
-						}
-					}
-				});
-				setGrid(updatedGrid);
-			} catch (err) {
-				setError("Unexpected error fetching data.");
-			}
-		};
+        const updatedGrid = [...initialGrid];
+        data.forEach((inventoryEntry) => {
+          const existingItem = updatedGrid.find((tile) => tile.item?.inventory_id === inventoryEntry.inventory_id);
+          if (existingItem) return;
+          if (inventoryEntry.position !== null) {
+            const tile = updatedGrid.find((tile) => tile.position === inventoryEntry.position);
+            if (tile) tile.item = inventoryEntry;
+          } else {
+            const firstAvailableTile = updatedGrid.find((tile) => !tile.item);
+            if (firstAvailableTile) {
+              firstAvailableTile.item = inventoryEntry;
+              supabase
+                .from("inventory")
+                .update({ position: firstAvailableTile.position })
+                .eq("inventory_id", inventoryEntry.inventory_id)
+                .then(({ error }) => {
+                  if (error) console.error("Failed to update item position in the database:", error);
+                });
+            }
+          }
+        });
+        setGrid(updatedGrid);
+      } catch (err) {
+        setError("Unexpected error fetching data.");
+      }
+    };
 
-		const loadItems = async () => {
-			try {
-				const { data, error } = await supabase.from("items").select("*");
-				if (error) {
-					setError("Error fetching inventory data.");
-					return;
-				}
-				setItems(data);
-			} catch (err) {
-				setError("Unexpected error fetching data.");
-				console.error(err);
-			}
-		};
+    const loadItems = async () => {
+      try {
+        const { data, error } = await supabase.from("items").select("*");
+        if (error) {
+          setError("Error fetching inventory data.");
+          return;
+        }
+        setItems(data);
+      } catch (err) {
+        setError("Unexpected error fetching data.");
+        console.error(err);
+      }
+    };
 
-		const loadSpells = async () => {
-			try {
-				const { data, error } = await supabase.from("spells").select("*");
-				if (error) {
-					setError("Error fetching inventory data.");
-					return;
-				}
-				setSpells(data);
-			} catch (err) {
-				setError("Unexpected error fetching data.");
-				console.error(err);
-			}
-		};
+    const loadSpells = async () => {
+      try {
+        const { data, error } = await supabase.from("spells").select("*");
+        if (error) {
+          setError("Error fetching inventory data.");
+          return;
+        }
+        setSpells(data);
+      } catch (err) {
+        setError("Unexpected error fetching data.");
+        console.error(err);
+      }
+    };
 
-		const loadActions = async () => {
-			try {
-				const { data, error } = await supabase.from("actions").select("*").eq("character_id", id);
-				if (error) throw new Error("Error fetching data");
-				setActions(data);
-			} catch (error) {
-				setError(error as string);
-			}
-		};
+    const loadActions = async () => {
+      try {
+        const { data, error } = await supabase.from("actions").select("*").eq("character_id", id);
+        if (error) throw new Error("Error fetching data");
+        setActions(data);
+      } catch (error) {
+        setError(error as string);
+      }
+    };
 
-		const loadCharacter = async () => {
-			try {
-				const { data, error } = await supabase.from("characters").select("*").eq("character_id", id).single();
-				if (error) throw new Error("Error fetching data");
-				setCharacter(data);
-			} catch (err) {
-				setError(error as string);
-			}
-		};
+    const loadCharacter = async () => {
+      try {
+        const { data, error } = await supabase.from("characters").select("*").eq("character_id", id).single();
+        if (error) throw new Error("Error fetching data");
+        setCharacter(data);
+      } catch (err) {
+        setError(error as string);
+      }
+    };
 
-		loadCharacter();
-		loadInventory();
-		loadItems();
-		loadSpells();
-		loadActions();
-	}, []);
+    loadCharacter();
+    loadInventory();
+    loadItems();
+    loadSpells();
+    loadActions();
+  }, []);
 
-	useEffect(()=>{console.log(actions)},[actions])
+  if (error !== null) return <>Loading</>;
 
-	if(error !== null)
-		return <>Loading</> 
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full p-4 select-none">
+      {/* Character & Skills Section */}
+      <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
+        <div className="flex gap-4 -mb-2">
+          <button
+            onClick={() => setTable([true, table[1]])}
+            className={`text-center text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${
+              table[0] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+            }`}>
+            Character
+          </button>
+          <button
+            onClick={() => setTable([false, table[1]])}
+            className={`text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${
+              !table[0] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+            }`}>
+            Skills
+          </button>
+        </div>
+        <DecorativeLine color="#d4af37" />
+        <div className="mt-4 overflow-y-auto overflow-x-hidden lg:overflow-hidden lg:h-[calc(100vh-14rem)]">
+          <motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
+            <div className="w-1/2">
+              <CharacterPanel character={character} setCharacter={setCharacter} className="mt-1" spells={spells} actions={actions} setActions={setActions} />
+            </div>
+            <div className="w-1/2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
+              <SkillsPanel character={character} setCharacter={setCharacter} />
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full pl-4 pr-4 select-none">
-			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
-				<div className="grid grid-cols-11">
-					<button onClick={() => setTable([true, table[1]])} className={`text-center text-2xl col-span-5`}>
-						Charcter
-					</button>
-					<Divider orientation="vertical" className="w-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-					<button onClick={() => setTable([false, table[1]])} className={`text-2xl col-span-5`}>
-						Skills
-					</button>
-				</div>
-				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
-					<motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
-						<div className="w-1/2">
-							<CharacterPanel character={character} setCharacter={setCharacter} className="mt-1" spells={spells} actions={actions} setActions={setActions} />
-						</div>
-						<div className="w-1/2 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
-							<SkillsPanel character={character} setCharacter={setCharacter} />
-						</div>
-					</motion.div>
-				</div>
-			</section>
-			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
-				<h3 className="text-2xl font-semibold">Spells</h3>
-				<SpellList character_id={id as string} spells={spells} actions={actions} />
-			</section>
-			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none md:col-span-2 min-h-fill max-h-full">
-				<div className="grid grid-cols-11">
-					<button onClick={() => setTable([table[0], true])} className={`text-center text-2xl col-span-5`}>
-						Character
-					</button>
-					<Divider orientation="vertical" className="w-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-					<button onClick={() => setTable([table[0], false])} className={`text-2xl col-span-5`}>
-						Item Adder
-					</button>
-				</div>
-				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div
-					onContextMenu={(event) => {
-						event.preventDefault();
-					}}
-					className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
-					<motion.div
-						onContextMenu={(event) => {
-							event.preventDefault();
-						}}
-						className="flex w-[200%] transition-transform"
-						animate={{ x: table[1] ? "0%" : "-50%" }}
-						transition={{ duration: 0.2, ease: "easeInOut" }}>
-						<div
-							className="w-1/2"
-							onContextMenu={(event) => {
-								event.preventDefault();
-							}}>
-							<Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
-						</div>
-						<div className="w-1/2 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
-							<BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
-						</div>
-					</motion.div>
-				</div>
-			</section>
-		</div>
-	);
+      {/* Spells Section */}
+      <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
+			<div className="flex justify-center gap-4 -mb-2">
+        <div className={`text-center text-2xl font-semibold w-full p-2 rounded-lg text-white bg-[#d4af37] `}>
+          Inventory
+        </div>
+        
+      </div>
+        <DecorativeLine color="#d4af37" />
+        <SpellList character_id={id as string} spells={spells} actions={actions} />
+      </section>
+
+      {/* Inventory & Item Adder Section */}
+      <section className={`bg-white lg:h-[calc(100vh-8rem)] dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg md:col-span-2 lg:overflow-hidden`}>
+        <div className="flex gap-4 -mb-2">
+          <button
+            onClick={() => setTable([table[0], true])}
+            className={`text-center text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${
+              table[1] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+            }`}>
+            Inventory
+          </button>
+          <button
+            onClick={() => setTable([table[0], false])}
+            className={`text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${
+              !table[1] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+            }`}>
+            Item Adder
+          </button>
+        </div>
+        <DecorativeLine color="#d4af37" />
+        <div
+          onContextMenu={(event) => {
+            event.preventDefault();
+          }}
+          className="-mt-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden lg:h-[calc(100vh-14rem)]">
+          <motion.div
+            onContextMenu={(event) => {
+              event.preventDefault();
+            }}
+            className="flex w-[200%] transition-transform"
+            animate={{ x: table[1] ? "0%" : "-50%" }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}>
+            <div
+              className="w-1/2"
+              onContextMenu={(event) => {
+                event.preventDefault();
+              }}>
+              <Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
+            </div>
+            <div className="w-1/2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
+              <BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  );
 }

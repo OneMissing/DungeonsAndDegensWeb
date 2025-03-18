@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Action, Character, Spell, cantripSlotTable } from "@/lib/tools/types";
+import { Action, Character, Spell } from "@/lib/tools/types";
 
 interface SpellSelectionProps {
     character: Character;
@@ -7,7 +7,7 @@ interface SpellSelectionProps {
     actions: Action[];
     selectedSpells: string[];
     setSelectedSpells: React.Dispatch<React.SetStateAction<string[]>>;
-    maxCantrips: number; // New prop for maximum number of cantrips
+    maxCantrips: number;
 }
 
 const CantripSelection: React.FC<SpellSelectionProps> = ({
@@ -16,18 +16,15 @@ const CantripSelection: React.FC<SpellSelectionProps> = ({
     actions,
     selectedSpells,
     setSelectedSpells,
-    maxCantrips, // Destructure the new prop
+    maxCantrips,
 }) => {
-    const knownSpellIds = new Set(actions.map((action) => action.spell_id)); // Spells already known
+    const knownSpellIds = new Set(actions.map((action) => action.spell_id));
 
     const selectedCounts = selectedSpells.reduce((acc, spellId) => {
         const spell = spells.find((s) => s.spell_id === spellId);
-        if (spell) acc[spell.level] = (acc[spell.level] || 0) + 1;
+        if (spell && spell.level === 0) acc[0] = (acc[0] || 0) + 1; // Only count cantrips (level 0)
         return acc;
     }, {} as { [level: number]: number });
-
-    // Get spell slot limits for this class and level
-    const spellSlots = cantripSlotTable[character.class]?.[character.level] || [];
 
     useEffect(() => {
         setSelectedSpells((prev) => prev.filter((spellId) => !knownSpellIds.has(spellId)));
@@ -37,13 +34,8 @@ const CantripSelection: React.FC<SpellSelectionProps> = ({
         if (knownSpellIds.has(spellId)) return;
 
         setSelectedSpells((prev) => {
-            if (prev.includes(spellId)) {
-                return prev.filter((id) => id !== spellId);
-            } else {
-                if ((selectedCounts[spellLevel] || 0) < maxCantrips) {
-                    return [...prev, spellId];
-                }
-            }
+            if (prev.includes(spellId)) return prev.filter((id) => id !== spellId);
+            else if ((selectedCounts[spellLevel] || 0) < maxCantrips) return [...prev, spellId];
             return prev;
         });
     };
@@ -54,13 +46,15 @@ const CantripSelection: React.FC<SpellSelectionProps> = ({
                 const isSelected = selectedSpells.includes(spell.spell_id);
                 const isKnown = knownSpellIds.has(spell.spell_id);
                 const isFull = (selectedCounts[0] || 0) >= maxCantrips && !isSelected;
+
                 if (isKnown || spell.level !== 0) return null;
 
                 return (
                     <div
                         key={spell.spell_id}
-                        className={`p-4 border rounded-lg cursor-pointer transition ${isSelected ? "bg-blue-500 text-white" : "bg-gray-200"
-                            } ${isFull ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
+                        className={`p-4 border rounded-lg cursor-pointer transition ${
+                            isSelected ? "bg-blue-600 text-white" : "bg-gray-700"
+                        } ${isFull ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-500"}`}
                         onClick={() => !isFull && handleSelect(spell.spell_id, spell.level)}
                     >
                         <h3 className="font-bold">{spell.name}</h3>

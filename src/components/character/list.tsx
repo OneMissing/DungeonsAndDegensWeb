@@ -62,7 +62,7 @@ const CharacterList = ({
                             <div className='grid grid-cols-3'>
                                 <div className='flex space-x-2'>
                                     <CopyToClipboard text={char.character_id} />
-                                    <Remove text={char.character_id} />
+                                    <Remove charId={char.character_id} characters={characters} setCharacters={setCharacters} />
                                 </div>
                                 <div className='col-span-2'>
                                     <div className='text-right md:text-center w-full md:w-1/2 mt-1'>
@@ -103,7 +103,7 @@ const CharacterList = ({
                                 >
                                     <div className='flex space-x-2'>
                                         <CopyToClipboard text={char.character_id} />
-                                        <Delete charId={char.character_id} />
+                                        <Delete charId={char.character_id} characters={characters} setCharacters={setCharacters} />
                                     </div>
                                     <div className='col-span-2'>
                                         <div className='text-right md:text-center w-full md:w-1/2 mt-1'>

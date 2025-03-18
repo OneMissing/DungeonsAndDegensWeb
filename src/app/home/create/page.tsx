@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Character, Classes, Races } from "@/lib/tools/types";
+import { useEffect, useState } from "react";
+import { Action, cantripSlotTable, Character, Spell, spellSlotTable, Classes, Races } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
 import { redirect, useRouter } from "next/navigation";
+import SpellSelection from "@/components/character/player/startSpells";
+import CantripSelection from "@/components/character/player/cantripSelection";
 
 type CharData = Omit<
   Character,
@@ -29,6 +31,11 @@ const CharacterCreator = () => {
   const router = useRouter();
   const [state, setState] = useState<"ok" | "loading" | "error">();
   const [activeTab, setActiveTab] = useState(0);
+  const [spells, setSpells] = useState<Spell[]>([]);
+  const [actions, setActions] = useState<Action[]>([]);
+  const [selectedSpells, setSelectedSpells] = useState<string[]>([]);
+  const [cantripNumber, setCantripNumber] = useState<number>(0);
+  const [spellNumber, setSpellNumber] = useState<number>(0);
   const [charData, setCharData] = useState<CharData>({
     user_id: "",
     player_id: "",
@@ -63,6 +70,7 @@ const CharacterCreator = () => {
     stealth: 0,
     survival: 0,
   });
+  const [charDataClass, setCharDataClass] = useState("barbarian");
 
   const [selectedSkills, setSelectedSkills] = useState<(keyof CharData)[]>([]);
 
@@ -72,6 +80,20 @@ const CharacterCreator = () => {
       [field]: value,
     }));
   };
+
+  useEffect(() => {
+    const fetchSpells = async () => {
+      try {
+        const { data, error } = await supabase.from("spells").select("*");
+        if (error) throw error;
+        setSpells(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchSpells();
+  }, []);
 
   const toggleSkill = (skill: keyof CharData) => {
     setSelectedSkills((prev) => {
@@ -157,7 +179,6 @@ const CharacterCreator = () => {
         return acc;
       }, {} as Record<keyof CharData, number>);
 
-      // Create the new character with updated skill values
       const newCharacter = {
         ...charData,
         ...updatedSkills,
@@ -165,9 +186,15 @@ const CharacterCreator = () => {
         player_id: userData.user.id,
       };
 
-      const { error } = await supabase.from("characters").insert([newCharacter]);
+      const { data, error } = await supabase.from("characters").insert([newCharacter]).select().single();
       if (error) {
         console.error("Error creating character:", error);
+        setState("error");
+        return;
+      }
+      const {error: actionError } = await supabase.from("actions").insert(selectedSpells.map((spell_id) => ({ character_id: data.character_id, spell_id })));
+      if (actionError) {
+        console.error("Error uploading spells:", actionError);
         setState("error");
         return;
       }
@@ -178,6 +205,15 @@ const CharacterCreator = () => {
       setState("error");
     }
   };
+
+  useEffect(() => {
+    const tempCantrips = cantripSlotTable[charData.class]?.[1] || 0;
+    const tempSpells = spellSlotTable[charData.class]?.[1][0] || 0;
+    setCantripNumber(tempCantrips);
+    setSpellNumber(tempSpells);
+    if (charData.class != charDataClass) setSelectedSpells([]);
+    setCharDataClass(charData.class);
+  }, [charData]);
 
   const tabs = [
     {
@@ -202,7 +238,7 @@ const CharacterCreator = () => {
                 {Object.entries(Races).map(([key, value]) => (
                   <label
                     key={key}
-                    className={`flex items-center justify-center p-2 border rounded-lg cursor-pointer text-sm ${
+                    className={`flex items-center justify-center p-2 border rounded-lg cursor-pointer text-sm hover:bg-blue-500 ${
                       charData.race === value ? "bg-blue-600 text-white border-blue-700" : "bg-gray-700 text-white border-gray-500"
                     }`}>
                     <input type="radio" name="race" value={value} checked={charData.race === value} onChange={() => handleChange("race", value)} className="hidden" required />
@@ -242,7 +278,7 @@ const CharacterCreator = () => {
       id: "attributes",
       label: "Attributes",
       content: (
-        <div className="p-4 bg-gray-900 rounded-lg">
+        <div className="p-4 rounded-lg">
           <h2 className="text-xl font-bold mb-2">Attributes</h2>
           <div className="grid grid-cols-2 gap-4">
             {(["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] as (keyof CharData)[]).map((attr) => (
@@ -264,7 +300,7 @@ const CharacterCreator = () => {
                       handleChange(attr, newValue);
                     }
                   }}
-                  className="bg-gray-700 text-white p-2 w-full rounded"
+                  className="bg-gray-700 text-white p-2 w-full border rounded-lg cursor-pointer"
                 />
               </div>
             ))}
@@ -283,7 +319,7 @@ const CharacterCreator = () => {
       id: "skills",
       label: "Skills",
       content: (
-        <div className="p-4 bg-gray-900 rounded-lg">
+        <div className="p-4 rounded-lg">
           <h2 className="text-xl font-bold mb-2">Select 2 Skills (+3 Bonus Each)</h2>
           <div className="grid grid-cols-2 gap-4">
             {(
@@ -314,7 +350,7 @@ const CharacterCreator = () => {
                 <div
                   key={name}
                   onClick={() => toggleSkill(name)}
-                  className={`p-4 rounded-lg cursor-pointer ${
+                  className={` text-white p-2 w-full border rounded-lg cursor-pointer ${
                     selectedSkills.includes(name)
                       ? "bg-blue-600 text-white" // Selected state
                       : "bg-gray-700 text-white" // Default state
@@ -334,19 +370,82 @@ const CharacterCreator = () => {
         </div>
       ),
     },
+    {
+      id: "spells",
+      label: "Spells",
+      content: (
+        <div className="overflow-hidden">
+          <h2 className="text-xl font-bold mb-2 text-center">Select a Spell</h2>
+          <div className="h-[calc(100svh-12rem)] overflow-y-auto pt-2">
+            <SpellSelection
+              character={charData as Character}
+              spells={spells}
+              actions={actions}
+              selectedSpells={selectedSpells}
+              setSelectedSpells={setSelectedSpells}
+              maxSpells={spellNumber}
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "cantrips",
+      label: "Cantrips",
+      content: (
+        <div className="overflow-hidden">
+          <h2 className="text-xl font-bold mb-2 text-center">Select a Spell</h2>
+          <div className="h-[calc(100svh-12rem)] overflow-y-auto pt-2">
+            <CantripSelection
+              maxCantrips={cantripNumber}
+              character={charData as Character}
+              spells={spells}
+              actions={actions}
+              selectedSpells={selectedSpells}
+              setSelectedSpells={setSelectedSpells}
+            />
+          </div>
+        </div>
+      ),
+    },
   ];
 
   return (
     <div className="h-main overflow-hidden w-full text-white flex">
       <div className="w-56 grid-cols-1 p-4">
-        {tabs.map((tab, index) => (
+        <button
+          onClick={() => setActiveTab(0)}
+          className={`py-2 text-lg font-semibold w-full ${activeTab === 0 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+          {tabs[0].label}
+        </button>
+
+        <button
+          onClick={() => setActiveTab(1)}
+          className={`py-2 text-lg font-semibold w-full ${activeTab === 1 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+          {tabs[1].label}
+        </button>
+
+        <button
+          onClick={() => setActiveTab(2)}
+          className={`py-2 text-lg font-semibold w-full ${activeTab === 2 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+          {tabs[2].label}
+        </button>
+
+        {spellNumber !== 0 && (
           <button
-            key={index}
-            onClick={() => setActiveTab(index)}
-            className={`px-4 py-2 text-lg font-semibold w-full ${activeTab === index ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
-            {tab.label}
+            onClick={() => setActiveTab(3)}
+            className={`py-2 text-lg font-semibold w-full ${activeTab === 3 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+            {tabs[3].label}
           </button>
-        ))}
+        )}
+
+        {cantripNumber !== 0 && (
+          <button
+            onClick={() => setActiveTab(4)}
+            className={`py-2 text-lg font-semibold w-full ${activeTab === 4 ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400"}`}>
+            {tabs[4].label}
+          </button>
+        )}
       </div>
       <div className="w-full h-full p-4">{tabs[activeTab].content}</div>
     </div>

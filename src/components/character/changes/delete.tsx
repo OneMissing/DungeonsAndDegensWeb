@@ -6,12 +6,15 @@ import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import usePopup from "@/components/ui/popup";
 import { Tooltip } from "@heroui/react";
+import { Character } from "@/lib/tools/types";
 
 interface DeleteProps {
 	charId: string;
+	characters: Character[];
+	setCharacters: (characters: Character[]) => void;
 }
 
-const Delete: React.FC<DeleteProps> = ({ charId }) => {
+const Delete: React.FC<DeleteProps> = ({ charId, characters, setCharacters }) => {
 	const supabase = createClient();
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -27,7 +30,7 @@ const Delete: React.FC<DeleteProps> = ({ charId }) => {
 			setError((err as Error).message);
 		} finally {
 			setLoading(false);
-			window.location.reload();
+			setCharacters(characters.filter(character => character.character_id !== charId));
 		}
 	};
 
