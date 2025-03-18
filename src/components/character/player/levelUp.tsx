@@ -271,7 +271,7 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
         <div className="overflow-hidden">
           <h2 className="text-xl font-bold mb-2 text-center">Select a Spell</h2>
           <div className="h-[calc(100svh-12rem)] overflow-y-auto pt-2">
-            <CantripSelection character={character as Character} spells={spells} actions={actions} selectedSpells={selectedSpells} setSelectedSpells={setSelectedSpells} />
+            <CantripSelection maxCantrips={3} character={character as Character} spells={spells} actions={actions} selectedSpells={selectedSpells} setSelectedSpells={setSelectedSpells} />
           </div>
         </div>
       ),
