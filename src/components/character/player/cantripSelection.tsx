@@ -7,6 +7,7 @@ interface SpellSelectionProps {
     actions: Action[];
     selectedSpells: string[];
     setSelectedSpells: React.Dispatch<React.SetStateAction<string[]>>;
+    maxCantrips: number; // New prop for maximum number of cantrips
 }
 
 const CantripSelection: React.FC<SpellSelectionProps> = ({
@@ -15,18 +16,18 @@ const CantripSelection: React.FC<SpellSelectionProps> = ({
     actions,
     selectedSpells,
     setSelectedSpells,
+    maxCantrips, // Destructure the new prop
 }) => {
     const knownSpellIds = new Set(actions.map((action) => action.spell_id)); // Spells already known
 
     const selectedCounts = selectedSpells.reduce((acc, spellId) => {
         const spell = spells.find((s) => s.spell_id === spellId);
-        if (spell) acc[spell.level] = 0;
+        if (spell) acc[spell.level] = (acc[spell.level] || 0) + 1;
         return acc;
     }, {} as { [level: number]: number });
 
     // Get spell slot limits for this class and level
     const spellSlots = cantripSlotTable[character.class]?.[character.level] || [];
-
 
     useEffect(() => {
         setSelectedSpells((prev) => prev.filter((spellId) => !knownSpellIds.has(spellId)));
@@ -39,7 +40,7 @@ const CantripSelection: React.FC<SpellSelectionProps> = ({
             if (prev.includes(spellId)) {
                 return prev.filter((id) => id !== spellId);
             } else {
-                if ((selectedCounts[spellLevel] || 0) < 3) {
+                if ((selectedCounts[spellLevel] || 0) < maxCantrips) {
                     return [...prev, spellId];
                 }
             }
@@ -52,7 +53,7 @@ const CantripSelection: React.FC<SpellSelectionProps> = ({
             {spells.map((spell) => {
                 const isSelected = selectedSpells.includes(spell.spell_id);
                 const isKnown = knownSpellIds.has(spell.spell_id);
-                const isFull = (selectedCounts[0] || 0) >= 3 && !isSelected;
+                const isFull = (selectedCounts[0] || 0) >= maxCantrips && !isSelected;
                 if (isKnown || spell.level !== 0) return null;
 
                 return (
