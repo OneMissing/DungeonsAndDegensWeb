@@ -39,7 +39,7 @@ const CantripSelection: React.FC<SpellSelectionProps> = ({
             if (prev.includes(spellId)) {
                 return prev.filter((id) => id !== spellId);
             } else {
-                if ((selectedCounts[spellLevel] || 0) < (maxSpellsByLevel[spellLevel] || 0)) {
+                if ((selectedCounts[spellLevel] || 0) < 3) {
                     return [...prev, spellId];
                 }
             }
