@@ -76,24 +76,6 @@ const SpellSelection: React.FC<SpellSelectionProps> = ({
           </div>
         );
       })}
-      {spells.map((spell) => {
-        const isSelected = selectedSpells.includes(spell.spell_id);
-        const isKnown = knownSpellIds.has(spell.spell_id);
-        const isFull = (selectedCounts[0]) >= 3 && !isSelected;
-        if (isKnown || spell.level !== 0) return null;
-
-        return (
-          <div
-            key={spell.spell_id}
-            className={`p-4 border rounded-lg cursor-pointer transition ${isSelected ? "bg-blue-500 text-white" : "bg-gray-200"
-              } ${isFull ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
-            onClick={() => !isFull && handleSelect(spell.spell_id, spell.level)}
-          >
-            <h3 className="font-bold">{spell.name} (Level {spell.level})</h3>
-            <p>{spell.description}</p>
-          </div>
-        );
-      })}
     </div>
   );
 };
