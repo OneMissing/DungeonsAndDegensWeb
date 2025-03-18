@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Character, Classes, Races } from "@/lib/tools/types";
 import { createClient } from "@/lib/supabase/client";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 type CharData = Omit<
   Character,
@@ -26,6 +26,7 @@ type CharData = Omit<
 
 const CharacterCreator = () => {
   const supabase = createClient();
+  const router = useRouter();
   const [state, setState] = useState<"ok" | "loading" | "error">();
   const [activeTab, setActiveTab] = useState(0);
   const [charData, setCharData] = useState<CharData>({
@@ -171,6 +172,7 @@ const CharacterCreator = () => {
         return;
       }
       setState("ok");
+      router.push("/home");
     } catch (err) {
       console.error("Unhandled error:", err);
       setState("error");
