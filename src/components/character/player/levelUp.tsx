@@ -123,7 +123,7 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
       .select();
     const { error: charError } = await supabase.from("characters").update(updatedCharacter).eq("character_id", character.character_id);
 
-    if (charError || insertError || !insertData) console.error();
+    if (charError || insertError || !insertData) console.error(charError, insertError);
     onUpdate(updatedCharacter);
     setCharacter(null);
     if (Array.isArray(insertData)) setActions((prev) => [...prev, ...insertData]);
@@ -196,7 +196,8 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
       content: (
         <div className="p-4 bg-gray-900 rounded-lg">
           <h2 className="text-xl font-bold mb-2">Attributes</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="grid grid-cols-2 gap-4">
             {(["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] as (keyof Character)[]).map((attr) => (
               <div key={attr} className="space-y-2">
                 <label className="block text-sm font-medium">{attr.toUpperCase()}</label>
@@ -224,6 +225,7 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
             <p className="text-sm">
               Total Points Used: {defTotal} / {defmax}
             </p>
+          </div>
           </div>
         </div>
       ),
