@@ -154,14 +154,14 @@ export default function Page() {
             <motion.span
               animate={{ scale: table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={table[0] ? "text-white" : "text-primary-light dark:text-primary-dark"}
+              className={table[0] ? "text-white" : "text-primary-light"}
             > Character </motion.span>
           </button>
           <button onClick={() => setTable([false, table[1]])} className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors" >
             <motion.span
               animate={{ scale: !table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={!table[0] ? "text-white" : "text-primary-light dark:text-primary-dark"}
+              className={!table[0] ? "text-white" : "text-primary-light"}
             > Skills </motion.span>
           </button>
         </div>
@@ -180,11 +180,18 @@ export default function Page() {
 
       {/* Spells Section */}
       <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
-        <div className="flex justify-center gap-4 -mb-2">
-          <div className={`text-center text-2xl font-semibold w-full p-2 rounded-lg text-white bg-[#d4af37] `}>
-            Inventory
-          </div>
-
+        <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg ">
+          <motion.div
+            className="absolute top-0 bottom-0 w-full bg-[#d4af37] rounded-lg"
+            initial={false}
+          />
+          <button onClick={() => {}} className="relative text-2xl font-semibold w-full p-2 rounded-lg transition-colors" >
+            <motion.span
+              animate={{ scale: table[0] ? 1.1 : 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
+              className={table[0] ? "text-white" : "text-primary-light"}
+            > Character </motion.span>
+          </button>
         </div>
         <DecorativeLine color="#d4af37" />
         <SpellList character_id={id as string} spells={spells} actions={actions} />
@@ -203,7 +210,7 @@ export default function Page() {
             <motion.span
               animate={{ scale: table[1] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={table[0] ? "text-white" : "text-black dark:text-white"}
+              className={table[0] ? "text-white" : "text-primary-light"}
             > Inventory </motion.span>
           </button>
 
@@ -211,7 +218,7 @@ export default function Page() {
             <motion.span
               animate={{ scale: !table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={!table[0] ? "text-white" : "text-primary-light dark:text-primary-dark"}
+              className={!table[0] ? "text-white" : "text-primary-light"}
             > Item Book </motion.span>
           </button>
         </div>
