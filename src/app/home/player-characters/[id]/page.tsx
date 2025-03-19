@@ -157,12 +157,11 @@ export default function Page() {
               className={table[0] ? "text-white" : "text-black dark:text-white"}
             > Character </motion.span>
           </button>
-
           <button onClick={() => setTable([false, table[1]])} className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors" >
             <motion.span
               animate={{ scale: !table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={!table[0] ? "text-white" : "text-black dark:text-white"}
+              className={!table[0] ? "text-primary" : "text-black dark:text-white"}
             > Skills </motion.span>
           </button>
         </div>
