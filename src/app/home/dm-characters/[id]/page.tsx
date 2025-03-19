@@ -143,53 +143,72 @@ export default function Page() {
 		loadActions();
 	}, []);
 
-	if(error !== null)
-		return <>Loading</> 
+	if (error !== null)
+		return <>Loading</>
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full pl-4 pr-4 select-none">
-			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
-				<div className="grid grid-cols-11">
-					<button onClick={() => setTable([true, table[1]])} className={`text-center text-2xl col-span-5`}>
-						Charcter
+		<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full p-4 select-none">
+			<section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
+				<div className="flex gap-4 -mb-2">
+					<button
+						onClick={() => setTable([true, table[1]])}
+						className={`text-center text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${table[0] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+							}`}>
+						Character
 					</button>
-					<Divider orientation="vertical" className="w-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-					<button onClick={() => setTable([false, table[1]])} className={`text-2xl col-span-5`}>
+					<button
+						onClick={() => setTable([false, table[1]])}
+						className={`text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${!table[0] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+							}`}>
 						Skills
 					</button>
 				</div>
-				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-				<div className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
+				<DecorativeLine color="#d4af37" />
+				<div className="mt-4 overflow-y-auto overflow-x-hidden lg:overflow-hidden lg:h-[calc(100vh-14rem)]">
 					<motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
 						<div className="w-1/2">
 							<CharacterPanel character={character} setCharacter={setCharacter} className="mt-1" />
 						</div>
-						<div className="w-1/2 overflow-y-auto overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
+						<div className="w-1/2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
 							<SkillsPanel character={character} setCharacter={setCharacter} />
 						</div>
 					</motion.div>
 				</div>
 			</section>
-			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none">
-				<h3 className="text-2xl font-semibold">Spells</h3>
+
+			<section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
+				<div className="flex justify-center gap-4 -mb-2">
+					<div className={`text-center text-2xl font-semibold w-full p-2 rounded-lg text-white bg-[#d4af37] `}>
+						Inventory
+					</div>
+
+				</div>
+				<DecorativeLine color="#d4af37" />
 				<SpellList character_id={id as string} spells={spells} actions={actions} />
 			</section>
-			<section className="bg-2-light dark:bg-2-dark mt-4 p-4 rounded-lg shadow-md xl:min-h-[calc(100vh-6.5rem)] xl:max-h-[calc(100vh-6.5rem)] select-none md:col-span-2 min-h-fill max-h-full">
-				<div className="grid grid-cols-11">
-					<button onClick={() => setTable([table[0], true])} className={`text-center text-2xl col-span-5`}>
-						Character
+
+
+			<section className={`bg-white lg:h-[calc(100vh-8rem)] dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg md:col-span-2 lg:overflow-hidden`}>
+				<div className="flex gap-4 -mb-2">
+					<button
+						onClick={() => setTable([table[0], true])}
+						className={`text-center text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${table[1] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+							}`}>
+						Inventory
 					</button>
-					<Divider orientation="vertical" className="w-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
-					<button onClick={() => setTable([table[0], false])} className={`text-2xl col-span-5`}>
+					<button
+						onClick={() => setTable([table[0], false])}
+						className={`text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${!table[1] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+							}`}>
 						Item Adder
 					</button>
 				</div>
-				<Divider orientation="vertical" className="my-1 h-[0.08rem] rounded-lg bg-[#d4af37] mx-auto" />
+				<DecorativeLine color="#d4af37" />
 				<div
 					onContextMenu={(event) => {
 						event.preventDefault();
 					}}
-					className="mt-4 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded relative w-full">
+					className="-mt-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
 					<motion.div
 						onContextMenu={(event) => {
 							event.preventDefault();
@@ -204,7 +223,7 @@ export default function Page() {
 							}}>
 							<Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
 						</div>
-						<div className="w-1/2 overflow-y-hidden overflow-x-hidden xl:min-h-[calc(100vh-12rem)] xl:max-h-[calc(100vh-12rem)] rounded">
+						<div className="w-1/2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
 							<BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
 						</div>
 					</motion.div>

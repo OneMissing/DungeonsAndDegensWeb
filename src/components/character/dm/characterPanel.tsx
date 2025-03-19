@@ -46,7 +46,6 @@ const CharacterInfo = ({ character, setCharacter, className }: { character?: Cha
 
 	return (
 		<div className={`${className}`}>
-			<div className="absolute top-2 left-0"><Link href={`/home/level-up/${character.character_id}`}><BookPlus size={30} /></Link></div>
 			<h2 className="text-4xl font-bold text-center w-10/12 m-auto" onDoubleClick={() => handleDoubleClick("name")}>
 				{editingField === "name" ? (
 					<input
