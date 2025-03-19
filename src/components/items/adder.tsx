@@ -1,12 +1,30 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Item, Tile, uniqueInstanceTypes } from "@/lib/tools/types";
-import { PosAnimation } from "leaflet";
+import DecorativeLine from "../ui/decorativeLine";
+
 const supabase = createClient();
 
+// Define the categories object with explicit typing
+const categories = {
+  helmet: ["helmet", "hat", "cap", "light helmet", "light hat", "light cap", "heavy helmet", "heavy hat", "heavy cap"],
+  chestplate: ["light chestplate","chestplate", "armor", "heavy chestplate", "heavy armor"],
+  gauntlets: ["light gauntlets", "gauntlets", "heavy gauntlets"],
+  boots: ["light boots", "boots", "heavy boots"],
+  weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield", "dagger" , "scythe"],
+  potion: ["potion"],
+  food: ["food", "meal"],
+  currency: ["currency", "gem"],
+  tool: ["tool"],
+  book: ["book", "spellbook"],
+  misc: ["misc"],
+} as const;
+
+type CategoryKey = keyof typeof categories;
+
 const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[]; setGrid: (grid: Tile[]) => void }> = ({ character_id, items, grid, setGrid }) => {
-  const [activeTab, setActiveTab] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<CategoryKey | "all">("all");
 
   const addToInventory = async (item: Item) => {
     try {
@@ -65,30 +83,44 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
       console.error("Error adding to inventory:", error);
     }
   };
-  const itemTypes = Array.from(new Set(items.map((item) => item.type)));
-  const filteredItems = activeTab === "all" ? items : items.filter((item) => item.type === activeTab);
+
+  // Get the keys of the categories object as the item types
+  const itemTypes = Object.keys(categories) as CategoryKey[];
+
+  // Filter items based on the active tab
+  const filteredItems = activeTab === "all" 
+    ? items 
+    : items.filter((item) => (categories[activeTab] as readonly string[]).includes(item.type));
 
   return (
-    <div className="rounded-lg shadow-lg">
-      <div className="pb-4 sticky">
-      <select value={activeTab} onChange={(e) => setActiveTab(e.target.value)} className="bg-gray-700 text-white p-2 w-full rounded" required >
-        <option key="all" value="all">All</option>
-        {itemTypes.map((type) => (
-          <option key={type} value={type}>
-            {type.charAt(0).toUpperCase() + type.slice(1)}
+    <div className="rounded-lg shadow-lg lg:h-[calc(100vh-17rem)] overflow-y-auto">
+      <div className="pb-4 sticky top-0">
+        <select 
+          value={activeTab} 
+          onChange={(e) => setActiveTab(e.target.value as CategoryKey | "all")} 
+          className="dark:bg-gray-700 dark:text-white w-full border p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" 
+          required
+        >
+          <option key="all" value="all">
+            All
           </option>
-        ))}
-      </select>
+          {itemTypes.map((type) => (
+            <option key={type} value={type}>
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="w-full overflow-y-auto lg:h-[calc(100vh-20rem)]">
+      <div className="w-full overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => (
             <div
               key={item.item_id}
               className="border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
-              onClick={() => addToInventory(item)}>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{item.name}</h2>
+              onClick={() => addToInventory(item)}
+            >
+              <h2 className="text-xl font-semibold text-secondary-dark dark:text-secondary-light">{item.name}</h2>
               <p className="text-gray-600 dark:text-gray-300 mt-2">{item.description}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{item.type}</p>
             </div>

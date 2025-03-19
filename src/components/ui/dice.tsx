@@ -69,7 +69,7 @@ const D20Modal: React.FC<{roll: Number}> = ({ roll }) => {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="bg-primary-light dark:bg-primary-dark text-text1-dark px-8 py-4 rounded-xl
+        className="bg-secondary-light dark:bg-secondary-dark text-text1-dark px-8 py-4 rounded-xl
                    text-2xl font-bold hover:scale-105 transition-transform shadow-lg"
       >
         🜺 Hodit Kostkou
@@ -87,7 +87,7 @@ const D20Modal: React.FC<{roll: Number}> = ({ roll }) => {
               &times;
             </button>
 
-            <div className="text-6xl text-center my-4 font-papyrus text-primary-dark">
+            <div className="text-6xl text-center my-4 font-papyrus text-secondary-dark">
               {result}
             </div>
 

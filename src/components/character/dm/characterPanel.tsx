@@ -46,7 +46,7 @@ const CharacterInfo = ({ character, setCharacter, className }: { character?: Cha
 
 	return (
 		<div className={`${className}`}>
-			<h2 className="text-4xl font-bold text-center w-10/12 m-auto" onDoubleClick={() => handleDoubleClick("name")}>
+			<h2 className="text-4xl font-bold text-center w-full m-auto" onDoubleClick={() => handleDoubleClick("name")}>
 				{editingField === "name" ? (
 					<input
 						type="text"

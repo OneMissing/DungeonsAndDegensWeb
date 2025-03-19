@@ -2,12 +2,13 @@ import React from "react";
 
 type DecorativeLineProps = {
   color?: string;
+  darkColor?: string;
 };
 
-const DecorativeLine: React.FC<DecorativeLineProps> = ({ color = "#CBD5E1" }) => {
+const DecorativeLine: React.FC<DecorativeLineProps> = ({ color = "#ffd700", darkColor="" }) => {
   return (
     <div className="relative w-full my-6 flex items-center">
-      <div className="h-[2px] w-full" style={{ backgroundColor: color }}></div>
+      <div className={`h-[2px] w-full bg-[${color}]`} style={{ backgroundColor: color }}></div>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 100 20"

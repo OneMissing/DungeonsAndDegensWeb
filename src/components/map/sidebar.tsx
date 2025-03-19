@@ -126,7 +126,7 @@ const MapSidebar: React.FC<SidebarProps> = ({
 							key={tab}
 							onClick={() => setActiveTab(tab as any)}
 							className={`flex items-center p-2 rounded-md text-sm transition-all ease-out duration-300 ${sidebarWidth > 244 ? "w-full" : "w-auto"} ${
-								activeTab === tab ? "bg-primary-light dark:bg-primary-dark text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
+								activeTab === tab ? "bg-secondary-light dark:bg-secondary-dark text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
 							}`}>
 							<Icon className="w-5 h-5 flex-shrink-0 transition-all ease-out duration-300" />
 							<span
@@ -200,7 +200,7 @@ const MapSidebar: React.FC<SidebarProps> = ({
 					)}
 					{activeTab === "settings" && (
 						<div className="space-y-2">
-							<button onClick={() => setIsSavePopupOpen(true)} className="w-full p-2 bg-primary-light dark:bg-primary-dark text-white rounded-md">
+							<button onClick={() => setIsSavePopupOpen(true)} className="w-full p-2 bg-secondary-light dark:bg-secondary-dark text-white rounded-md">
 								Save Map
 							</button>
 							<button onClick={() => setIsLoadPopupOpen(true)} className="w-full p-2 bg-secondary-light dark:bg-secondary-dark text-white rounded-md">

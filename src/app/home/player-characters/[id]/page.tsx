@@ -150,24 +150,34 @@ export default function Page() {
             animate={{ x: table[0] ? "0%" : "100%" }}
             transition={{ type: "spring", stiffness: 200, damping: 20, duration: 0.2 }}
           />
-          <button onClick={() => setTable([true, table[1]])} className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors" >
+          <button
+            onClick={() => setTable([true, table[1]])}
+            onDoubleClick={() => setTable([true, true])}
+            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={table[0] ? "text-white" : "text-primary-light"}
-            > Character </motion.span>
+              className={table[0] ? "text-white" : "text-secondary-light"}>
+              {" "}
+              Character{" "}
+            </motion.span>
           </button>
-          <button onClick={() => setTable([false, table[1]])} className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors" >
+          <button
+            onClick={() => setTable([false, table[1]])}
+            onDoubleClick={() => setTable([false, false])}
+            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: !table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={!table[0] ? "text-white" : "text-primary-light"}
-            > Skills </motion.span>
+              className={!table[0] ? "text-white" : "text-secondary-light"}>
+              {" "}
+              Skills{" "}
+            </motion.span>
           </button>
         </div>
         <DecorativeLine color="#d4af37" />
         <div className="-mt-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden lg:h-[calc(100vh-14rem)]">
-          <motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
+          <motion.div className="hidden lg:flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
             <div className="w-1/2">
               <CharacterPanel character={character} setCharacter={setCharacter} className="mt-1" spells={spells} actions={actions} setActions={setActions} />
             </div>
@@ -176,51 +186,63 @@ export default function Page() {
             </div>
           </motion.div>
         </div>
+        <div className="lg:hidden flex h-full w-full">
+          {table[0] ? (
+            <CharacterPanel character={character} setCharacter={setCharacter} spells={spells} actions={actions} setActions={setActions} className="mt-1 w-full" />
+          ) : (
+            <SkillsPanel character={character} setCharacter={setCharacter} className="w-full" />
+          )}
+        </div>
       </section>
 
       {/* Spells Section */}
       <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
         <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg ">
-          <motion.div
-            className="absolute top-0 bottom-0 w-full bg-[#d4af37] rounded-lg"
-            initial={false}
-          />
-          <button onClick={() => { }} className="relative text-2xl font-semibold w-full p-2 rounded-lg transition-colors" >
-            <motion.span
-              animate={{ scale: table[0] ? 1.1 : 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={"text-white"}
-            > Character </motion.span>
-          </button>
+          <motion.div className="absolute top-0 bottom-0 w-full bg-[#d4af37] rounded-lg" initial={false} />
+          <div className="relative md:text-2xl text-lg font-semibold w-full p-2 rounded-lg transition-colors">
+            <motion.span animate={{ scale: table[0] ? 1.1 : 1 }} transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }} className={"text-white"}>
+              {" "}
+              Character{" "}
+            </motion.span>
+          </div>
         </div>
-        <DecorativeLine color="#d4af37" /><div className="-mt-2">
+        <DecorativeLine color="#d4af37" />
+        <div className="-mt-2">
           <SpellList character_id={id as string} spells={spells} actions={actions} />
         </div>
       </section>
 
       {/* Inventory & Item Adder Section */}
-      <section className={`bg-white lg:h-[calc(100vh-8rem)] dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg md:col-span-2 lg:overflow-hidden`}>
-        <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg ">
+      <section className={`bg-white xl:h-[calc(100vh-8rem)] overflow-hidden dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg md:col-span-2 lg:overflow-hidden md:h-auto`}>
+        <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg">
           <motion.div
             className="absolute top-0 bottom-0 w-1/2 bg-[#d4af37] rounded-lg"
             initial={false}
             animate={{ x: table[1] ? "0%" : "100%" }}
             transition={{ type: "spring", stiffness: 200, damping: 20, duration: 0.2 }}
           />
-          <button onClick={() => setTable([table[0], true])} className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors" >
+          <button
+            onClick={() => setTable([table[0], true])}
+            onDoubleClick={() => setTable([true, true])}
+            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: table[1] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={table[1] ? "text-white" : "text-primary-light"}
-            > Inventory </motion.span>
+              className={table[1] ? "text-white" : "text-secondary-light"}>
+              Inventory
+            </motion.span>
           </button>
 
-          <button onClick={() => setTable([table[1], false])} className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors" >
+          <button
+            onClick={() => setTable([table[0], false])}
+            onDoubleClick={() => setTable([false, false])}
+            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
-              animate={{ scale: !table[0] ? 1.1 : 1 }}
+              animate={{ scale: !table[1] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={!table[1] ? "text-white" : "text-primary-light"}
-            > Item Book </motion.span>
+              className={!table[1] ? "text-white" : "text-secondary-light"}>
+              Item Book
+            </motion.span>
           </button>
         </div>
 
@@ -229,25 +251,38 @@ export default function Page() {
           onContextMenu={(event) => {
             event.preventDefault();
           }}
-          className="-mt-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
+          className="-mt-2 h-full overflow-hidden hidden lg:flex flex-col">
           <motion.div
             onContextMenu={(event) => {
               event.preventDefault();
             }}
-            className="flex w-[200%] transition-transform"
+            className="flex w-[200%] transition-transform flex-grow"
             animate={{ x: table[1] ? "0%" : "-50%" }}
             transition={{ duration: 0.2, ease: "easeInOut" }}>
             <div
-              className="w-1/2"
+              className="w-1/2 h-full"
               onContextMenu={(event) => {
                 event.preventDefault();
               }}>
-              <Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
+              <div className="h-full">
+                <Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
+              </div>
             </div>
-            <div className="w-1/2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
+            <div className="w-1/2 h-full overflow-y-auto">
               <BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
             </div>
           </motion.div>
+        </div>
+        <div className="lg:hidden flex">
+          {table[1] ? (
+            <div className="h-full w-full">
+              <Inventory character_id={id as string} grid={grid} setGrid={setGrid} items={items} />
+            </div>
+          ) : (
+            <div className="w-full h-full overflow-y-auto">
+              <BookInventory character_id={id as string} items={items} grid={grid} setGrid={setGrid} />
+            </div>
+          )}
         </div>
       </section>
     </div>

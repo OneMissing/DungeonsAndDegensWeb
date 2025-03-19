@@ -10,6 +10,7 @@ import { Divider, Tooltip } from "@heroui/react";
 import Slider from "../ui/slider";
 import { weaponRoll } from "@/lib/rolling/damageRoll";
 import { usePopup } from "@/components/dices/dicePopup";
+import DecorativeLine from "../ui/decorativeLine";
 
 const supabase = createClient();
 
@@ -17,14 +18,36 @@ const GRID_SIZE = 8;
 const ADDITIONAL_SLOTS = 10;
 const TOTAL_SLOTS = GRID_SIZE * GRID_SIZE + ADDITIONAL_SLOTS;
 
+const shitCat = (item: string): string => {
+  const categories: Record<string, string[]> = {
+    helmet: ["helmet", "hat", "cap", "light helmet", "light hat", "light cap", "heavy helmet", "heavy hat", "heavy cap"],
+    chestplate: ["light chestplate", "chestplate", "armor", "heavy chestplate", "heavy armor"],
+    gauntlets: ["light gauntlets", "gauntlets", "heavy gauntlets"],
+    boots: ["light boots", "boots", "heavy boots"],
+    weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield", "dagger", "scythe"],
+    potion: ["potion"],
+    food: ["food", "meal"],
+    currency: ["currency", "gem"],
+    tool: ["tool"],
+    book: ["book", "spellbook"],
+    misc: ["misc"],
+  };
+
+  for (const category in categories) {
+    if (categories[category].includes(item)) return category;
+  }
+
+  return "misc";
+};
+
 const isValidItemTypeForSlot = (slotType: string | undefined, itemType: string | undefined): boolean => {
   if (!slotType || !itemType) return false;
 
   const validItemTypes: { [key: string]: string[] } = {
-    helmet: ["helmet", "hat", "cap"],
-    chestplate: ["chestplate", "armor"],
-    gauntlets: ["gauntlets"],
-    boots: ["boots"],
+    helmet: ["helmet", "hat", "cap", "light helmet", "light hat", "light cap", "heavy helmet", "heavy hat", "heavy cap"],
+    chestplate: ["light chestplate", "chestplate", "armor", "heavy chestplate", "heavy armor"],
+    gauntlets: ["light gauntlets", "gauntlets", "heavy gauntlets"],
+    boots: ["light boots", "boots", "heavy boots"],
     weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield"],
   };
 
@@ -127,7 +150,8 @@ const DraggableItem: React.FC<{
   const currentItemInfo = itemFilter(items, item.item_id);
   let typeSpecificContent;
   if (!currentItemInfo) return <></>;
-  switch (currentItemInfo.type) {
+  switch (shitCat(currentItemInfo.type)) {
+    case "weapon":
     case "sword":
       typeSpecificContent = <Sword className="w-full h-full" />;
       break;
@@ -200,10 +224,28 @@ const DraggableItem: React.FC<{
       const newQuantity = item.quantity + amount;
       await supabase.from("inventory").update({ quantity: newQuantity }).eq("inventory_id", item.inventory_id);
       onQuantityChanged(item.inventory_id, newQuantity);
-    } else if (result[0] === "use") {
+    } else if (result[0] === "use" && (currentItemInfo.type === "weapon" || currentItemInfo.type === "potion")) {
       showPopup(weaponRoll(currentItemInfo));
     }
   };
+
+  const effectsMap = new Map([
+    ["Acid", currentItemInfo.damage_acid],
+    ["Bludgeoning", currentItemInfo.damage_bludgeoning],
+    ["Cold", currentItemInfo.damage_cold],
+    ["Fire", currentItemInfo.damage_fire],
+    ["Force", currentItemInfo.damage_force],
+    ["Lightning", currentItemInfo.damage_lightning],
+    ["Necrotic", currentItemInfo.damage_necrotic],
+    ["Piercing", currentItemInfo.damage_piercing],
+    ["Poison", currentItemInfo.damage_poison],
+    ["Psychic", currentItemInfo.damage_psychic],
+    ["Radiant", currentItemInfo.damage_radiant],
+    ["Slashing", currentItemInfo.damage_slashing],
+    ["Thunder", currentItemInfo.damage_thunder],
+    ["Heal", currentItemInfo.heal],
+    ["AC", currentItemInfo.armor_class],
+  ]);
 
   return (
     <>
@@ -217,26 +259,35 @@ const DraggableItem: React.FC<{
         content={
           isTooltipVisible && (
             <div
-              className={`backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 px-1 py-2 bg-2-light dark:bg-slate-700 border border-bg1-dark dark:border-bg1-light rounded-lg w-full h-full select-none ${
+              className={`backdrop-blur-sm bg-opacity-90  dark:bg-opacity-90 px-1 py-2 bg-2-light dark:bg-slate-700 border border-bg1-dark dark:border-bg1-light rounded-lg w-full h-full select-none ${
                 isDragging ? "hidden" : "visible"
               }`}>
               <div className="text-medium font-bold">{currentItemInfo.name}</div>
+              <div className="-mb-4 -mt-4 px-4">
+                <DecorativeLine />
+              </div>
               <div className="text-small w-full p-2">
-                {!uniqueInstanceTypes.includes(currentItemInfo.type) && (
-                  <div className="flex justify-center gap-2">
-                    <p className="font-semibold">Quantity: </p> {item.quantity}
+
+                <div className="grid grid-cols-2 gap-y-2 text-sm">
+                  <div className="flex items-center justify-center gap-2">
+                    {!uniqueInstanceTypes.includes(currentItemInfo.type) ? 
+                    (<><p className="font-semibold">Quantity:</p> <span>{item.quantity}</span> </>) : 
+                    <span className="italic font-semibold">Unique Item</span>}
                   </div>
-                )}
-                <div className="flex justify-center gap-2">
-                  <p className="font-semibold">Type: </p> {currentItemInfo.type}
-                </div>
-                <div className="grid grid-cols-3 w-full mt-0.5">
-                  <div className="flex justify-end gap-4">
-                    <p className="font-semibold">Value: </p> {currentItemInfo.value}
+
+                  <div className="flex items-center gap-2 justify-center">
+                    <p className="font-semibold">Type:</p>
+                    <span>{shitCat(currentItemInfo.type)}</span>
                   </div>
-                  <Divider orientation="vertical" className="w-[0.08rem] rounded bg-gray-400 mx-auto" />
-                  <div className="flex justify-start gap-4">
-                    <p className="font-semibold">Weight: </p> {currentItemInfo.weight}
+
+                  <div className="flex items-center gap-2 justify-center">
+                    <p className="font-semibold">Value:</p>
+                    <span>{currentItemInfo.value}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 justify-center">
+                    <p className="font-semibold">Weight:</p>
+                    <span>{currentItemInfo.weight}</span>
                   </div>
                 </div>
               </div>
@@ -246,28 +297,11 @@ const DraggableItem: React.FC<{
                 </div>
                 <p className="transition-opacity duration-300 w-96">{currentItemInfo.description}</p>
               </div>
+
               <div>
-                <p className="text-center font-semibold mb-2">Effects:</p>
+                {![...effectsMap.values()].every((value) => !value) && <p className="text-center font-semibold mb-2">Effects:</p>}
                 <div className="grid grid-cols-6 gap-2">
                   {(() => {
-                    const effectsMap = new Map([
-                      ["Acid", currentItemInfo.damage_acid],
-                      ["Bludgeoning", currentItemInfo.damage_bludgeoning],
-                      ["Cold", currentItemInfo.damage_cold],
-                      ["Fire", currentItemInfo.damage_fire],
-                      ["Force", currentItemInfo.damage_force],
-                      ["Lightning", currentItemInfo.damage_lightning],
-                      ["Necrotic", currentItemInfo.damage_necrotic],
-                      ["Piercing", currentItemInfo.damage_piercing],
-                      ["Poison", currentItemInfo.damage_poison],
-                      ["Psychic", currentItemInfo.damage_psychic],
-                      ["Radiant", currentItemInfo.damage_radiant],
-                      ["Slashing", currentItemInfo.damage_slashing],
-                      ["Thunder", currentItemInfo.damage_thunder],
-                      ["Heal", currentItemInfo.heal],
-                      ["AC", currentItemInfo.armor_class],
-                    ]);
-
                     const effects: React.ReactNode[] = [];
                     let effectCount = 0;
 
@@ -445,66 +479,53 @@ const Inventory: React.FC<{
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
+<DndProvider backend={HTML5Backend}>
       <div
-        className="rounded-lg w-full h-full"
+        className="rounded-lg w-full lg:h-full flex flex-col sm:flex-row gap-2 sm:gap-4"
         onContextMenu={(event) => {
           event.preventDefault();
         }}>
         {error && <p className="text-red-500">{error}</p>}
-        <div
-          className="grid grid-cols-8 sm:gap-4 gap-0 w-full"
-          onContextMenu={(event) => {
-            event.preventDefault();
-          }}>
-          <div
-            className="col-span-6 h-full"
-            onContextMenu={(event) => {
-              event.preventDefault();
-            }}>
-            <div className="h-full rounded p-2 bg-3-light dark:bg-3-dark">
-              <div
-                onContextMenu={(event) => {
-                  event.preventDefault();
-                }}
-                className="grid grid-cols-8 gap-0 md:gap-2 flex-grow ">
-                {grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
-                  <DroppableTile
-                    key={tile.id}
-                    tile={tile}
-                    character_id={character_id}
-                    moveItem={moveItem}
-                    onItemRemoved={handleItemRemoved}
-                    onQuantityChanged={handleQuantityChanged}
-                    items={items}
-                  />
-                ))}
-              </div>
-            </div>
+        {/* Main Grid */}
+        <div className="flex-grow ">
+          <div className="grid grid-cols-8  gap-0 sm:gap-0.5 md:gap-1 xl:gap-2 aspect-square rounded sm:p-2 bg-3-light dark:bg-3-dark">
+            {grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
+              <DroppableTile
+                key={tile.id}
+                tile={tile}
+                character_id={character_id}
+                moveItem={moveItem}
+                onItemRemoved={handleItemRemoved}
+                onQuantityChanged={handleQuantityChanged}
+                items={items}
+              />
+            ))}
           </div>
-          <div className="col-span-2 h-full bg-3-light dark:bg-3-dark border border-gray-600 ml-0 sm:ml-3 rounded">
-            <div className="grid grid-cols-2 gap-1 md:gap-2 p-0 md:p-2 rounded flex-grow">
-              {grid.slice(GRID_SIZE * GRID_SIZE, TOTAL_SLOTS).map((tile) => (
-                <DroppableTile
-                  key={tile.id}
-                  tile={tile}
-                  character_id={character_id}
-                  moveItem={moveItem}
-                  onItemRemoved={handleItemRemoved}
-                  onQuantityChanged={handleQuantityChanged}
-                  items={items}
-                />
-              ))}
-              <div className="m-auto col-span-2 h-full w-full">
-                <DroppableTile
-                  tile={grid.find((tile) => tile.isTrash)!}
-                  moveItem={moveItem}
-                  onItemRemoved={handleItemRemoved}
-                  onQuantityChanged={handleQuantityChanged}
-                  items={items}
-                  character_id={character_id}
-                />
-              </div>
+        </div>
+
+        {/* Side Slots */}
+        <div className="sm:w-1/4 w-full">
+          <div className="grid grid-cols-5 sm:grid-cols-2 gap-0 sm:gap-2 bg-3-light  dark:bg-3-dark h-fit border border-gray-600 rounded p-2">
+            {grid.slice(GRID_SIZE * GRID_SIZE, TOTAL_SLOTS).map((tile) => (
+              <DroppableTile
+                key={tile.id}
+                tile={tile}
+                character_id={character_id}
+                moveItem={moveItem}
+                onItemRemoved={handleItemRemoved}
+                onQuantityChanged={handleQuantityChanged}
+                items={items}
+              />
+            ))}
+            <div className="col-span-1">
+              <DroppableTile
+                tile={grid.find((tile) => tile.isTrash)!}
+                moveItem={moveItem}
+                onItemRemoved={handleItemRemoved}
+                onQuantityChanged={handleQuantityChanged}
+                items={items}
+                character_id={character_id}
+              />
             </div>
           </div>
         </div>

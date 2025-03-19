@@ -27,7 +27,7 @@ const skills = [
   "Survival",
 ];
 
-const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (character: Character) => void }> = ({ character, setCharacter }) => {
+const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (character: Character) => void; className?: string; }> = ({ character, setCharacter, className }) => {
   if (character === undefined) return <>Loading</>;
   const { showPopup } = usePopup();
   const updateSkill = async (skill: string, delta: number) => {
@@ -44,7 +44,7 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
   };
 
   return (
-    <div className="grid grid-cols-1">
+    <div className={`grid grid-cols-1 ${className}`}>
       {skills.map((skill, index) => (
         <div
           className="mb-1 p-2 dark:bg-3-dark bg-3-light  rounded flex justify-between scroll-mt-10"
