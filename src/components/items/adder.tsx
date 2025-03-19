@@ -83,7 +83,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
     <div className="flex h-full bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow-lg">
       <div className="w-1/5 border-r border-yellow-400 pr-4">
         <select value={itemTypes} onChange={(e) => setActiveTab(e.target.value)} className="bg-gray-700 text-white p-2 w-full rounded" required>
-          <option key={all} value={"all"}>
+          <option key={"all"} value={"all"}>
             All
           </option>
           {itemTypes.map((type) => (
