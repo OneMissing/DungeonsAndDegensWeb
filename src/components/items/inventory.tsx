@@ -363,8 +363,8 @@ const DroppableTile: React.FC<{
       className={`aspect-square ${
         tile.isTrash
           ? "align-middle bg-red-400 bg-opacity-80 dark:bg-opacity-80 hover:border rounded-xl text-yellow-300 p-4"
-          : "bg-2-light dark:bg-2-dark shadow-xs shadow-3-dark dark:shadow-3-light"
-      } border border-gray-600 flex items-center justify-center rounded-lg`}>
+          : "bg-2-light dark:bg-2-dark shadow-xs shadow-3-dark dark:shadow-3-light rounded"
+      } border border-gray-600 flex items-center justify-center`}>
       {tile.item && (
         <DraggableItem item={tile.item} onItemRemoved={onItemRemoved} onQuantityChanged={onQuantityChanged} fromTileId={tile.id} items={items} character_id={character_id} />
       )}
@@ -467,7 +467,7 @@ const Inventory: React.FC<{
                 onContextMenu={(event) => {
                   event.preventDefault();
                 }}
-                className="grid grid-cols-8 gap-0 md:gap-2 border bg-transparent rounded flex-grow ">
+                className="grid grid-cols-8 gap-0 md:gap-2 bg-3-light dark:bg-3-dark rounded flex-grow ">
                 {grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
                   <DroppableTile
                     key={tile.id}
