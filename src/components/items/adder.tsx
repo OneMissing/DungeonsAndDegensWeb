@@ -68,24 +68,30 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
   const itemTypes = Array.from(new Set(items.map((item) => item.type)));
   const filteredItems = activeTab === "all" ? items : items.filter((item) => item.type === activeTab);
 
+  /**
+   *  <label className="block text-sm font-medium mb-1">Class</label>
+      <select value={charData.class} onChange={(e) => handleChange("class", e.target.value)} className="bg-gray-700 text-white p-2 w-full rounded" required>
+        {Object.entries(Classes).map(([key, value]) => (
+          <option key={key} value={value}>
+            {value.charAt(0).toUpperCase() + value.slice(1)}
+          </option>
+        ))}
+      </select>
+   */
+
   return (
     <div className="flex h-full bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow-lg">
       <div className="w-1/5 border-r border-yellow-400 pr-4">
-        <ul className="h-full overflow-auto">
-          <li
-            className={`mb-2 p-2 cursor-pointer rounded-lg transition-colors ${activeTab === "all" ? "bg-yellow-400 text-gray-900" : "hover:bg-yellow-400 hover:text-gray-900"}`}
-            onClick={() => setActiveTab("all")}>
+        <select value={itemTypes} onChange={(e) => setActiveTab(e.target.value)} className="bg-gray-700 text-white p-2 w-full rounded" required>
+          <option key={all} value={"all"}>
             All
-          </li>
+          </option>
           {itemTypes.map((type) => (
-            <li
-              key={type}
-              className={`mb-2 p-2 cursor-pointer rounded-lg transition-colors ${activeTab === type ? "bg-yellow-400 text-gray-900" : "hover:bg-yellow-400 hover:text-gray-900"}`}
-              onClick={() => setActiveTab(type)}>
-              {type.slice(0, 1).toUpperCase() + type.slice(1).toLowerCase()}
-            </li>
+            <option key={type} value={type}>
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </option>
           ))}
-        </ul>
+        </select>
       </div>
 
       <div className="w-4/5 pl-4 overflow-y-auto">
