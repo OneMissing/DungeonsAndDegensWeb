@@ -143,20 +143,40 @@ export default function Page() {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full p-4 select-none">
       {/* Character & Skills Section */}
       <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
-        <div className="flex gap-4 -mb-2">
+        <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg ">
+          {/* Sliding Indicator */}
+          <motion.div
+            className="absolute top-0 bottom-0 w-1/2 bg-[#d4af37] rounded-lg"
+            initial={false}
+            animate={{ x: table[0] ? "0%" : "100%" }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          />
+
+          {/* Buttons */}
           <button
             onClick={() => setTable([true, table[1]])}
-            className={`text-center text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${
-              table[0] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-            }`}>
-            Character
+            className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors"
+          >
+            <motion.span
+              animate={{ scale: table[0] ? 1.1 : 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              className={table[0] ? "text-white" : "text-black dark:text-white"}
+            >
+              Character
+            </motion.span>
           </button>
+
           <button
             onClick={() => setTable([false, table[1]])}
-            className={`text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${
-              !table[0] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-            }`}>
-            Skills
+            className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors"
+          >
+            <motion.span
+              animate={{ scale: !table[0] ? 1.1 : 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              className={!table[0] ? "text-white" : "text-black dark:text-white"}
+            >
+              Skills
+            </motion.span>
           </button>
         </div>
         <DecorativeLine color="#d4af37" />
@@ -174,12 +194,12 @@ export default function Page() {
 
       {/* Spells Section */}
       <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
-			<div className="flex justify-center gap-4 -mb-2">
-        <div className={`text-center text-2xl font-semibold w-full p-2 rounded-lg text-white bg-[#d4af37] `}>
-          Inventory
+        <div className="flex justify-center gap-4 -mb-2">
+          <div className={`text-center text-2xl font-semibold w-full p-2 rounded-lg text-white bg-[#d4af37] `}>
+            Inventory
+          </div>
+
         </div>
-        
-      </div>
         <DecorativeLine color="#d4af37" />
         <SpellList character_id={id as string} spells={spells} actions={actions} />
       </section>
@@ -189,16 +209,14 @@ export default function Page() {
         <div className="flex gap-4 -mb-2">
           <button
             onClick={() => setTable([table[0], true])}
-            className={`text-center text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${
-              table[1] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-            }`}>
+            className={`text-center text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${table[1] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+              }`}>
             Inventory
           </button>
           <button
             onClick={() => setTable([table[0], false])}
-            className={`text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${
-              !table[1] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-            }`}>
+            className={`text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors ${!table[1] ? "bg-[#d4af37] text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+              }`}>
             Item Adder
           </button>
         </div>
