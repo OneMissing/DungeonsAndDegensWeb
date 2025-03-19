@@ -207,7 +207,7 @@ export default function Page() {
           onContextMenu={(event) => {
             event.preventDefault();
           }}
-          className="-mt-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden lg:h-[calc(100vh-14rem)]">
+          className="-mt-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
           <motion.div
             onContextMenu={(event) => {
               event.preventDefault();
