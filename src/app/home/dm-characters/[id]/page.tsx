@@ -192,11 +192,11 @@ export default function Page() {
 						className="absolute top-0 bottom-0 w-full bg-[#d4af37] rounded-lg"
 						initial={false}
 					/>
-					<button onClick={() => { }} className="relative text-2xl font-semibold full p-2 rounded-lg transition-colors" >
+					<button onClick={() => { }} className="relative text-2xl font-semibold w-full p-2 rounded-lg transition-colors" >
 						<motion.span
 							animate={{ scale: table[0] ? 1.1 : 1 }}
 							transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-							className={table[0] ? "text-white" : "text-primary-light"}
+							className={"text-white"}
 						> Character </motion.span>
 					</button>
 				</div>
@@ -217,7 +217,7 @@ export default function Page() {
 						<motion.span
 							animate={{ scale: table[1] ? 1.1 : 1 }}
 							transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-							className={table[0] ? "text-white" : "text-primary-light"}
+							className={table[1] ? "text-white" : "text-primary-light"}
 						> Inventory </motion.span>
 					</button>
 
@@ -225,7 +225,7 @@ export default function Page() {
 						<motion.span
 							animate={{ scale: !table[0] ? 1.1 : 1 }}
 							transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-							className={!table[0] ? "text-white" : "text-primary-light"}
+							className={!table[1] ? "text-white" : "text-primary-light"}
 						> Item Book </motion.span>
 					</button>
 				</div>
