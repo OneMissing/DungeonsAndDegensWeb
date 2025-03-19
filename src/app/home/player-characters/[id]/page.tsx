@@ -143,7 +143,7 @@ export default function Page() {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full p-4 select-none">
       {/* Character & Skills Section */}
       <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
-        <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg ">
+        <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg ">
           <motion.div
             className="absolute top-0 bottom-0 w-1/2 bg-[#d4af37] rounded-lg"
             initial={false}
@@ -154,14 +154,14 @@ export default function Page() {
             <motion.span
               animate={{ scale: table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={table[0] ? "text-white" : "text-black dark:text-white"}
+              className={table[0] ? "text-white" : "text-primary-light dark:text-primary-dark"}
             > Character </motion.span>
           </button>
           <button onClick={() => setTable([false, table[1]])} className="relative text-2xl font-semibold w-1/2 p-2 rounded-lg transition-colors" >
             <motion.span
               animate={{ scale: !table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={!table[0] ? "text-primary" : "text-black dark:text-white"}
+              className={!table[0] ? "text-white" : "text-primary-light dark:text-primary-dark"}
             > Skills </motion.span>
           </button>
         </div>
@@ -192,7 +192,7 @@ export default function Page() {
 
       {/* Inventory & Item Adder Section */}
       <section className={`bg-white lg:h-[calc(100vh-8rem)] dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg md:col-span-2 lg:overflow-hidden`}>
-        <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg ">
+        <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg ">
           <motion.div
             className="absolute top-0 bottom-0 w-1/2 bg-[#d4af37] rounded-lg"
             initial={false}
@@ -211,7 +211,7 @@ export default function Page() {
             <motion.span
               animate={{ scale: !table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={!table[0] ? "text-white" : "text-black dark:text-white"}
+              className={!table[0] ? "text-white" : "text-primary-light dark:text-primary-dark"}
             > Item Book </motion.span>
           </button>
         </div>
