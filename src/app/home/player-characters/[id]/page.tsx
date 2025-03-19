@@ -166,7 +166,7 @@ export default function Page() {
           </button>
         </div>
         <DecorativeLine color="#d4af37" />
-        <div className="mt-4 overflow-y-auto overflow-x-hidden lg:overflow-hidden lg:h-[calc(100vh-14rem)]">
+        <div className="-mt-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden lg:h-[calc(100vh-14rem)]">
           <motion.div className="flex w-[200%] transition-transform" animate={{ x: table[0] ? "0%" : "-50%" }} transition={{ duration: 0.2, ease: "easeInOut" }}>
             <div className="w-1/2">
               <CharacterPanel character={character} setCharacter={setCharacter} className="mt-1" spells={spells} actions={actions} setActions={setActions} />
@@ -185,16 +185,17 @@ export default function Page() {
             className="absolute top-0 bottom-0 w-full bg-[#d4af37] rounded-lg"
             initial={false}
           />
-          <button onClick={() => {}} className="relative text-2xl font-semibold w-full p-2 rounded-lg transition-colors" >
+          <button onClick={() => { }} className="relative text-2xl font-semibold w-full p-2 rounded-lg transition-colors" >
             <motion.span
               animate={{ scale: table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
-              className={"text-white" }
+              className={"text-white"}
             > Character </motion.span>
           </button>
         </div>
-        <DecorativeLine color="#d4af37" />
-        <SpellList character_id={id as string} spells={spells} actions={actions} />
+        <DecorativeLine color="#d4af37" /><div className="-mt-2">
+          <SpellList character_id={id as string} spells={spells} actions={actions} />
+        </div>
       </section>
 
       {/* Inventory & Item Adder Section */}
