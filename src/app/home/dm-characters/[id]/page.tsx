@@ -11,6 +11,7 @@ import SpellList from "@/components/character/spellList";
 import CharacterPanel from "@/components/character/dm/characterPanel";
 import SkillsPanel from "@/components/character/dm/skillsPanel";
 import { motion } from "framer-motion";
+import DecorativeLine from "@/components/ui/decorativeLine";
 
 const supabase = createClient();
 
