@@ -462,12 +462,12 @@ const Inventory: React.FC<{
             onContextMenu={(event) => {
               event.preventDefault();
             }}>
-            <div className="h-full rounded p-2">
+            <div className="h-full rounded p-2 bg-3-light dark:bg-3-dark">
               <div
                 onContextMenu={(event) => {
                   event.preventDefault();
                 }}
-                className="grid grid-cols-8 gap-0 md:gap-2 bg-3-light dark:bg-3-dark rounded flex-grow ">
+                className="grid grid-cols-8 gap-0 md:gap-2 flex-grow ">
                 {grid.slice(0, GRID_SIZE * GRID_SIZE).map((tile) => (
                   <DroppableTile
                     key={tile.id}
