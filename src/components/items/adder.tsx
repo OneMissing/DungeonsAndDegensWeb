@@ -68,33 +68,20 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
   const itemTypes = Array.from(new Set(items.map((item) => item.type)));
   const filteredItems = activeTab === "all" ? items : items.filter((item) => item.type === activeTab);
 
-  /**
-   *  <label className="block text-sm font-medium mb-1">Class</label>
-      <select value={charData.class} onChange={(e) => handleChange("class", e.target.value)} className="bg-gray-700 text-white p-2 w-full rounded" required>
-        {Object.entries(Classes).map(([key, value]) => (
-          <option key={key} value={value}>
-            {value.charAt(0).toUpperCase() + value.slice(1)}
+  return (
+    <div className="p-4 rounded-lg shadow-lg">
+      <div className="pB-4">
+      <select value={activeTab} onChange={(e) => setActiveTab(e.target.value)} className="bg-gray-700 text-white p-2 w-full rounded" required >
+        <option key="all" value="all">All</option>
+        {itemTypes.map((type) => (
+          <option key={type} value={type}>
+            {type.charAt(0).toUpperCase() + type.slice(1)}
           </option>
         ))}
       </select>
-   */
-
-  return (
-    <div className="flex h-full bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow-lg">
-      <div className="w-1/5 border-r border-yellow-400 pr-4">
-        <select value={itemTypes} onChange={(e) => setActiveTab(e.target.value)} className="bg-gray-700 text-white p-2 w-full rounded" required>
-          <option key={"all"} value={"all"}>
-            All
-          </option>
-          {itemTypes.map((type) => (
-            <option key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </option>
-          ))}
-        </select>
       </div>
 
-      <div className="w-4/5 pl-4 overflow-y-auto">
+      <div className="w-full overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => (
             <div
