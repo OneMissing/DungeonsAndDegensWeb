@@ -82,7 +82,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
     : items.filter((item) => (categories[activeTab] as readonly string[]).includes(item.type));
 
   return (
-    <div className="rounded-lg shadow-lg w-full">
+    <div className="rounded-lg w-full">
       <div className="relative w-full">
         <div className={`absolute top-0 left-0 w-full transition-opacity duration-300 ease-in-out ${message === null ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
           <div
@@ -110,7 +110,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
       </div>
 
 
-      <div className="w-full md:h-[calc(100vh-20rem)] overflow-y-auto">
+      <div className="w-full md:h-[calc(100vh-20rem)] relative mt-8 overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => (
             <div
