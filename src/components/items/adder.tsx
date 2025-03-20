@@ -84,11 +84,11 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
   return (
     <div className="rounded-lg shadow-lg w-full">
       
-        <div className={` ${message ? "w-100" : "w-0"} overflow-none transition-all duration-300 ease-in-out p-2 mb-2 text-center rounded ${message.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
+        <div className={` ${message === null ? "w-0" : "w-100"} overflow-none transition-all duration-300 ease-in-out p-2 mb-2 text-center rounded ${message.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
           {message.text}
         </div>
 
-        <div className={`${message ? "w-0" : "w-100"} overflow-none transition-all duration-300 ease-in-out pb-4 top-0 flex justify-center gap-4 mx-[1px]`}>
+        <div className={`${message === null ? "w-100" : "w-0"} overflow-none transition-all duration-300 ease-in-out pb-4 top-0 flex justify-center gap-4 mx-[1px]`}>
           <select 
             value={activeTab} 
             onChange={(e) => setActiveTab(e.target.value as CategoryKey | "all")} 
