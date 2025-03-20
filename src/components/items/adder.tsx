@@ -6,10 +6,9 @@ import DecorativeLine from "../ui/decorativeLine";
 
 const supabase = createClient();
 
-// Define the categories object with explicit typing
 const categories = {
   helmet: ["helmet", "hat", "cap", "light helmet", "light hat", "light cap", "heavy helmet", "heavy hat", "heavy cap"],
-  chestplate: ["light chestplate","chestplate", "armor", "heavy chestplate", "heavy armor"],
+  chestplate: ["light chestplate", "chestplate", "armor", "heavy chestplate", "heavy armor"],
   gauntlets: ["light gauntlets", "gauntlets", "heavy gauntlets"],
   boots: ["light boots", "boots", "heavy boots"],
   weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield", "dagger" , "scythe"],
@@ -25,6 +24,12 @@ type CategoryKey = keyof typeof categories;
 
 const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[]; setGrid: (grid: Tile[]) => void }> = ({ character_id, items, grid, setGrid }) => {
   const [activeTab, setActiveTab] = useState<CategoryKey | "all">("all");
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  const showMessage = (text: string, type: "success" | "error") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
+  };
 
   const addToInventory = async (item: Item) => {
     try {
@@ -37,12 +42,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
         if (insertError) throw insertError;
         const firstAvailableTile = grid.find((tile) => !tile.item);
         if (firstAvailableTile) {
-          const updatedGrid = grid.map((tile) => {
-            if (tile.id === firstAvailableTile.id) {
-              return { ...tile, item: { ...insertedItem, ...item } };
-            }
-            return tile;
-          });
+          const updatedGrid = grid.map((tile) => tile.id === firstAvailableTile.id ? { ...tile, item: { ...insertedItem, ...item } } : tile);
           setGrid(updatedGrid);
         }
       } else {
@@ -53,12 +53,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
             .update({ quantity: existingItem.quantity + 1 })
             .eq("inventory_id", existingItem.inventory_id);
           if (updateError) throw updateError;
-          const updatedGrid = grid.map((tile) => {
-            if (tile.item?.inventory_id === existingItem.inventory_id) {
-              return { ...tile, item: { ...tile.item, quantity: tile.item.quantity + 1 } };
-            }
-            return tile;
-          });
+          const updatedGrid = grid.map((tile) => tile.item?.inventory_id === existingItem.inventory_id ? { ...tile, item: { ...tile.item, quantity: tile.item.quantity + 1 } } : tile);
           setGrid(updatedGrid);
         } else {
           const { data: insertedItem, error: insertError } = await supabase
@@ -69,31 +64,30 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
           if (insertError) throw insertError;
           const firstAvailableTile = grid.find((tile) => !tile.item);
           if (firstAvailableTile) {
-            const updatedGrid = grid.map((tile) => {
-              if (tile.id === firstAvailableTile.id) {
-                return { ...tile, item: { ...insertedItem, ...item } };
-              }
-              return tile;
-            });
+            const updatedGrid = grid.map((tile) => tile.id === firstAvailableTile.id ? { ...tile, item: { ...insertedItem, ...item } } : tile);
             setGrid(updatedGrid);
           }
         }
       }
+      showMessage("Item added successfully!", "success");
     } catch (error) {
       console.error("Error adding to inventory:", error);
+      showMessage("Failed to add item.", "error");
     }
   };
 
-  // Get the keys of the categories object as the item types
   const itemTypes = Object.keys(categories) as CategoryKey[];
-
-  // Filter items based on the active tab
   const filteredItems = activeTab === "all" 
     ? items 
     : items.filter((item) => (categories[activeTab] as readonly string[]).includes(item.type));
 
   return (
     <div className="rounded-lg shadow-lg w-full">
+      {message && (
+        <div className={`p-2 mb-2 text-center rounded ${message.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
+          {message.text}
+        </div>
+      )}
       <div className="pb-4 top-0 flex justify-center gap-4 mx-[1px]">
         <select 
           value={activeTab} 
@@ -101,17 +95,12 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
           className="dark:bg-gray-700 dark:text-white w-full border p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" 
           required
         >
-          <option key="all" value="all">
-            All
-          </option>
+          <option key="all" value="all">All</option>
           {itemTypes.map((type) => (
-            <option key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </option>
+            <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
           ))}
         </select>
       </div>
-
       <div className="w-full md:h-[calc(100vh-20rem)] overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => (
