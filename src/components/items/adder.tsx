@@ -93,8 +93,8 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
     : items.filter((item) => (categories[activeTab] as readonly string[]).includes(item.type));
 
   return (
-    <div className="rounded-lg shadow-lg lg:h-[calc(100vh-17rem)] overflow-y-auto">
-      <div className="pb-4 sticky top-0">
+    <div className="rounded-lg shadow-lg w-full">
+      <div className="pb-4 top-0 flex justify-center gap-4 mx-[1px]">
         <select 
           value={activeTab} 
           onChange={(e) => setActiveTab(e.target.value as CategoryKey | "all")} 
@@ -112,7 +112,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
         </select>
       </div>
 
-      <div className="w-full overflow-y-auto">
+      <div className="w-full md:h-[calc(100vh-20rem)] overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => (
             <div
