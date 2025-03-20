@@ -69,7 +69,7 @@ const SpellBook: React.FC<{ character_id: string; spells: Spell[]; actions: Acti
 
       {table ? (
         <div className="w-full md:h-[calc(100vh-20rem)] overflow-y-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 mx-[1px]">
             {availableSpells.map((spell) => (
               <button onClick={() => handleAddSpell(spell.spell_id)} key={spell.spell_id}>
                 <div className="border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -83,7 +83,7 @@ const SpellBook: React.FC<{ character_id: string; spells: Spell[]; actions: Acti
         </div>
       ) : (
         <div className="w-full md:h-[calc(100vh-20rem)] overflow-y-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 mx-[1px]">
             {learnedSpells.map((spell) => (
               <button onClick={() => handleRemoveSpell(spell.spell_id)} key={spell.spell_id}>
                 <div className="border rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800">
