@@ -88,6 +88,8 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
         {message && message.text}
       </div>
 
+
+      
       <div className={`${message === null ? "w-100" : "w-0"} overflow-none transition-all duration-300 ease-in-out pb-4 top-0 flex justify-center gap-4 mx-[1px]`}>
         <select 
           value={activeTab} 
