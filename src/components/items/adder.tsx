@@ -11,7 +11,7 @@ const categories = {
   chestplate: ["light chestplate", "chestplate", "armor", "heavy chestplate", "heavy armor"],
   gauntlets: ["light gauntlets", "gauntlets", "heavy gauntlets"],
   boots: ["light boots", "boots", "heavy boots"],
-  weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield", "dagger" , "scythe"],
+  weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield", "dagger", "scythe"],
   potion: ["potion"],
   food: ["food", "meal"],
   currency: ["currency", "gem"],
@@ -77,34 +77,38 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
   };
 
   const itemTypes = Object.keys(categories) as CategoryKey[];
-  const filteredItems = activeTab === "all" 
-    ? items 
+  const filteredItems = activeTab === "all"
+    ? items
     : items.filter((item) => (categories[activeTab] as readonly string[]).includes(item.type));
 
   return (
     <div className="rounded-lg shadow-lg w-full">
-      <div className={` ${message === null ? "w-0" : "w-full"} overflow-none transition-all duration-300 ease-in-out`} >
-        <div className={` p-2 mb-2 text-center rounded ${message && message.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
-          {message && message.text}
+      <div className="relative w-full">
+        <div className={`absolute top-0 left-0 w-full transition-opacity duration-300 ease-in-out ${message === null ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+          <div
+            className={`p-2 mb-2 text-center rounded ${message?.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}
+          >
+            {message?.text}
+          </div>
+        </div>
+
+        <div className={`absolute top-0 left-0 w-full transition-opacity duration-300 ease-in-out ${message === null ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+          <div className="pb-4 flex justify-center gap-4 mx-[1px]">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value as CategoryKey | "all")}
+              className="dark:bg-gray-700 dark:text-white w-full border p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+              required
+            >
+              <option key="all" value="all">All</option>
+              {itemTypes.map((type) => (
+                <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-
-      <div className={`${message === null ? "w-full" : "w-0"} overflow-none transition-all duration-300 ease-in-out`}>
-        <div className={`pb-4 top-0 flex justify-center gap-4 mx-[1px]`}>
-        <select 
-          value={activeTab} 
-          onChange={(e) => setActiveTab(e.target.value as CategoryKey | "all")} 
-          className="dark:bg-gray-700 dark:text-white w-full border p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" 
-          required
-        >
-          <option key="all" value="all">All</option>
-          {itemTypes.map((type) => (
-            <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
-          ))}
-        </select>
-        </div>
-      </div>
 
       <div className="w-full md:h-[calc(100vh-20rem)] overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
