@@ -83,7 +83,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
 
   return (
     <div className="rounded-lg shadow-lg w-full">
-      <div className={` ${message === null ? "w-0" : "w-full"} overflow-none transition-all duration-300 ease-in-out`}
+      <div className={` ${message === null ? "w-0" : "w-full"} overflow-none transition-all duration-300 ease-in-out`} >
         <div className={` p-2 mb-2 text-center rounded ${message && message.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
           {message && message.text}
         </div>
