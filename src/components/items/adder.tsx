@@ -83,11 +83,11 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
 
   return (
     <div className="rounded-lg shadow-lg w-full">
-      {message && (
+      {message ? (
         <div className={`p-2 mb-2 text-center rounded ${message.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
           {message.text}
         </div>
-      )}
+      ):(
       <div className="pb-4 top-0 flex justify-center gap-4 mx-[1px]">
         <select 
           value={activeTab} 
@@ -101,6 +101,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
           ))}
         </select>
       </div>
+      )}
       <div className="w-full md:h-[calc(100vh-20rem)] overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => (
