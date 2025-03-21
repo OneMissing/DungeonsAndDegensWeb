@@ -45,7 +45,7 @@ const CharacterList = ({ userId, dm }: { userId: string; dm: boolean }) => {
             onClick={() => router.push(`/home/${dm ? "dm-characters" : "player-characters"}/${char.character_id}`)}>
             <div className="absolute top-3 left-3 flex space-x-3">
               <CopyToClipboard text={char.character_id} />
-              <Remove charId={char.character_id} characters={characters} setCharacters={setCharacters} />
+              {dm? (<Remove charId={char.character_id} characters={characters} setCharacters={setCharacters} />):(<Delete charId={char.character_id} characters={characters} setCharacters={setCharacters} />)}
             </div>
 
             <div className="w-full text-lg font-semibold text-yellow-400 text-end md:text-center -mt-2 pb-2">{char.name}</div>
