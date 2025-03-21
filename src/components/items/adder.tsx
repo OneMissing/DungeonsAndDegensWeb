@@ -1,103 +1,154 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Item, Tile, uniqueInstanceTypes } from "@/lib/tools/types";
-import { PosAnimation } from "leaflet";
+import DecorativeLine from "../ui/decorativeLine";
+import { motion, AnimatePresence } from "framer-motion";
+
 const supabase = createClient();
 
-const BookInventory: React.FC<{character_id: string; items: Item[]; grid: Tile[]; setGrid: (grid: Tile[]) => void; }> = ({ character_id, items, grid, setGrid }) => {
-	const [activeTab, setActiveTab] = useState<string>("all");
+const categories = {
+  helmet: ["helmet", "hat", "cap", "light helmet", "light hat", "light cap", "heavy helmet", "heavy hat", "heavy cap"],
+  chestplate: ["light chestplate", "chestplate", "armor", "heavy chestplate", "heavy armor"],
+  gauntlets: ["light gauntlets", "gauntlets", "heavy gauntlets"],
+  boots: ["light boots", "boots", "heavy boots"],
+  weapon: ["weapon", "sword", "bow", "knife", "polearm", "axe", "staff", "wand", "shield", "dagger", "scythe"],
+  potion: ["potion"],
+  food: ["food", "meal"],
+  currency: ["currency", "gem"],
+  tool: ["tool"],
+  book: ["book", "spellbook"],
+  misc: ["misc"],
+} as const;
 
-    const addToInventory = async (item: Item) => {
-        try {
-            
-            if (uniqueInstanceTypes.includes(item.type)) {
-                const { data: insertedItem, error: insertError } = await supabase
-                    .from("inventory")
-                    .insert([{ character_id, item_id: item.item_id, quantity: 1 }])
-                    .select()
-                    .single();
-                if (insertError) throw insertError;
-                const firstAvailableTile = grid.find((tile) => !tile.item);
-                if (firstAvailableTile) {
-                    const updatedGrid = grid.map((tile) => {
-                        if (tile.id === firstAvailableTile.id) {
-                            return { ...tile, item: { ...insertedItem, ...item } };
-                        }
-                        return tile;
-                    });
-                    setGrid(updatedGrid);
-                }
-            } else {
-                const existingItem = grid.find((tile) => tile.item?.character_id === character_id && tile.item?.item_id === item.item_id)?.item;
-                if (existingItem) {
-                    const { error: updateError } = await supabase
-                        .from("inventory")
-                        .update({ quantity: existingItem.quantity + 1 })
-                        .eq("inventory_id", existingItem.inventory_id);
-                    if (updateError) throw updateError;
-                    const updatedGrid = grid.map((tile) => {
-                        if (tile.item?.inventory_id === existingItem.inventory_id) {
-                            return { ...tile, item: { ...tile.item, quantity: tile.item.quantity + 1 } };
-                        }
-                        return tile;
-                    });
-                    setGrid(updatedGrid);
-                } else {
-                    const { data: insertedItem, error: insertError } = await supabase
-                        .from("inventory")
-                        .insert([{ character_id, item_id: item.item_id, quantity: 1 }])
-                        .select()
-                        .single();
-                    if (insertError) throw insertError;
-                    const firstAvailableTile = grid.find((tile) => !tile.item);
-                    if (firstAvailableTile) {
-                        const updatedGrid = grid.map((tile) => {
-                            if (tile.id === firstAvailableTile.id) {
-                                return { ...tile, item: { ...insertedItem, ...item } };
-                            }
-                            return tile;
-                        });
-                        setGrid(updatedGrid);
-                    }
-                }
-            }
-        } catch (error) {console.error("Error adding to inventory:", error)}
-    };
-	const itemTypes = Array.from(new Set(items.map((item) => item.type)));
-	const filteredItems = activeTab === "all" ? items : items.filter((item) => item.type === activeTab);
+type CategoryKey = keyof typeof categories;
 
-	return (
-		<div className="flex h-full">
-			<div className="w-1/5 border-r-1 border-yellow-400 h-full">
-				<ul className="h-full overflow-auto">
-					<li className={`mb-1 p-1 cursor-pointer border-b-1 border-yellow-400 ${activeTab === "all" ? " text-white" : ""}`} onClick={() => setActiveTab("all")}>
-						All
-					</li>
-					{itemTypes.map((type) => (
-						<li key={type} className={`mb-1 p-1 cursor-pointer ${activeTab === type ? " text-white" : ""}`} onClick={() => setActiveTab(type)}>
-							{type.slice(0,1).toUpperCase() + type.slice(1).toLowerCase()}
-						</li>
-					))}
-				</ul>
-			</div>
+const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[]; setGrid: (grid: Tile[]) => void }> = ({ character_id, items, grid, setGrid }) => {
+  const [activeTab, setActiveTab] = useState<CategoryKey | "all">("all");
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
-			<div className="w-4/5 pl-4 overflow-y-auto">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{filteredItems.map((item) => (
-						<div
-							key={item.item_id}
-							className="border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-1-light dark:bg-1-dark hover:bg-3-light dark:hover:bg-3-dark"
-							onClick={() => addToInventory(item)}>
-							<h2 className="text-xl font-semibold">{item.name}</h2>
-							<p className="text-gray-600">{item.description}</p>
-							<p className="text-sm text-gray-500">{item.type}</p>
-						</div>
-					))}
-				</div>
-			</div>
-		</div>
-	);
+  const showMessage = (text: string, type: "success" | "error") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 1500);
+  };
+
+  const addToInventory = async (item: Item) => {
+    try {
+      if (uniqueInstanceTypes.includes(item.type)) {
+        const { data: insertedItem, error: insertError } = await supabase
+          .from("inventory")
+          .insert([{ character_id, item_id: item.item_id, quantity: 1 }])
+          .select()
+          .single();
+        if (insertError) throw insertError;
+        const firstAvailableTile = grid.find((tile) => !tile.item);
+        if (firstAvailableTile) {
+          const updatedGrid = grid.map((tile) => (tile.id === firstAvailableTile.id ? { ...tile, item: { ...insertedItem, ...item } } : tile));
+          setGrid(updatedGrid);
+        }
+      } else {
+        const existingItem = grid.find((tile) => tile.item?.character_id === character_id && tile.item?.item_id === item.item_id)?.item;
+        if (existingItem) {
+          const { error: updateError } = await supabase
+            .from("inventory")
+            .update({ quantity: existingItem.quantity + 1 })
+            .eq("inventory_id", existingItem.inventory_id);
+          if (updateError) throw updateError;
+          const updatedGrid = grid.map((tile) =>
+            tile.item?.inventory_id === existingItem.inventory_id ? { ...tile, item: { ...tile.item, quantity: tile.item.quantity + 1 } } : tile
+          );
+          setGrid(updatedGrid);
+        } else {
+          const { data: insertedItem, error: insertError } = await supabase
+            .from("inventory")
+            .insert([{ character_id, item_id: item.item_id, quantity: 1 }])
+            .select()
+            .single();
+          if (insertError) throw insertError;
+          const firstAvailableTile = grid.find((tile) => !tile.item);
+          if (firstAvailableTile) {
+            const updatedGrid = grid.map((tile) => (tile.id === firstAvailableTile.id ? { ...tile, item: { ...insertedItem, ...item } } : tile));
+            setGrid(updatedGrid);
+          }
+        }
+      }
+      showMessage("Item added successfully!", "success");
+    } catch (error) {
+      console.error("Error adding to inventory:", error);
+      showMessage("Failed to add item.", "error");
+    }
+  };
+
+  const itemTypes = Object.keys(categories) as CategoryKey[];
+  const filteredItems = activeTab === "all" ? items : items.filter((item) => (categories[activeTab] as readonly string[]).includes(item.type));
+
+  return (
+    <div className="-mt-2 rounded-lg w-full">
+      <div className="rounded-lg w-full relative">
+        <div className="w-full h-14">
+          <AnimatePresence mode="wait">
+            {message !== null ? (
+              <motion.div
+                key="message"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full h-full flex items-center justify-center" // Full height and centered
+              >
+                <div className={`w-full p-2 text-center rounded ${message?.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>{message?.text}</div>
+              </motion.div>
+            ) : (
+              // Select Dropdown
+              <motion.div
+                key="dropdown"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full h-full flex items-center justify-center" // Full height and centered
+              >
+                <div className="w-full">
+                  {" "}
+                  {/* Constrain dropdown width */}
+                  <select
+                    value={activeTab}
+                    onChange={(e) => setActiveTab(e.target.value as CategoryKey | "all")}
+                    className="dark:bg-gray-700 dark:text-white w-full border p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                    required>
+                    <option key="all" value="all">
+                      All
+                    </option>
+                    {itemTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Second part: Grid of Items */}
+        <div className="w-full lg:h-[calc(100vh-20rem)] relative overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredItems.map((item) => (
+              <div
+                key={item.item_id}
+                className="border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                onClick={() => addToInventory(item)}>
+                <h2 className="text-xl font-semibold text-secondary-dark dark:text-secondary-light">{item.name}</h2>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">{item.description}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{item.type}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default BookInventory;

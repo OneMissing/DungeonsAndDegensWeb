@@ -8,20 +8,20 @@ interface SidebarProps {
     open?: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ children, width, className, open = false }) => {
+const Sidebar: React.FC<SidebarProps> = ({ children, width = "100px", className = "absolute lg:relative", open = false }) => {
     const [isOpen, setIsOpen] = useState<boolean>(open);
 
     return (
-        <div className="absolute lg:relative z-[200] h-main transition-all duration-300 ease-out">
+        <div className={`${className} z-[200] h-full transition-all duration-300 ease-out`}>
             <div
                 id="sidebar"
-                className="transition-all duration-300 ease-out bg-2-light dark:bg-2-dark dark:text-secondary-foreground top-0 h-main flex-none overflow-x-hidden"
+                className="transition-all duration-250 ease-out bg-2-light dark:bg-2-dark dark:text-secondary-foreground top-0 h-full flex-none overflow-hidden"
                 style={{
                     width: isOpen ?  `calc(${width})` : "0",
                 }}
             >
-                <div className={`space-y-4 mt-12 p-4`} style={{ width }}>
-                    {children}
+                <div className={`space-y-4 mt-12 py-4`} style={{ width }}>
+                    {isOpen && children}
                 </div>
             </div>
 
@@ -29,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children, width, className, open = fa
                 className="absolute top-4 bg-1-dark text-white rounded-full p-2 transition-all duration-300 ease-out border-small outline-border-dark dark:border-none"
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
-                    left: isOpen ? `calc(${width} / 2 - 1rem)` : "1rem",
+                    left: isOpen ? `calc(${width} / 2 - 1.25rem)` : "1rem",
                 }}
             >
                 {isOpen ? (

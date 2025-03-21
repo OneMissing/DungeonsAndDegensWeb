@@ -27,7 +27,7 @@ const skills = [
   "Survival",
 ];
 
-const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (character: Character) => void }> = ({ character, setCharacter }) => {
+const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (character: Character) => void; className?: string; }> = ({ character, setCharacter, className }) => {
   if (character === undefined) return <>Loading</>;
   const { showPopup } = usePopup();
   const updateSkill = async (skill: string, delta: number) => {
@@ -44,10 +44,11 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
   };
 
   return (
-    <div className="grid grid-cols-1">
+    <div className="w-full lg:h-[calc(100vh-17rem)] overflow-y-auto">
+    <div className={`grid grid-cols-1 gap-1 ${className}`}>
       {skills.map((skill, index) => (
         <div
-          className="mb-1 p-2 dark:bg-3-dark bg-3-light  rounded flex justify-between scroll-mt-10"
+          className="p-2 dark:bg-3-dark bg-3-light  rounded flex justify-between scroll-mt-10"
           onClick={(e) => showPopup(`1d20+${character[skill.toLowerCase().replace(/ /g, "_") as keyof Character]}`)}
           key={index}>
           <div className="flex justify-between w-full pl-2 pr-3">
@@ -60,6 +61,7 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
           </div>
         </div>
       ))}
+    </div>
     </div>
   );
 };

@@ -7,7 +7,7 @@
   
   /* Confirmation button styling */
   .dropDownConfirmationButton {
-    @apply w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-600;
+    @apply w-full bg-tetriary-dark text-white px-4 py-2 rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-600;
   }
   
   /* Decline button styling */

@@ -61,7 +61,7 @@ const Navbar = () => {
 		</div>
 	);
 	return (
-		<nav className="bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute z-[10000]">
+		<nav className="select-none bg-brown-700 text-white p-4 border-b-2 border-brown-900 absolute z-[10000]">
 			<div className="justify-between w-screen">
 				<div className="mx-auto flex justify-between">
 					<Link href="/" className="text-3xl font-serif font-bold hover:text-yellow-400 transition duration-300 overflow-hidden">

@@ -52,16 +52,16 @@ const config: Config = {
           dark: "#cbd5e1",
         },
         primary: {
-          light: "#D4AF37",
-          dark: "#3b82f6",
-        },
-        secondary: {
-          light: "#0056B3",
+          light: "#f59e0b",
           dark: "#f59e0b",
         },
-        accent: {
-          light: "#FF6B6B",
-          dark: "#34d399",
+        secondary: {
+          light: "#D4AF37",
+          dark: "#f59e0b",
+        },
+        tetriary: {
+          light: "#D4AF37",
+          dark: "#316ff6",
         },
         border: {
           light: "#FF6B6B",

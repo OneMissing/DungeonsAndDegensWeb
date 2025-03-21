@@ -225,7 +225,7 @@ export const PopupSave = ({
                         Cancel
                     </button>
                     <button
-                        className='px-4 py-2 bg-blue-500 text-white rounded'
+                        className='px-4 py-2 bg-tetriary-dark text-white rounded'
                         onClick={saveMap}
                         disabled={saving || !mapName.trim()}
                     >

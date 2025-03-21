@@ -66,8 +66,9 @@ nav {
   justify-content: center;
   z-index: 1000;
   transition: background-color 0.5s ease-in-out, border-color 0.5s ease-in-out;
-  
 }
+
+
 
 Link {
   font-family: 'Uncial Antiqua', serif;
