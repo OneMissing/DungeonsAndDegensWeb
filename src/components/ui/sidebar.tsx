@@ -15,13 +15,13 @@ const Sidebar: React.FC<SidebarProps> = ({ children, width = "100px", className 
         <div className={`${className} z-[200] h-full transition-all duration-300 ease-out`}>
             <div
                 id="sidebar"
-                className="transition-all duration-300 ease-out bg-2-light dark:bg-2-dark dark:text-secondary-foreground top-0 h-full flex-none overflow-x-hidden"
+                className="transition-all duration-250 ease-out bg-2-light dark:bg-2-dark dark:text-secondary-foreground top-0 h-full flex-none overflow-hidden"
                 style={{
                     width: isOpen ?  `calc(${width})` : "0",
                 }}
             >
-                <div className={`space-y-4 mt-12 p-4`} style={{ width }}>
-                    {children}
+                <div className={`space-y-4 mt-12 py-4`} style={{ width }}>
+                    {isOpen && children}
                 </div>
             </div>
 

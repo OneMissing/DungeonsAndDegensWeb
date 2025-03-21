@@ -238,7 +238,7 @@ const CharacterCreator = () => {
                 {Object.entries(Races).map(([key, value]) => (
                   <label
                     key={key}
-                    className={`flex items-center justify-center p-2 border rounded-lg cursor-pointer text-sm hover:bg-blue-500 ${
+                    className={`flex items-center justify-center p-2 border rounded-lg cursor-pointer text-sm hover:bg-tetriary-dark ${
                       charData.race === value ? "bg-blue-600 text-white border-blue-700" : "bg-gray-700 text-white border-gray-500"
                     }`}>
                     <input type="radio" name="race" value={value} checked={charData.race === value} onChange={() => handleChange("race", value)} className="hidden" required />
@@ -357,7 +357,7 @@ const CharacterCreator = () => {
                   } ${
                     !selectedSkills.includes(name) && selectedSkills.length >= 2
                       ? "opacity-50 cursor-not-allowed" // Disabled state
-                      : "hover:bg-blue-500" // Hover state
+                      : "hover:bg-tetriary-dark" // Hover state
                   }`}>
                   <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium">{name.replace(/_/g, " ").toUpperCase()}</label>

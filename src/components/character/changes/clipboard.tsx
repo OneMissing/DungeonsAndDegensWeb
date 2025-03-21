@@ -39,7 +39,7 @@ const CopyToClipboard: React.FC<CopyToClipboardProps> = ({ text }) => {
                     e.stopPropagation();
                     handleCopy();
                 }}
-                className='flex items-center gap-2 p-2 text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition z-[120]'
+                className='flex items-center gap-2 p-2 text-white bg-tetriary-dark rounded-lg shadow-md hover:bg-blue-600 transition z-[120]'
             >
                 <motion.div
                     key={copied ? "checked" : "clipboard"}

@@ -264,7 +264,7 @@ export const LevelUpProvider = ({ children }: { children: ReactNode }) => {
                   onClick={() => setSelectedSkills((prev) => (prev.includes(name) ? prev.filter((s) => s !== name) : prev.length < 2 ? [...prev, name] : prev))}
                   className={`p-2 sm:p-4 rounded-lg cursor-pointer text-center sm:text-left ${
                     selectedSkills.includes(name) ? `bg-blue-600 text-white` : "bg-gray-700 text-white"
-                  } ${!selectedSkills.includes(name) && selectedSkills.length >= 2 ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-500"}`}>
+                  } ${!selectedSkills.includes(name) && selectedSkills.length >= 2 ? "opacity-50 cursor-not-allowed" : "hover:bg-tetriary-dark"}`}>
                   {name.replace(/_/g, " ").toUpperCase()}
                 </div>
               ))}

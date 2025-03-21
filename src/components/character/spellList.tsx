@@ -56,7 +56,6 @@ const SpellList: React.FC<{ character_id: string; spells: Spell[]; actions: Acti
                             {(spell.ritual || spell.concentration) && (
                               <div className="flex items-center gap-2">
                                 <p className="font-semibold">Kind:</p>
-                                {spell.concentration && <Brain />}
                                 {spell.ritual && <Pentagon />}
                               </div>
                             )}

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Item, Tile, uniqueInstanceTypes } from "@/lib/tools/types";
 import DecorativeLine from "../ui/decorativeLine";
+import { motion, AnimatePresence } from "framer-motion";
 
 const supabase = createClient();
 
@@ -42,7 +43,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
         if (insertError) throw insertError;
         const firstAvailableTile = grid.find((tile) => !tile.item);
         if (firstAvailableTile) {
-          const updatedGrid = grid.map((tile) => tile.id === firstAvailableTile.id ? { ...tile, item: { ...insertedItem, ...item } } : tile);
+          const updatedGrid = grid.map((tile) => (tile.id === firstAvailableTile.id ? { ...tile, item: { ...insertedItem, ...item } } : tile));
           setGrid(updatedGrid);
         }
       } else {
@@ -53,7 +54,9 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
             .update({ quantity: existingItem.quantity + 1 })
             .eq("inventory_id", existingItem.inventory_id);
           if (updateError) throw updateError;
-          const updatedGrid = grid.map((tile) => tile.item?.inventory_id === existingItem.inventory_id ? { ...tile, item: { ...tile.item, quantity: tile.item.quantity + 1 } } : tile);
+          const updatedGrid = grid.map((tile) =>
+            tile.item?.inventory_id === existingItem.inventory_id ? { ...tile, item: { ...tile.item, quantity: tile.item.quantity + 1 } } : tile
+          );
           setGrid(updatedGrid);
         } else {
           const { data: insertedItem, error: insertError } = await supabase
@@ -64,7 +67,7 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
           if (insertError) throw insertError;
           const firstAvailableTile = grid.find((tile) => !tile.item);
           if (firstAvailableTile) {
-            const updatedGrid = grid.map((tile) => tile.id === firstAvailableTile.id ? { ...tile, item: { ...insertedItem, ...item } } : tile);
+            const updatedGrid = grid.map((tile) => (tile.id === firstAvailableTile.id ? { ...tile, item: { ...insertedItem, ...item } } : tile));
             setGrid(updatedGrid);
           }
         }
@@ -77,52 +80,71 @@ const BookInventory: React.FC<{ character_id: string; items: Item[]; grid: Tile[
   };
 
   const itemTypes = Object.keys(categories) as CategoryKey[];
-  const filteredItems = activeTab === "all"
-    ? items
-    : items.filter((item) => (categories[activeTab] as readonly string[]).includes(item.type));
+  const filteredItems = activeTab === "all" ? items : items.filter((item) => (categories[activeTab] as readonly string[]).includes(item.type));
 
   return (
-    <div className="rounded-lg w-full">
-      <div className="relative w-full">
-        <div className={`absolute top-0 left-0 w-full transition-opacity duration-300 ease-in-out ${message === null ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-          <div
-            className={`p-2 mb-2 text-center rounded ${message?.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}
-          >
-            {message?.text}
-          </div>
+    <div className="-mt-2 rounded-lg w-full">
+      <div className="rounded-lg w-full relative">
+        <div className="w-full h-14">
+          <AnimatePresence mode="wait">
+            {message !== null ? (
+              <motion.div
+                key="message"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full h-full flex items-center justify-center" // Full height and centered
+              >
+                <div className={`w-full p-2 text-center rounded ${message?.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>{message?.text}</div>
+              </motion.div>
+            ) : (
+              // Select Dropdown
+              <motion.div
+                key="dropdown"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full h-full flex items-center justify-center" // Full height and centered
+              >
+                <div className="w-full">
+                  {" "}
+                  {/* Constrain dropdown width */}
+                  <select
+                    value={activeTab}
+                    onChange={(e) => setActiveTab(e.target.value as CategoryKey | "all")}
+                    className="dark:bg-gray-700 dark:text-white w-full border p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                    required>
+                    <option key="all" value="all">
+                      All
+                    </option>
+                    {itemTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        <div className={`absolute top-0 left-0 w-full transition-opacity duration-300 ease-in-out ${message === null ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-          <div className="pb-4 flex justify-center gap-4 mx-[1px]">
-            <select
-              value={activeTab}
-              onChange={(e) => setActiveTab(e.target.value as CategoryKey | "all")}
-              className="dark:bg-gray-700 dark:text-white w-full border p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-              required
-            >
-              <option key="all" value="all">All</option>
-              {itemTypes.map((type) => (
-                <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
-              ))}
-            </select>
+        {/* Second part: Grid of Items */}
+        <div className="w-full lg:h-[calc(100vh-20rem)] relative overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredItems.map((item) => (
+              <div
+                key={item.item_id}
+                className="border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                onClick={() => addToInventory(item)}>
+                <h2 className="text-xl font-semibold text-secondary-dark dark:text-secondary-light">{item.name}</h2>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">{item.description}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{item.type}</p>
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
-
-
-      <div className="w-full md:h-[calc(100vh-20rem)] relative mt-8 overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredItems.map((item) => (
-            <div
-              key={item.item_id}
-              className="border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
-              onClick={() => addToInventory(item)}
-            >
-              <h2 className="text-xl font-semibold text-secondary-dark dark:text-secondary-light">{item.name}</h2>
-              <p className="text-gray-600 dark:text-gray-300 mt-2">{item.description}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{item.type}</p>
-            </div>
-          ))}
         </div>
       </div>
     </div>

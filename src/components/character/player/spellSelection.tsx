@@ -72,7 +72,7 @@ const SpellSelection: React.FC<SpellSelectionProps> = ({
             key={spell.spell_id}
             className={`p-4 border rounded-lg cursor-pointer transition ${
               isSelected ? "bg-blue-600 text-white" : "bg-gray-700"
-          } ${isFull ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-500"}`}
+          } ${isFull ? "opacity-50 cursor-not-allowed" : "hover:bg-tetriary-dark"}`}
             onClick={() => !isFull && handleSelect(spell.spell_id, spell.level)}
           >
             <h3 className="font-bold">{spell.name} (Level {spell.level})</h3>

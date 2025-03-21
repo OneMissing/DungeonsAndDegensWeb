@@ -59,6 +59,10 @@ const config: Config = {
           light: "#D4AF37",
           dark: "#f59e0b",
         },
+        tetriary: {
+          light: "#D4AF37",
+          dark: "#316ff6",
+        },
         border: {
           light: "#FF6B6B",
           dark: "#334155",

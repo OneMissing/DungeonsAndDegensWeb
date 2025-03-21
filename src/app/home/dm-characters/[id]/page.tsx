@@ -149,7 +149,7 @@ export default function Page() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full p-4 select-none">
-      <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden h-full lg:h-[calc(100vh-8rem)]">
+      <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
         <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg ">
           <motion.div
             className="absolute top-0 bottom-0 w-1/2 bg-[#d4af37] rounded-lg"
@@ -160,7 +160,7 @@ export default function Page() {
           <button
             onClick={() => setTable([true, table[1], table[2]])}
             onDoubleClick={() => setTable([true, true, true])}
-            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
+            className="relative md:text-xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
@@ -172,7 +172,7 @@ export default function Page() {
           <button
             onClick={() => setTable([false, table[1], table[2]])}
             onDoubleClick={() => setTable([false, false, false])}
-            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
+            className="relative md:text-xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: !table[0] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
@@ -194,12 +194,20 @@ export default function Page() {
           </motion.div>
         </div>
         <div className="lg:hidden flex h-full w-full">
-          {table[0] ? <CharacterPanel character={character} setCharacter={setCharacter} className="mt-1 w-full" /> : <SkillsPanel character={character} setCharacter={setCharacter} className="w-full" />}
+          {table[0] ? (
+            <div className="w-full lg:h-max-[calc(100vh-20rem)] overflow-y-auto">
+              <CharacterPanel character={character} setCharacter={setCharacter} className="mt-1 w-full" />
+            </div>
+          ) : (
+            <div className="w-full lg:h-[calc(100vh-20rem)] overflow-y-auto">
+              <SkillsPanel character={character} setCharacter={setCharacter} className="w-full" />
+            </div>
+          )}
         </div>
       </section>
 
       {/* Spells Section */}
-      <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden md:h-[calc(100vh-8rem)]">
+      <section className="bg-white dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg lg:overflow-hidden lg:h-[calc(100vh-8rem)]">
         <div className=" relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg ">
           <motion.div
             className="absolute top-0 bottom-0 w-1/2 bg-[#d4af37] rounded-lg"
@@ -210,7 +218,7 @@ export default function Page() {
           <button
             onClick={() => setTable([table[0], true, table[2]])}
             onDoubleClick={() => setTable([true, true, true])}
-            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
+            className="relative md:text-xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: table[1] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
@@ -222,7 +230,7 @@ export default function Page() {
           <button
             onClick={() => setTable([table[0], false, table[2]])}
             onDoubleClick={() => setTable([false, false, false])}
-            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
+            className="relative md:text-xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: !table[1] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
@@ -245,13 +253,18 @@ export default function Page() {
         </div>
         <div className="lg:hidden flex h-full">
           {table[1] ? (
-            <SpellList character_id={character?.character_id as string} spells={spells} actions={actions} />
+            <div className="h-full w-full">
+              <SpellList character_id={character?.character_id as string} spells={spells} actions={actions} />
+            </div>
           ) : (
-            <SpellBook character_id={character?.character_id as string} spells={spells} actions={actions} setActions={setActions} />
+            <div className="w-full h-full overflow-y-auto">
+              <SpellBook character_id={character?.character_id as string} spells={spells} actions={actions} setActions={setActions} />
+            </div>
           )}
         </div>
       </section>
 
+      {/*Item section*/}
       <section className={`bg-white xl:h-[calc(100vh-8rem)] overflow-hidden dark:bg-gray-800 mt-4 p-6 rounded-lg shadow-lg md:col-span-2 lg:overflow-hidden md:h-auto`}>
         <div className="relative flex gap-4 -mb-2 bg-gray-200 dark:bg-gray-700 pr-1 pt-1 pb-1 rounded-lg">
           <motion.div
@@ -263,7 +276,7 @@ export default function Page() {
           <button
             onClick={() => setTable([table[0], table[1], true])}
             onDoubleClick={() => setTable([true, true, true])}
-            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
+            className="relative md:text-xl   text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: table[2] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}
@@ -275,7 +288,7 @@ export default function Page() {
           <button
             onClick={() => setTable([table[0], table[1], false])}
             onDoubleClick={() => setTable([false, false, false])}
-            className="relative md:text-2xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
+            className="relative md:text-xl text-lg font-semibold w-1/2 p-2 rounded-lg transition-colors">
             <motion.span
               animate={{ scale: !table[2] ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 15, duration: 0.2 }}

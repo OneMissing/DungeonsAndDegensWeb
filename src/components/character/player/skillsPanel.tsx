@@ -44,6 +44,7 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
   };
 
   return (
+    <div className="w-full lg:h-[calc(100vh-17rem)] overflow-y-auto">
     <div className={`${className} grid grid-cols-1 `}>
       {skills.map((skill, index) => (
         <div
@@ -56,6 +57,7 @@ const SkillsPanel: React.FC<{ character: Character | undefined; setCharacter: (c
           </div>
         </div>
       ))}
+    </div>
     </div>
   );
 };
