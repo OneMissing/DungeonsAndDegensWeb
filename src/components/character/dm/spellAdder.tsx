@@ -130,21 +130,19 @@ const SpellBook: React.FC<{ character_id: string; spells: Spell[]; actions: Acti
                 ))}
               </div>
             </div>
-            <div
-              className="w-1/2 lg:h-[calc(100vh-20rem)] overflow-y-auto"
-              onContextMenu={(event) => {
-                event.preventDefault();
-              }}>
+            <div className="w-1/2 lg:h-[calc(100vh-20rem)] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 mx-[1px]">
-                {availableSpells.map((spell) => (
-                  <button onClick={() => handleAddSpell(spell.spell_id)} key={spell.spell_id}>
-                    <div className="border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700w">
-                      <h2 className="text-xl font-semibold text-secondary-dark dark:text-secondary-light">{spell.name}</h2>
-                      <p className="text-gray-600 dark:text-gray-300 mt-2">{spell.description}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Level {spell.level}</p>
+                  {availableSpells.map((spell) => (
+                     <button onClick={() => handleAddSpell(spell.spell_id)} key={spell.spell_id}>
+                    <div className="border rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800">
+                      <div className="rounded-lg hover:bg-red-200 p-4 dark:hover:bg-red-400">
+                        <h2 className="text-xl font-semibold text-secondary-dark dark:text-secondary-light">{spell.name}</h2>
+                        <p className="text-gray-600 dark:text-gray-300 mt-2">{spell.description}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Level {spell.level}</p>
+                      </div>
                     </div>
                   </button>
-                ))}
+                  ))}
               </div>
             </div>
           </motion.div>
